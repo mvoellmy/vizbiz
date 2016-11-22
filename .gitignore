@@ -1,0 +1,28 @@
+### MATLAB
+## Windows default autosave extension
+*.asv
+
+## Compiled MEX binaries (all platforms)
+*.mex*
+
+
+
+### LATEX
+## Core latex/pdflatex auxiliary files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+
+## Build tool auxiliary files
+*.synctex
+
+## Intermediate documents
+# *.pdf
