@@ -2,14 +2,11 @@
 
 
 ## TODO
-------------------
 * define structure
 
 ## KNOWN BUGS
-------------------
 
 ## NICE TO HAVE
-------------------
 
 ## Releases
 0.1.00 (2016-11-24)
