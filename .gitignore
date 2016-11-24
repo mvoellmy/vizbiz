@@ -24,3 +24,4 @@
 
 ## Build tool auxiliary files
 *.synctex
+*.synctex.gz
