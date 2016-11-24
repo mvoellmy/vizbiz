@@ -1,6 +1,7 @@
 ### MATLAB
 ## Windows default autosave extension
 *.asv
+*.m~
 
 ## Compiled MEX binaries (all platforms)
 *.mex*
@@ -23,6 +24,3 @@
 
 ## Build tool auxiliary files
 *.synctex
-
-## Intermediate documents
-# *.pdf
