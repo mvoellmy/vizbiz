@@ -2,10 +2,13 @@ clear;
 close all;
 clc;
 
+addpath(genpath('helpers'));
+addpath(genpath('visualization'));
+
 %% Load parameter struct
 disp('loading parameter struct...');
 mode = 1;
-p = load_parameters(mode);
+p = loadParameters(mode);
 
 %% Setup
 ds = 0; % 0: KITTI, 1: Malaga, 2: parking
@@ -49,27 +52,27 @@ disp('setup boostrapping...');
 % set bootstrap_frames
 if ds == 0
     img0 = imread([kitti_path '/00/image_0/' ...
-        sprintf('%06d.png',bootstrap_frames(ds,1))]);
+        sprintf('%06d.png',bootstrapFrames(ds,1))]);
     img1 = imread([kitti_path '/00/image_0/' ...
-        sprintf('%06d.png',bootstrap_frames(ds,2))]);
+        sprintf('%06d.png',bootstrapFrames(ds,2))]);
 elseif ds == 1
     img0 = rgb2gray(imread([malaga_path ...
         '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
-        left_images(bootstrap_frames(ds,1)).name]));
+        left_images(bootstrapFrames(ds,1)).name]));
     img1 = rgb2gray(imread([malaga_path ...
         '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
-        left_images(bootstrap_frames(ds,2)).name]));
+        left_images(bootstrapFrames(ds,2)).name]));
 elseif ds == 2
     img0 = rgb2gray(imread([parking_path ...
-        sprintf('/images/img_%05d.png',bootstrap_frames(ds,1))]));
+        sprintf('/images/img_%05d.png',bootstrapFrames(ds,1))]));
     img1 = rgb2gray(imread([parking_path ...
-        sprintf('/images/img_%05d.png',bootstrap_frames(ds,2))]));
+        sprintf('/images/img_%05d.png',bootstrapFrames(ds,2))]));
 else
     assert(false);
 end
 
 % display boostrap images
-if p.show_bootstrap_img    
+if p.show_bootstrap_images    
     figure('name','Boostrap images');
     subplot(1,2,1);
     imshow(img0);
@@ -77,16 +80,19 @@ if p.show_bootstrap_img
     imshow(img1);
 end
 
-
 %% Initialize VO pipeline
 disp('initialize VO pipeline...');
-init_VO_pipeline(p, img0, img1);
+initVOpipeline(p, img0, img1);
 disp('... initialization done.');
 
-
 %% Continuous operation
-disp('launch continuous VO operation...');
-range = (bootstrap_frames(ds,2)+1):last_frame;
+disp('start continuous VO operation...');
+h1 = figure('name','Contiunous VO estimation');
+if p.cont.run_on_first_ten_images
+    range = (bootstrapFrames(ds,2)+1):(bootstrapFrames(ds,2)+10);
+else
+    range = (bootstrapFrames(ds,2)+1):last_frame;
+end
 for i = range
     fprintf('\n\nProcessing frame %d\n=====================\n', i);
     if ds == 0
@@ -101,7 +107,11 @@ for i = range
     else
         assert(false);
     end
-    % Makes sure that plots refresh.    
+    
+    % process newest image
+    processFrame(image,h1);
+    
+    % enable plots to refresh
     pause(0.01);
     
     prev_img = image;

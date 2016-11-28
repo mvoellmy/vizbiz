@@ -1,5 +1,7 @@
-function [I_init, keypoints_init, landmarks_init] = init_VO_pipeline(p, I_i0, I_i1)
-% Bootstraps ...
+function [I_init, keypoints_init, landmarks_init] = initVOpipeline(p, I_i0, I_i1)
+% Returns initialization image and corresponding keypoints and landmarks
+% after checking for valid correspondences between a bootstrap image pair.
+% Optionally, precalculated outputs are loaded.
 % 
 % Input:
 %  - p : parameter struct

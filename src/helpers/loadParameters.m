@@ -1,21 +1,19 @@
-function p = load_parameters(mode)
-% Detects k keypoints correspondeces
-% Returns the sorted keypoints of both images
+function p = loadParameters(mode)
+% Returns collection of parameters used throughout the VO pipeline
 % 
 % Input: point correspondences
 %  - mode(scalar) : parameter setting mode
 %
 % Output:
-%  - database_keypoints(k,3) : homogeneous keypoints of first image
-%  - query_keypoints(k,3) : homogeneous keypoints of second image
+%  - p(struct) : parameter struct
 
 
 % initialization parameters
-p.show_bootstrap_img = false;
+p.show_bootstrap_images = false;
 p.init.use_KITTI_precalculated_init = true;
 
 % continuous operation parameters
-
+p.cont.run_on_first_ten_images = true;
 
 % mode specific parameters
 if mode == 1

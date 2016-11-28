@@ -1,4 +1,4 @@
-function frame_idx = bootstrap_frames(dataset, frame_number)
+function frame_idx = bootstrapFrames(dataset, frame_number)
 %%% TODO STUB
 
     if frame_number == 1
