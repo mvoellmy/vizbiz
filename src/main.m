@@ -80,19 +80,28 @@ if p.show_bootstrap_images
     imshow(img1);
 end
 
+if p.perf.profiling
+    % trigger code profiling
+    profile on;
+end
+
 %% Initialize VO pipeline
 disp('initialize VO pipeline...');
+tic;
 initVOpipeline(p, img0, img1);
-disp('... initialization done.');
+toc;
+disp('...initialization done.');
 
 %% Continuous operation
 disp('start continuous VO operation...');
 h1 = figure('name','Contiunous VO estimation');
+
 if p.cont.run_on_first_ten_images
     range = (bootstrapFrames(ds,2)+1):(bootstrapFrames(ds,2)+10);
 else
     range = (bootstrapFrames(ds,2)+1):last_frame;
 end
+
 for i = range
     fprintf('\n\nProcessing frame %d\n=====================\n', i);
     if ds == 0
@@ -107,13 +116,19 @@ for i = range
     else
         assert(false);
     end
-    
+
     % process newest image
     processFrame(image,h1);
-    
+
     % enable plots to refresh
     pause(0.01);
-    
+
+    % update previous image
     prev_img = image;
 end
-disp('... VO-pipeline terminated.');
+disp('...VO-pipeline terminated.');
+    
+if p.perf.profiling
+    % view profiling results
+    profile viewer;
+end
