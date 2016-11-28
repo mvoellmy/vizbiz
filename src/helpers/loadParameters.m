@@ -12,6 +12,7 @@ p.perf.profiling = false;
 
 % initialization parameters
 p.show_bootstrap_images = false;
+p.show_init_images = true;
 p.init.use_KITTI_precalculated_init = true;
 
 % continuous operation parameters
@@ -21,7 +22,7 @@ p.cont.run_on_first_ten_images = true;
 if mode == 1
     
 else
-    error('invalid mode');
+    error('invalid parameter mode');
 end
 
 

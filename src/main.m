@@ -88,13 +88,13 @@ end
 %% Initialize VO pipeline
 disp('initialize VO pipeline...');
 tic;
-initVOpipeline(p, img0, img1);
+[I_init, keypoints_init, landmarks_init] = initVOpipeline(p, img0, img1);
 toc;
 disp('...initialization done.');
 
 %% Continuous operation
 disp('start continuous VO operation...');
-h1 = figure('name','Contiunous VO estimation');
+fig1 = figure('name','Contiunous VO estimation');
 
 if p.cont.run_on_first_ten_images
     range = (bootstrapFrames(ds,2)+1):(bootstrapFrames(ds,2)+10);
@@ -118,7 +118,7 @@ for i = range
     end
 
     % process newest image
-    processFrame(image,h1);
+    processFrame(image,fig1);
 
     % enable plots to refresh
     pause(0.01);

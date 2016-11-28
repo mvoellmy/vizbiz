@@ -25,7 +25,7 @@ else
     I_init = I_i1;
 
     % Find 2D correspondences
-    [p_i0,p_i1] = find_correspondeces(p, I_i0, I_i1);
+    [p_i0,p_i1,matches] = find_correspondeces(p, I_i0, I_i1);
     keypoints_init = p_i1;
 
     % Estimate the essential matrix E using the 8-point algorithm
@@ -45,6 +45,15 @@ else
     M1 = K * eye(3,4);
     M2 = K * [R_C2_W, T_C2_W];
     landmarks_init = linearTriangulation(p_i0,p_i1,M1,M2);
+end
+
+% display initialization image
+if p.show_init_images
+    figure('name','Initialization image');
+    imshow(I_init);
+    hold on;
+    plot(keypoints_init(:,2), keypoints_init(:,1), 'rx', 'Linewidth', 1);
+    %plotMatches(matches, keypoints_init(:,1:2), p_i0(:,1:2));
 end
 
 end

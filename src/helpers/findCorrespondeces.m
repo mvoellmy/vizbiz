@@ -1,4 +1,4 @@
-function [database_keypoints, query_keypoints] = findCorrespondeces(p, database_image, query_image)
+function [database_keypoints, query_keypoints, matches] = findCorrespondeces(p, database_image, query_image)
 % Detects k keypoints correspondeces
 % Returns the sorted keypoints of both images
 % 
