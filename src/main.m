@@ -88,43 +88,55 @@ end
 %% Initialize VO pipeline
 disp('initialize VO pipeline...');
 tic;
-[I_init, keypoints_init, landmarks_init] = initVOpipeline(p, img0, img1);
+[img_init, keypoints_init, landmarks_init] = initPipeline(p, img0, img1);
 toc;
 disp('...initialization done.');
 
-%% Continuous operation
+%% Continuous operation VO pipeline
 disp('start continuous VO operation...');
 fig1 = figure('name','Contiunous VO estimation');
 
+% set range of images to run on
 if p.cont.run_on_first_ten_images
     range = (bootstrapFrames(ds,2)+1):(bootstrapFrames(ds,2)+10);
 else
     range = (bootstrapFrames(ds,2)+1):last_frame;
 end
 
+vo_trajectory = NaN(numel(range),2);
+prev_img = img_init;
+keypoints_prev = keypoints_init;
+landmarks_map = landmarks_init;
+
 for i = range
     fprintf('\n\nProcessing frame %d\n=====================\n', i);
     if ds == 0
-        image = imread([kitti_path '/00/image_0/' sprintf('%06d.png',i)]);
+        img = imread([kitti_path '/00/image_0/' sprintf('%06d.png',i)]);
     elseif ds == 1
-        image = rgb2gray(imread([malaga_path ...
+        img = rgb2gray(imread([malaga_path ...
             '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
             left_images(i).name]));
     elseif ds == 2
-        image = im2uint8(rgb2gray(imread([parking_path ...
+        img = im2uint8(rgb2gray(imread([parking_path ...
             sprintf('/images/img_%05d.png',i)])));
     else
         assert(false);
     end
 
     % process newest image
-    processFrame(image,fig1);
-
+    [R_WC_i, t_WC_i, keypoints_new, landmarks_map] = ...
+        processFrame(img,prev_img,keypoints_prev,landmarks_map,K,fig1);
+    
+    % append newest pose to trajectory
+    vo_trajectory(i-range(1)+1,:) = t_WC_i(1:2)';
+    
     % enable plots to refresh
     pause(0.01);
 
-    % update previous image
-    prev_img = image;
+    % update previous image and keypoints
+    % (enable once keypoint tracks defined)
+    %prev_img = img;
+    %keypoints_prev = keypoints_new;
 end
 disp('...VO-pipeline terminated.');
     
@@ -132,3 +144,21 @@ if p.perf.profiling
     % view profiling results
     profile viewer;
 end
+
+%% Performance summary
+disp('display results...');
+if (ds~=1 && p.compare_against_groundthruth)
+    % plot VO trajectory against ground truth
+    figure('name','Comparison against ground truth');
+    hold on;
+    plot(ground_truth(:,1),ground_truth(:,2),'k-');
+    plot(vo_trajectory(:,1),vo_trajectory(:,2),'r--');
+    plot(ground_truth(1,1),ground_truth(1,2),'ksquare');
+    plot(ground_truth(end,1),ground_truth(end,2),'ko');
+
+    xlabel('x');
+    ylabel('y');
+    legend('ground truth','visual odometry','start','end');
+end
+
+

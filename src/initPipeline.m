@@ -1,4 +1,4 @@
-function [I_init, keypoints_init, landmarks_init] = initVOpipeline(p, I_i0, I_i1)
+function [I_init, keypoints_init, landmarks_init] = initPipeline(p, I_i0, I_i1)
 % Returns initialization image and corresponding keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.
@@ -11,15 +11,15 @@ function [I_init, keypoints_init, landmarks_init] = initVOpipeline(p, I_i0, I_i1
 % Output:
 %  - I_init(size) : initialization image
 %  - keypoints_init(2xN) : ...
-%  - landmarks_init(3xM) : ...
+%  - landmarks_init(3xM) : common triangulated 3D points
 
 if p.init.use_KITTI_precalculated_init
     % assign second image as initialization image
     I_init = I_i1;
     
     % load precalculated keypoints and landmarks
-    keypoints_init = load('../datasets/kitti/precalculated/keypoints.txt');
-    landmarks_init = load('../datasets/kitti/precalculated/landmarks.txt');    
+    keypoints_init = load('../datasets/kitti/precalculated/keypoints.txt')';
+    landmarks_init = load('../datasets/kitti/precalculated/landmarks.txt')';    
 else
     % assign second image as initialization image
     I_init = I_i1;
