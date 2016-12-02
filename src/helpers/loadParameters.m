@@ -14,24 +14,28 @@ p.compare_against_groundthruth = true;
 % initialization parameters
 p.show_bootstrap_images = false;
 p.show_init_images = true;
-p.init.use_KITTI_precalculated_init = true;
+p.init.use_KITTI_precalculated_init = false;
 
 % continuous operation parameters
 p.cont.run_on_first_ten_images = true;
 
+% Correlation parameters
+p.corr.harris_patch_size = 9;
+p.corr.harris_kappa = 0.08;
+p.corr.nonmaximum_supression_radius = 8;
+p.corr.descriptor_radius = 9;
+p.corr.match_lambda = 4;
+
+p.corr.num_keypoints = 200;
+
+p.corr.num_iterations = 200;
+p.corr.pixel_tolerance = 10;
+p.corr.k = 3;
+
+
 % mode specific parameters
 if mode == 1
-%     harris_patch_size = 9;
-%     harris_kappa = 0.08;
-%     nonmaximum_supression_radius = 8;
-%     descriptor_radius = 9;
-%     match_lambda = 5;
 
-%     num_keypoints = 1000;
-
-%     num_iterations = 200;
-%     pixel_tolerance = 10;
-%     k = 3;
 else
     error('invalid parameter mode');
 end

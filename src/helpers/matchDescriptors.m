@@ -1,4 +1,4 @@
-function matches = matchDescriptors(...
+function unique_matches = matchDescriptors(...
     query_descriptors, database_descriptors, lambda)
 % Returns a 1xQ matrix where the i-th coefficient is the index of the
 % database descriptor which matches to the i-th query descriptor.
@@ -14,7 +14,7 @@ sorted_dists = sort(dists);
 sorted_dists = sorted_dists(sorted_dists~=0);
 min_non_zero_dist = sorted_dists(1);
 
-matches(dists >= lambda * min_non_zero_dist) = 0;
+matches(dists >= lambda * min_non_zero_dist) = 0; % exclude "matches" with too big distances
 
 % remove double matches
 unique_matches = zeros(size(matches));

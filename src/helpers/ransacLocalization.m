@@ -8,6 +8,13 @@ function [R_C_W, t_C_W, query_keypoints, all_matches, inlier_mask, ...
 % inlier_mask should be 1xnum_matched (!!!) and contain, only for the
 %   matched keypoints (!!!), 0 if the match is an outlier, 1 otherwise.
 
+% Inputs:
+% p_w_landmarks 3xN 3D points
+
+% Outputs:
+
+% t_C_W: 3x1 Translation vector
+
 use_p3p = false;
 
 % Parameters form exercise 3.
@@ -40,6 +47,12 @@ database_descriptors = describeKeypoints(...
     database_image, database_keypoints, descriptor_radius);
 all_matches = matchDescriptors(...
     query_descriptors, database_descriptors, match_lambda);
+
+figure()
+imshow(query_image);
+hold on;
+plot(query_keypoints(2,:), query_keypoints(1,:), 'rx')
+title('New found keypoints Harris')
 
 matched_query_keypoints = query_keypoints(:, all_matches > 0);
 corresponding_matches = all_matches(all_matches > 0);
@@ -101,6 +114,7 @@ for i = 1:num_iterations
         end
     end
     
+    % Save new model if better then old one
     if nnz(is_inlier) > max_num_inliers && nnz(is_inlier) >= 6
         max_num_inliers = nnz(is_inlier);        
         inlier_mask = is_inlier;
@@ -113,7 +127,7 @@ if max_num_inliers == 0
     R_C_W = [];
     t_C_W = [];
     warning('no inlier matches found');
-else
+else % Calculate RT with best inlier points
     M_C_W = estimatePoseDLT(...
         matched_query_keypoints(:, inlier_mask>0)', ...
         corresponding_landmarks(:, inlier_mask>0)', K);

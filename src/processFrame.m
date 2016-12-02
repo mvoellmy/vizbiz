@@ -8,6 +8,7 @@ function [R_WC_i, t_WC_i, keypoints_new, landmarks_updated] = ...
 %  - keypoints_prev(size) : ...
 %  - K(3,3) : camera intrinsics matrix
 %  - fig(-) : figure handle
+%  - landmarks: 3xN 3D Points
 %
 % Output:
 %  - R_WC_i(3,3) : ...
@@ -34,6 +35,7 @@ T_WC = [R_CW'   -R_CW'*t_CW;
 R_WC_i = T_WC(1:3,1:3);
 t_WC_i = T_WC(1:3,4);
 
+% TODO: Triangulate new landmarks if necessary
 
 % triangulation of new points with keypoint tracks
 %M1 = K * eye(3,4);

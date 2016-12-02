@@ -88,7 +88,7 @@ end
 %% Initialize VO pipeline
 disp('initialize VO pipeline...');
 tic;
-[img_init, keypoints_init, landmarks_init] = initPipeline(p, img0, img1);
+[img_init, keypoints_init, landmarks_init] = initPipeline(p, img0, img1,K);
 toc;
 disp('...initialization done.');
 
@@ -98,20 +98,24 @@ fig1 = figure('name','Contiunous VO estimation');
 
 % set range of images to run on
 if p.cont.run_on_first_ten_images
-    range = (bootstrapFrames(ds,2)+1):(bootstrapFrames(ds,2)+10);
+    range = (bootstrapFrames(ds,2)+1):(bootstrapFrames(ds,2)+10); % +1 due to init
 else
     range = (bootstrapFrames(ds,2)+1):last_frame;
 end
 
-vo_trajectory = NaN(numel(range),2);
+% Logging variables
+vo_t_WC_i = NaN(3, numel(range)); % delta translation in last camera frame
+vo_R_WC_i = NaN(3,3, numel(range)); % Rotation matrix between frame i and i-1
+W_p_C = NaN(3, numel(range)); % Absolute position of camera in world frame
 prev_img = img_init;
 keypoints_prev = keypoints_init;
-landmarks_map = landmarks_init;
+landmarks_map = landmarks_init(1:3,:);
 
 for i = range
     fprintf('\n\nProcessing frame %d\n=====================\n', i);
     if ds == 0
         img = imread([kitti_path '/00/image_0/' sprintf('%06d.png',i)]);
+        imshow(img);
     elseif ds == 1
         img = rgb2gray(imread([malaga_path ...
             '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
@@ -127,16 +131,23 @@ for i = range
     [R_WC_i, t_WC_i, keypoints_new, landmarks_map] = ...
         processFrame(img,prev_img,keypoints_prev,landmarks_map,K,fig1);
     
-    % append newest pose to trajectory
-    vo_trajectory(i-range(1)+1,:) = t_WC_i(1:2)';
+    % append newest position and rotation to logging variables
+    vo_t_WC_i(:, i-range(1)+1) = t_WC_i;
+    vo_R_WC_i(:, :, i-range(1)+1) = R_WC_i;
+    
+    if (i==range(1)) % first init
+        W_p_C(:, i-range(1)+1) = [0;0;0];
+    else
+        W_p_C(:, i-range(1)+1) = W_p_C(i-1)+(R_WC_i*t_WC_i);
+    end
     
     % enable plots to refresh
-    pause(0.01);
+    pause(1.01);
 
     % update previous image and keypoints
     % (enable once keypoint tracks defined)
-    %prev_img = img;
-    %keypoints_prev = keypoints_new;
+    % prev_img = img;
+    % keypoints_prev = keypoints_new;
 end
 disp('...VO-pipeline terminated.');
     
@@ -148,11 +159,12 @@ end
 %% Performance summary
 disp('display results...');
 if (ds~=1 && p.compare_against_groundthruth)
-    % plot VO trajectory against ground truth
+    % plot VO trajectory against ground truth   
+    
     figure('name','Comparison against ground truth');
     hold on;
     plot(ground_truth(:,1),ground_truth(:,2),'k-');
-    plot(vo_trajectory(:,1),vo_trajectory(:,2),'r--');
+    plot(W_p_C(1,:),W_p_C(2,:),'*', 'MarkerSize',20);
     plot(ground_truth(1,1),ground_truth(1,2),'ksquare');
     plot(ground_truth(end,1),ground_truth(end,2),'ko');
 
