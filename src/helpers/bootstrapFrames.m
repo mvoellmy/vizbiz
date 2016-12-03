@@ -1,9 +1,17 @@
 function frame_idx = bootstrapFrames(dataset, frame_number)
-%%% TODO STUB
+% Returns the frame index of the image used for the initialization given
+% frame_number being first or second image of the bootstrapping pair.
+% 
+% Input:
+%  - dataset(1x1) : dataset selector
+%  - frame_number(string) : pair item specifier
+%
+% Output:
+%  - frame_idx(1x1) : image to choose for bootstrap image
 
-    if frame_number == 1
+    if strcmp(frame_number,'first')
         frame_idx = 1;
-    elseif frame_number == 2
+    elseif strcmp(frame_number,'second')
         if dataset == 0 % KITTI
             frame_idx = 3;
         elseif dataset == 1 % MALAGA
