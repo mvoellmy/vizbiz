@@ -1,5 +1,5 @@
-function plotGroundThruth_2D (W_Pos_C,W_ground_truth)
-% Plot projected 2D trajectory of camera.
+function plotGroundThruth_3D (W_Pos_C,W_ground_truth)
+% Plot 3D trajectory of camera.
 % 
 % Input:
 %  - W_Pos_C(Nx3) : camera positions in world frame
@@ -7,15 +7,16 @@ function plotGroundThruth_2D (W_Pos_C,W_ground_truth)
 %
 % Output: none
 
-figure('name','Comparison against ground truth');
+figure('name','Full 3D camera trajectory');
 hold on;
 plot(W_ground_truth(:,1),W_ground_truth(:,2),'k-');
-plot(W_Pos_C(:,1),W_Pos_C(:,2),'*', 'MarkerSize',20);
+plot3(W_Pos_C(:,1),W_Pos_C(:,2),W_Pos_C(:,3),'*', 'MarkerSize',20);
 plot(W_ground_truth(1,1),W_ground_truth(1,2),'ksquare');
 plot(W_ground_truth(end,1),W_ground_truth(end,2),'ko');
 
 xlabel('x');
 ylabel('y');
+zlabel('z');
 legend('ground truth','visual odometry','start','end');
 
 end
