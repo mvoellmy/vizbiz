@@ -6,8 +6,8 @@ addpath(genpath('helpers'));
 addpath(genpath('visualization'));
 
 %% Load parameter struct
-disp('loading parameter struct...');
-mode = 1;
+disp('load parameter struct...');
+mode = 1; % 1: normal, 2: ...
 p = loadParameters(mode);
 
 %% Setup
@@ -80,9 +80,9 @@ if p.show_bootstrap_images
     imshow(img1);
 end
 
-if p.perf.profiling
-    % trigger code profiling
-    profile on;
+%% Code profiling
+if p.perf.profiling    
+    profile on; % trigger code profiling
 end
 
 %% Initialize VO pipeline
@@ -103,10 +103,10 @@ else
     range = (bootstrapFrames(ds,2)+1):last_frame;
 end
 
-% Logging variables
-vo_t_WC_i = NaN(3, numel(range)); % delta translation in last camera frame
-vo_R_WC_i = NaN(3,3, numel(range)); % Rotation matrix between frame i and i-1
-W_p_C = NaN(3, numel(range)); % Absolute position of camera in world frame
+% logging variables
+W_vo_t_WC_i = NaN(3,numel(range)); % delta translation in last camera frame
+W_vo_R_WC_i = NaN(3,3,numel(range)); % rotation matrix between frame i and i-1
+W_Pos_C = NaN(3,numel(range)); % absolute position of camera in world frame
 prev_img = img_init;
 keypoints_prev = keypoints_init;
 landmarks_map = landmarks_init(1:3,:);
@@ -132,17 +132,17 @@ for i = range
         processFrame(img,prev_img,keypoints_prev,landmarks_map,K,fig1);
     
     % append newest position and rotation to logging variables
-    vo_t_WC_i(:, i-range(1)+1) = t_WC_i;
-    vo_R_WC_i(:, :, i-range(1)+1) = R_WC_i;
+    W_vo_t_WC_i(:, i-range(1)+1) = t_WC_i;
+    W_vo_R_WC_i(:, :, i-range(1)+1) = R_WC_i;
     
     if (i==range(1)) % first init
-        W_p_C(:, i-range(1)+1) = [0;0;0];
+        W_Pos_C(:, i-range(1)+1) = [0;0;0];
     else
-        W_p_C(:, i-range(1)+1) = W_p_C(i-1)+(R_WC_i*t_WC_i);
+        W_Pos_C(:, i-range(1)+1) = W_Pos_C(i-1)+(R_WC_i*t_WC_i);
     end
     
     % enable plots to refresh
-    pause(1.01);
+    pause(0.01);
 
     % update previous image and keypoints
     % (enable once keypoint tracks defined)
@@ -150,27 +150,14 @@ for i = range
     % keypoints_prev = keypoints_new;
 end
 disp('...VO-pipeline terminated.');
-    
+
 if p.perf.profiling
-    % view profiling results
-    profile viewer;
+    profile viewer; % view profiling results
 end
 
 %% Performance summary
 disp('display results...');
 if (ds~=1 && p.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
-    
-    figure('name','Comparison against ground truth');
-    hold on;
-    plot(ground_truth(:,1),ground_truth(:,2),'k-');
-    plot(W_p_C(1,:),W_p_C(2,:),'*', 'MarkerSize',20);
-    plot(ground_truth(1,1),ground_truth(1,2),'ksquare');
-    plot(ground_truth(end,1),ground_truth(end,2),'ko');
-
-    xlabel('x');
-    ylabel('y');
-    legend('ground truth','visual odometry','start','end');
+    plotGroundThruth_2D (W_Pos_C',ground_truth);    
 end
-
-
