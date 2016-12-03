@@ -159,5 +159,5 @@ end
 disp('display results...');
 if (ds~=1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
-    plotGroundThruth_2D (W_Pos_C',ground_truth);    
+    plotGroundThruth_2D (W_Pos_C,ground_truth');    
 end

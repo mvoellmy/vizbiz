@@ -2,9 +2,9 @@ function plotMatches(matches, query_keypoints, database_keypoints)
 % Some nice function description. TODO
 % 
 % Input:
-%  - matches(Nx2) : argument one TODO
-%  - query_keypoints(Mx2) : argumen t two
-%  - database_keypoints(Lx3) : argument three
+%  - matches(1xN) : argument one TODO
+%  - query_keypoints(2xN) : argument two
+%  - database_keypoints(2xN) : argument three
 %
 % Output: none
 

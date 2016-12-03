@@ -2,15 +2,15 @@ function plotGroundThruth_2D (W_Pos_C,W_ground_truth)
 % Plot projected 2D trajectory of camera.
 % 
 % Input:
-%  - W_Pos_C(Nx3) : camera positions in world frame
-%  - W_ground_truth(Nx2) : ground thruth positions in world frame
+%  - W_Pos_C(3xN) : camera positions in world frame
+%  - W_ground_truth(2xM) : ground thruth positions in world frame
 %
 % Output: none
 
 figure('name','Comparison against ground truth');
 hold on;
 plot(W_ground_truth(:,1),W_ground_truth(:,2),'k-');
-plot(W_Pos_C(:,1),W_Pos_C(:,2),'*', 'MarkerSize',20);
+plot(W_Pos_C(1,:),W_Pos_C(2,:),'*', 'MarkerSize',20);
 plot(W_ground_truth(1,1),W_ground_truth(1,2),'ksquare');
 plot(W_ground_truth(end,1),W_ground_truth(end,2),'ko');
 

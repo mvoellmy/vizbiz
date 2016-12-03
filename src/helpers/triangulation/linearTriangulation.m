@@ -1,4 +1,5 @@
-% LINEARTRIANGULATION  Linear Triangulation
+function P = linearTriangulation(p1,p2,M1,M2)
+% Triangulates 2D points into 3D space.
 %
 % Input:
 %  - p1(3,N): homogeneous coordinates of points in image 1
@@ -8,8 +9,6 @@
 %
 % Output:
 %  - P(4,N): homogeneous coordinates of 3-D points
-
-function P = linearTriangulation(p1,p2,M1,M2)
 
 % Sanity checks
 [dim,NumPoints] = size(p1);
