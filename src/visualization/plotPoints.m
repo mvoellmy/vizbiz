@@ -7,6 +7,7 @@ function plotPoints(keypoints)
 % Output: none
 
 assert(size(keypoints,1) == 2,'keypoints have wrong dimensionality');
+
 plot(keypoints(2,:), keypoints(1,:), 'rx', 'Linewidth', 1);
 
 end

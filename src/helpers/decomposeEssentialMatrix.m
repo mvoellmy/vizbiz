@@ -1,16 +1,13 @@
-%
-% Given an essential matrix, compute the camera motion, i.e.,  R and T such
+function [R,u3] = decomposeEssentialMatrix(E)
+% Given an essential matrix, compute the camera motion, i.e., R and T such
 % that E ~ T_x R
 % 
 % Input:
-%   - E(3,3) : Essential matrix
+%  - E(3x3) : Essential matrix
 %
 % Output:
-%   - R(3,3,2) : the two possible rotations
-%   - u3(3,1)   : a vector with the translation information
-
-
-function [R,u3] = decomposeEssentialMatrix(E)
+%  - R(3x3x2) : the two possible rotations
+%  - u3(3x1) : a vector with the translation information
 
 [U,~,V] = svd(E);
 
