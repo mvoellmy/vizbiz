@@ -1,5 +1,13 @@
 function plotMatches(matches, query_keypoints, database_keypoints)
-% TODO STUB
+% Some nice function description. TODO
+% 
+% Input:
+%  - matches(Nx2) : argument one TODO
+%  - query_keypoints(Mx2) : argumen t two
+%  - database_keypoints(Lx3) : argument three
+%
+% Output: none
+
 [~, query_indices, match_indices] = find(matches);
 
 x_from = query_keypoints(1, query_indices);

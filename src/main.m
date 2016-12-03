@@ -8,7 +8,7 @@ addpath(genpath('visualization'));
 %% Load parameter struct
 disp('load parameter struct...');
 mode = 1; % 1: normal, 2: ...
-p = loadParameters(mode);
+params = loadParameters(mode);
 
 %% Setup
 ds = 0; % 0: KITTI, 1: Malaga, 2: parking
@@ -72,7 +72,7 @@ else
 end
 
 % display boostrap images
-if p.show_bootstrap_images    
+if params.show_bootstrap_images    
     figure('name','Boostrap images');
     subplot(1,2,1);
     imshow(img0);
@@ -81,14 +81,14 @@ if p.show_bootstrap_images
 end
 
 %% Code profiling
-if p.perf.profiling    
+if params.perf.profiling    
     profile on; % trigger code profiling
 end
 
 %% Initialize VO pipeline
 disp('initialize VO pipeline...');
 tic;
-[img_init, keypoints_init, landmarks_init] = initPipeline(p, img0, img1,K);
+[img_init,keypoints_init,landmarks_init] = initPipeline(params,img0,img1,K);
 toc;
 disp('...initialization done.');
 
@@ -97,7 +97,7 @@ disp('start continuous VO operation...');
 fig1 = figure('name','Contiunous VO estimation');
 
 % set range of images to run on
-if p.cont.run_on_first_ten_images
+if params.cont.run_on_first_ten_images
     range = (bootstrapFrames(ds,2)+1):(bootstrapFrames(ds,2)+10); % +1 due to init
 else
     range = (bootstrapFrames(ds,2)+1):last_frame;
@@ -128,17 +128,17 @@ for i = range
     end
 
     % process newest image
-    [R_WC_i, t_WC_i, keypoints_new, landmarks_map] = ...
+    [R_WC_i,t_WC_i,keypoints_new, landmarks_map] = ...
         processFrame(img,prev_img,keypoints_prev,landmarks_map,K,fig1);
     
     % append newest position and rotation to logging variables
-    W_vo_t_WC_i(:, i-range(1)+1) = t_WC_i;
-    W_vo_R_WC_i(:, :, i-range(1)+1) = R_WC_i;
+    W_vo_t_WC_i(:,i-range(1)+1) = t_WC_i;
+    W_vo_R_WC_i(:,:,i-range(1)+1) = R_WC_i;
     
     if (i==range(1)) % first init
-        W_Pos_C(:, i-range(1)+1) = [0;0;0];
+        W_Pos_C(:,i-range(1)+1) = [0;0;0];
     else
-        W_Pos_C(:, i-range(1)+1) = W_Pos_C(i-1)+(R_WC_i*t_WC_i);
+        W_Pos_C(:,i-range(1)+1) = W_Pos_C(i-1)+(R_WC_i*t_WC_i);
     end
     
     % enable plots to refresh
@@ -151,13 +151,13 @@ for i = range
 end
 disp('...VO-pipeline terminated.');
 
-if p.perf.profiling
+if params.perf.profiling
     profile viewer; % view profiling results
 end
 
 %% Performance summary
 disp('display results...');
-if (ds~=1 && p.compare_against_groundthruth)
+if (ds~=1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
     plotGroundThruth_2D (W_Pos_C',ground_truth);    
 end
