@@ -1,6 +1,7 @@
 clear;
 close all;
 clc;
+rng(1);
 
 addpath(genpath('helpers'));
 addpath(genpath('visualization'));
@@ -10,10 +11,8 @@ disp('load parameter struct...');
 mode = 1; % 1: normal, 2: ...
 params = loadParameters(mode);
 
-%% Setup
-ds = 0; % 0: KITTI, 1: Malaga, 2: parking
-
-if ds == 0
+%% Setup datasets
+if params.ds == 0
     kitti_path = '../datasets/kitti';
     assert(exist('kitti_path', 'var') ~= 0);
     ground_truth = load([kitti_path '/poses/00.txt']);
@@ -23,7 +22,7 @@ if ds == 0
         0 7.188560000000e+02 1.852157000000e+02
         0 0 1];
     disp('loading KITTI dataset...');
-elseif ds == 1
+elseif params.ds == 1
     malaga_path = '../datasets/malaga-urban-dataset-extract-07';
     assert(exist('malaga_path', 'var') ~= 0);
     images = dir([malaga_path ...
@@ -34,7 +33,7 @@ elseif ds == 1
         0 621.18428 309.05989
         0 0 1];
     disp('loading MALAGA dataset...');
-elseif ds == 2
+elseif params.ds == 2
     parking_path = '../datasets/parking';
     assert(exist('parking_path', 'var') ~= 0);
     last_frame = 598;
@@ -50,23 +49,23 @@ end
 %% Bootstraping
 disp('setup boostrapping...');
 % set bootstrap_frames
-if ds == 0
+if params.ds == 0
     img0 = imread([kitti_path '/00/image_0/' ...
-        sprintf('%06d.png',bootstrapFrames(ds,1))]);
+        sprintf('%06d.png',bootstrapFrames(params.ds,'first'))]);
     img1 = imread([kitti_path '/00/image_0/' ...
-        sprintf('%06d.png',bootstrapFrames(ds,2))]);
-elseif ds == 1
+        sprintf('%06d.png',bootstrapFrames(params.ds,'second'))]);
+elseif params.ds == 1
     img0 = rgb2gray(imread([malaga_path ...
         '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
-        left_images(bootstrapFrames(ds,1)).name]));
+        left_images(bootstrapFrames(params.ds,'first')).name]));
     img1 = rgb2gray(imread([malaga_path ...
         '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
-        left_images(bootstrapFrames(ds,2)).name]));
-elseif ds == 2
+        left_images(bootstrapFrames(params.ds,'second')).name]));
+elseif params.ds == 2
     img0 = rgb2gray(imread([parking_path ...
-        sprintf('/images/img_%05d.png',bootstrapFrames(ds,1))]));
+        sprintf('/images/img_%05d.png',bootstrapFrames(params.ds,'first'))]));
     img1 = rgb2gray(imread([parking_path ...
-        sprintf('/images/img_%05d.png',bootstrapFrames(ds,2))]));
+        sprintf('/images/img_%05d.png',bootstrapFrames(params.ds,'second'))]));
 else
     assert(false);
 end
@@ -91,16 +90,16 @@ tic;
 [img_init,keypoints_init,landmarks_init] = initPipeline(params,img0,img1,K);
 toc;
 disp('...initialization done.');
-
+return;
 %% Continuous operation VO pipeline
 disp('start continuous VO operation...');
 fig1 = figure('name','Contiunous VO estimation');
 
 % set range of images to run on
 if params.cont.run_on_first_ten_images
-    range = (bootstrapFrames(ds,2)+1):(bootstrapFrames(ds,2)+10); % +1 due to init
+    range = (bootstrapFrames(params.ds,'second')+1):(bootstrapFrames(params.ds,'second')+10); % +1 due to init
 else
-    range = (bootstrapFrames(ds,2)+1):last_frame;
+    range = (bootstrapFrames(params.ds,'second')+1):last_frame;
 end
 
 % logging variables
@@ -113,14 +112,14 @@ landmarks_map = landmarks_init(1:3,:);
 
 for i = range
     fprintf('\n\nProcessing frame %d\n=====================\n', i);
-    if ds == 0
+    if params.ds == 0
         img = imread([kitti_path '/00/image_0/' sprintf('%06d.png',i)]);
         imshow(img);
-    elseif ds == 1
+    elseif params.ds == 1
         img = rgb2gray(imread([malaga_path ...
             '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
             left_images(i).name]));
-    elseif ds == 2
+    elseif params.ds == 2
         img = im2uint8(rgb2gray(imread([parking_path ...
             sprintf('/images/img_%05d.png',i)])));
     else
@@ -157,7 +156,7 @@ end
 
 %% Performance summary
 disp('display results...');
-if (ds~=1 && params.compare_against_groundthruth)
+if (params.ds~=1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
     plotGroundThruth_2D (W_Pos_C,ground_truth');    
 end
