@@ -1,4 +1,4 @@
-function P_hom = linearTriangulation(p1,p2,M1,M2)
+function P_hom = linearTriangulation(p1_hom,p2_hom,M1,M2)
 % Triangulates 2D points into 3D space.
 %
 % Input:
@@ -11,8 +11,8 @@ function P_hom = linearTriangulation(p1,p2,M1,M2)
 %  - P_hom(4xN) : homogeneous coordinates of 3-D points
 
 % Sanity checks
-[dim,NumPoints] = size(p1);
-[dim2,npoints2] = size(p2);
+[dim,NumPoints] = size(p1_hom);
+[dim2,npoints2] = size(p2_hom);
 assert(dim==dim2,'Size mismatch of input points');
 assert(NumPoints==npoints2,'Size mismatch of input points');
 assert(dim==3,'Arguments x1, x2 should be 3xN matrices (homogeneous coords)');
@@ -27,8 +27,8 @@ P_hom = zeros(4,NumPoints);
 % Linear algorithm
 for j=1:NumPoints
     % Built matrix of linear homogeneous system of equations
-    A1 = cross2Matrix(p1(:,j))*M1;
-    A2 = cross2Matrix(p2(:,j))*M2;
+    A1 = cross2Matrix(p1_hom(:,j))*M1;
+    A2 = cross2Matrix(p2_hom(:,j))*M2;
     A = [A1; A2];
     
     % Solve the linear homogeneous system of equations

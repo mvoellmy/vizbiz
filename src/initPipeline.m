@@ -25,7 +25,7 @@ else
     I_init = I_i2;
 
     % find 2D correspondences
-    [p_i1,p_i2,matches] = findCorrespondeces(params,I_i1,I_i2);
+    [p_i1,p_i2,~] = findCorrespondeces(params,I_i1,I_i2);
 
     % assign initialization keypoints
     keypoints_init = p_i2;
@@ -35,10 +35,10 @@ else
     p_hom_i2 = [p_i2; ones(1,length(p_i2))];    
 
     % estimate the essential matrix E using normalized 8-point algorithm
-    E = estimateEssentialMatrix(p_hom_i1,p_hom_i2,K,K);
+    % and RANSAC for outlier rejection
+    E = eightPointRansac(params,p_hom_i1,p_hom_i2,K,K);
 
-    % extract the relative camera positions (R,T) from the essential matrix
-    % obtain extrinsic parameters (R,t) from E
+    % extract the relative camera pose (R,t) from the essential matrix
     [Rots,u3] = decomposeEssentialMatrix(E);
 
     % disambiguate among the four possible configurations
@@ -50,7 +50,7 @@ else
     % triangulate a point cloud using the final transformation (R,T)
     M1 = K * eye(3,4);
     M2 = K * [R_C2_W, T_C2_W];
-    P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2); % VERIFY landmarks must be in world frame!
+    P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2); % todo: VERIFY landmarks must be in world frame!
     
     landmarks_init = P_hom_init(1:3,:);
 end
@@ -59,12 +59,12 @@ end
 assert(size(keypoints_init,2) == size(landmarks_init,2));
 
 % display initialization image with keypoints and matches
-if params.show_init_landmarks
+if params.init.show_landmarks
     figure('name','Initialization points/landmarks');
     subplot(1,2,1);
     imshow(I_init);
     hold on;    
-    plotPoints(keypoints_init);    
+    plotPoints(keypoints_init);
     
     if ~params.init.use_KITTI_precalculated_init
         subplot(1,2,2);

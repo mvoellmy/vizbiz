@@ -1,4 +1,4 @@
-function h = plotPoints(keypoints)
+function h = plotPoints(keypoints,style)
 % Plots 2D points.
 % 
 % Input:
@@ -9,6 +9,6 @@ function h = plotPoints(keypoints)
 
 assert(size(keypoints,1) == 2,'keypoints have wrong dimensionality');
 
-h = plot(keypoints(2,:), keypoints(1,:), 'rx', 'Linewidth', 1);
+h = plot(keypoints(2,:), keypoints(1,:), style, 'Linewidth', 1);
 
 end

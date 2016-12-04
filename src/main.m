@@ -7,7 +7,7 @@ addpath(genpath('helpers'));
 addpath(genpath('visualization'));
 
 %% Load parameter struct
-disp('load parameter struct...');
+fprintf('load parameter struct...\n');
 mode = 1; % 1: normal, 2: ...
 params = loadParameters(mode);
 
@@ -21,7 +21,7 @@ if params.ds == 0
     K = [7.188560000000e+02 0 6.071928000000e+02
         0 7.188560000000e+02 1.852157000000e+02
         0 0 1];
-    disp('loading KITTI dataset...');
+    fprintf('loading KITTI dataset...\n');
 elseif params.ds == 1
     malaga_path = '../datasets/malaga-urban-dataset-extract-07';
     assert(exist('malaga_path', 'var') ~= 0);
@@ -32,7 +32,7 @@ elseif params.ds == 1
     K = [621.18428 0 404.0076
         0 621.18428 309.05989
         0 0 1];
-    disp('loading MALAGA dataset...');
+    fprintf('loading MALAGA dataset...\n');
 elseif params.ds == 2
     parking_path = '../datasets/parking';
     assert(exist('parking_path', 'var') ~= 0);
@@ -41,13 +41,13 @@ elseif params.ds == 2
      
     ground_truth = load([parking_path '/poses.txt']);
     ground_truth = ground_truth(:, [end-8 end]);
-    disp('loading PARKING dataset...');
+    fprintf('loading PARKING dataset...\n');
 else
     assert(false);
 end
 
 %% Bootstraping
-disp('setup boostrapping...');
+fprintf('setup boostrapping...\n');
 % set bootstrap_frames
 if params.ds == 0
     img0 = imread([kitti_path '/00/image_0/' ...
@@ -71,7 +71,7 @@ else
 end
 
 % display boostrap images
-if params.show_bootstrap_images    
+if params.init.show_bootstrap_images    
     figure('name','Boostrap images');
     subplot(1,2,1);
     imshow(img0);
@@ -85,15 +85,17 @@ if params.perf.profiling
 end
 
 %% Initialize VO pipeline
-disp('initialize VO pipeline...');
+fprintf('initialize VO pipeline...\n');
 tic;
 [img_init,keypoints_init,landmarks_init] = initPipeline(params,img0,img1,K);
 toc;
-disp('...initialization done.');
-return;
+fprintf('...initialization done.\n\n');
+
 %% Continuous operation VO pipeline
-disp('start continuous VO operation...');
-fig1 = figure('name','Contiunous VO estimation');
+fprintf('start continuous VO operation...\n');
+close all;
+global fig_cont;
+fig_cont = figure('name','Contiunous VO estimation');
 
 % set range of images to run on
 if params.cont.run_on_first_ten_images
@@ -105,16 +107,15 @@ end
 % logging variables
 W_vo_t_WC_i = NaN(3,numel(range)); % delta translation in last camera frame
 W_vo_R_WC_i = NaN(3,3,numel(range)); % rotation matrix between frame i and i-1
-W_Pos_C = NaN(3,numel(range)); % absolute position of camera in world frame
+W_Pos_WC = NaN(3,numel(range)); % absolute position of camera in world frame
 prev_img = img_init;
 keypoints_prev = keypoints_init;
-landmarks_map = landmarks_init(1:3,:);
+landmarks_prev = landmarks_init;
 
 for i = range
     fprintf('\n\nProcessing frame %d\n=====================\n', i);
     if params.ds == 0
         img = imread([kitti_path '/00/image_0/' sprintf('%06d.png',i)]);
-        imshow(img);
     elseif params.ds == 1
         img = rgb2gray(imread([malaga_path ...
             '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
@@ -127,36 +128,37 @@ for i = range
     end
 
     % process newest image
-    [R_WC_i,t_WC_i,keypoints_new, landmarks_map] = ...
-        processFrame(img,prev_img,keypoints_prev,landmarks_map,K,fig1);
+    [R_WC_i,t_WC_i,keypoints_new,landmarks_new] = processFrame(params,img,prev_img,keypoints_prev,landmarks_prev,K);
     
     % append newest position and rotation to logging variables
     W_vo_t_WC_i(:,i-range(1)+1) = t_WC_i;
     W_vo_R_WC_i(:,:,i-range(1)+1) = R_WC_i;
     
-    if (i==range(1)) % first init
-        W_Pos_C(:,i-range(1)+1) = [0;0;0];
-    else
-        W_Pos_C(:,i-range(1)+1) = W_Pos_C(i-1)+(R_WC_i*t_WC_i);
-    end
+%     if (i==range(1)) % first init
+%         W_Pos_WC(:,i-range(1)+1) = [0;0;0];
+%     else
+%         W_Pos_WC(:,i-range(1)+1) = W_Pos_WC(i-1)+(R_WC_i*t_WC_i)
+%     end
     
     % enable plots to refresh
-    pause(0.01);
+    pause(1.01);
 
-    % update previous image and keypoints
-    % (enable once keypoint tracks defined)
-    % prev_img = img;
-    % keypoints_prev = keypoints_new;
+    % update previous image, keypoints and landmarks
+    %prev_img = img;
+    %keypoints_prev = keypoints_new;
+    %landmarks_prev = landmarks_new;
+    
+    fprintf('\n\n');
 end
-disp('...VO-pipeline terminated.');
+fprintf('...VO-pipeline terminated.\n');
 
 if params.perf.profiling
     profile viewer; % view profiling results
 end
 
 %% Performance summary
-disp('display results...');
+fprintf('display results...\n');
 if (params.ds~=1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
-    plotGroundThruth_2D (W_Pos_C,ground_truth');    
+    plotGroundThruth_2D(W_vo_t_WC_i,ground_truth');    
 end

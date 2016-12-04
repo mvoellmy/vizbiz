@@ -8,7 +8,7 @@ function unique_matches = matchDescriptors(...
 % with an SSD < lambda * min(SSD). No two non-zero elements of matches will
 % be equal.
 
-[dists,matches] = pdist2(database_descriptors', query_descriptors', 'euclidean', 'Smallest', 1);
+[dists,matches] = pdist2(double(database_descriptors)', double(query_descriptors)', 'euclidean', 'Smallest', 1);
 
 sorted_dists = sort(dists);
 sorted_dists = sorted_dists(sorted_dists~=0);

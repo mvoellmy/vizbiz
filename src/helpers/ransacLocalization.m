@@ -1,76 +1,59 @@
-function [R_C_W, t_C_W, query_keypoints, all_matches, inlier_mask, ...
-    max_num_inliers_history] = ransacLocalization(...
+function [R_C_W, t_C_W, matched_query_keypoints, matched_database_keypoints, corresponding_matches, max_num_inliers_history] = ransacLocalization(params, ...
     query_image, database_image, database_keypoints, p_W_landmarks, K)
-% TODO better description
+% TODO description
 % query_keypoints should be 2x1000
 % all_matches should be 1x1000 and correspond to the output from the
 %   matchDescriptors() function from exercise 3.
 % inlier_mask should be 1xnum_matched (!!!) and contain, only for the
 %   matched keypoints (!!!), 0 if the match is an outlier, 1 otherwise.
+%
+% Input:
+%  - p_w_landmarks(3xN) : 3D points
+%
+% Output:
+%  - t_C_W(3x1) : translation vector
 
-% Inputs:
-% p_w_landmarks 3xN 3D points
+global fig_cont;
 
-% Outputs:
+% find 2D correspondences
+[matched_database_keypoints,matched_query_keypoints,corresponding_matches] = findCorrespondeces_cont(params,database_image,database_keypoints,query_image);
+corresponding_landmarks = p_W_landmarks(:,corresponding_matches);
 
-% t_C_W: 3x1 Translation vector
+% display matched keypoints
+if params.localization_ransac.show_matched_keypoints
+    figure(fig_cont);
+    plotPoints(matched_query_keypoints,'g.');
+    title('Current frame: Revisited keypoints');
+end
 
-use_p3p = false;
+% homogenize points
+p_hom_i1 = [matched_database_keypoints; ones(1,length(matched_database_keypoints))];
+p_hom_i2 = [matched_query_keypoints; ones(1,length(matched_query_keypoints))];
 
-% Parameters form exercise 3.
-harris_patch_size = 9;
-harris_kappa = 0.08;
-nonmaximum_supression_radius = 8;
-descriptor_radius = 9;
-match_lambda = 5;
-
-% Other parameters.
-num_keypoints = 1000;
-
-if use_p3p
+% choose RANSAC options
+if params.localization_ransac.use_p3p
     num_iterations = 200;
     pixel_tolerance = 10;
-    k = 3;
+    s = 3;
 else
     num_iterations = 2000;
     pixel_tolerance = 10;
-    k = 6;
+    s = 6;
 end
 
-% Detect and match keypoints.
-query_harris = harris(query_image, harris_patch_size, harris_kappa);
-query_keypoints = selectKeypoints(...
-    query_harris, num_keypoints, nonmaximum_supression_radius);
-query_descriptors = describeKeypoints(...
-    query_image, query_keypoints, descriptor_radius);
-database_descriptors = describeKeypoints(...
-    database_image, database_keypoints, descriptor_radius);
-all_matches = matchDescriptors(...
-    query_descriptors, database_descriptors, match_lambda);
-
-figure()
-imshow(query_image);
-hold on;
-plot(query_keypoints(2,:), query_keypoints(1,:), 'rx')
-title('New found keypoints Harris')
-
-matched_query_keypoints = query_keypoints(:, all_matches > 0);
-corresponding_matches = all_matches(all_matches > 0);
-corresponding_landmarks = p_W_landmarks(:, corresponding_matches);
-
 % initialize RANSAC
-inlier_mask = zeros(1, size(matched_query_keypoints, 2));
-matched_query_keypoints = flipud(matched_query_keypoints);
-max_num_inliers_history = zeros(1, num_iterations);
+inliers = zeros(1, size(matched_query_keypoints,2));
+matched_query_keypoints = flipud(matched_query_keypoints); % ??
+max_num_inliers_history = zeros(1,num_iterations);
 max_num_inliers = 0;
 
-% run RANSAC
+% run RANSAC for pose estimation
 for i = 1:num_iterations
     [landmark_sample, idx] = datasample(...
-        corresponding_landmarks, k, 2, 'Replace', false);
+        corresponding_landmarks, s, 2, 'Replace', false);
     keypoint_sample = matched_query_keypoints(:, idx);
     
-    if use_p3p
+    if params.localization_ransac.use_p3p
         normalized_bearings = K\[keypoint_sample; ones(1, 3)];
         for ii = 1:3
             normalized_bearings(:, ii) = normalized_bearings(:, ii) / ...
@@ -86,22 +69,19 @@ for i = 1:num_iterations
             t_C_W_guess(:,:,ii+1) = -R_W_C_ii'*t_W_C_ii;
         end
     else
-        M_C_W_guess = estimatePoseDLT(...
-            keypoint_sample', landmark_sample', K);
-        R_C_W_guess = M_C_W_guess(:, 1:3);
-        t_C_W_guess = M_C_W_guess(:, end);
+        M_C_W_guess = estimatePoseDLT(keypoint_sample',landmark_sample',K);
+        R_C_W_guess = M_C_W_guess(:,1:3);
+        t_C_W_guess = M_C_W_guess(:,end);
     end
     
-    % Count inliers:
+    % count inliers
     projected_points = projectPoints(...
-        (R_C_W_guess(:,:,1) * corresponding_landmarks) + ...
-        repmat(t_C_W_guess(:,:,1), ...
-        [1 size(corresponding_landmarks, 2)]), K);
+        (R_C_W_guess(:,:,1)*corresponding_landmarks) + repmat(t_C_W_guess(:,:,1),[1 size(corresponding_landmarks, 2)]), K);
     difference = matched_query_keypoints - projected_points;
     errors = sum(difference.^2, 1);
     is_inlier = errors < pixel_tolerance^2;
     
-    if use_p3p
+    if params.localization_ransac.use_p3p
         projected_points = projectPoints(...
             (R_C_W_guess(:,:,2) * corresponding_landmarks) + ...
             repmat(t_C_W_guess(:,:,2), ...
@@ -114,26 +94,32 @@ for i = 1:num_iterations
         end
     end
     
-    % Save new model if better then old one
+    % save new model if better then old one
     if nnz(is_inlier) > max_num_inliers && nnz(is_inlier) >= 6
         max_num_inliers = nnz(is_inlier);        
-        inlier_mask = is_inlier;
+        inliers = is_inlier;
     end
     
     max_num_inliers_history(i) = max_num_inliers;
 end
 
-if max_num_inliers == 0
+if (max_num_inliers == 0)
     R_C_W = [];
     t_C_W = [];
-    warning('no inlier matches found');
-else % Calculate RT with best inlier points
+    fprintf('no inlier matches found\n');
+else % calculate [R,T] with best inlier points
     M_C_W = estimatePoseDLT(...
-        matched_query_keypoints(:, inlier_mask>0)', ...
-        corresponding_landmarks(:, inlier_mask>0)', K);
-    R_C_W = M_C_W(:, 1:3);
-    t_C_W = M_C_W(:, end);
+        matched_query_keypoints(:, inliers>0)', ...
+        corresponding_landmarks(:, inliers>0)', K);
+    R_C_W = M_C_W(:,1:3);
+    t_C_W = M_C_W(:,end);
+end
+
+% display inlier matches
+if (nnz(inliers) > 0 && params.localization_ransac.show_inlier_matches)
+    figure(fig_cont);
+    plotMatches(1:nnz(inliers),p_hom_i2(1:2,inliers),p_hom_i1(1:2,inliers),'y-');
+    title('Current frame: Inlier matches found');
 end
 
 end
-

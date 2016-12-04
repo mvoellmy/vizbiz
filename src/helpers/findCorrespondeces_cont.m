@@ -1,4 +1,4 @@
-function [matched_database_keypoints, matched_query_keypoints, valid_matches] = findCorrespondeces(params, database_image, query_image)
+function [matched_database_keypoints, matched_query_keypoints, valid_matches] = findCorrespondeces_cont(params, database_image, database_keypoints, query_image)
 % Detects N keypoint correspondeces given image pair
 % and returns the sorted keypoints of both images.
 % 
@@ -12,19 +12,13 @@ function [matched_database_keypoints, matched_query_keypoints, valid_matches] = 
 %  - query_keypoints(2xN) : matched keypoints of second image
 %  - matches(1xN) : indeces of query keypoints matched with db keypoints
 
-global fig_init;
+global fig_cont;
 
 % compute harris scores for query image
 query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
 
-% compute harris scores for query image
-database_harris = harris(database_image,params.corr.harris_patch_size,params.corr.harris_kappa);
-
 % compute keypoints for query image
 query_keypoints = selectKeypoints(query_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
-
-% compute keypoints for database image
-database_keypoints = selectKeypoints(database_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
 
 % descripe query keypoints
 query_descriptors = describeKeypoints(query_image,query_keypoints,params.corr.descriptor_radius);
@@ -47,15 +41,15 @@ matched_query_keypoints = query_keypoints(:,matched_query_indeces);
 matched_database_keypoints = database_keypoints(:,matched_database_indeces);
 
 % display valid correspondences
-if params.init.show_corr_matches
-    fig_init = figure('name','Matches found in second frame');
+if params.cont.show_new_keypoints
+    figure(fig_cont);
     imshow(query_image);
     hold on;
-    plotPoints(query_keypoints,'rx');
-    if ~params.init.use_KITTI_precalculated_init
+    plotPoints(query_keypoints,'r.');
+    if params.cont.show_matches
         plotMatches(matches,query_keypoints,database_keypoints,'m-');
+        title('Current frame: Matches found');
     end
-    title('Matches found');
 end
 
 end
