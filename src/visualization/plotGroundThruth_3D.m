@@ -13,6 +13,7 @@ plot(W_ground_truth(:,1),W_ground_truth(:,2),'k-');
 plot3(W_Pos_C(1,:),W_Pos_C(2,:),W_Pos_C(3,:),'*', 'MarkerSize',20);
 plot(W_ground_truth(1,1),W_ground_truth(1,2),'ksquare');
 plot(W_ground_truth(end,1),W_ground_truth(end,2),'ko');
+axis equal;
 
 xlabel('x');
 ylabel('y');
