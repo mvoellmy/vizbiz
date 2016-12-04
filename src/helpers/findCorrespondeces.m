@@ -10,7 +10,7 @@ function [matched_database_keypoints, matched_query_keypoints, valid_matches] = 
 % Output:
 %  - database_keypoints(2xN) : matched keypoints of first image
 %  - query_keypoints(2xN) : matched keypoints of second image
-%  - matches(1xN) : indeces of query keypoints matched with db keypoints
+%  - valid_matches(1xN) : indeces of query keypoints matched with db keypoints
 
 % compute harris scores for query image
 query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
@@ -32,6 +32,8 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 
 % match descriptors
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+
+disp(sprintf('%0.2f%% of keypoints matched',100*nnz(matches)/size(matches,2)));
 
 % extract indices
 query_indeces = 1:length(matches);

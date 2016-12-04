@@ -1,5 +1,12 @@
 function frame_idx = bootstrapFrames(dataset, frame_number)
-%%% TODO STUB
+% Sets the frames used for the bootstraping
+% 
+% Input:
+%  - dataset(int)       : which dataset is used 0: KITTI, 1: Malaga, 2: parking
+%  - frame_number(int)  : 1 or 2 
+%
+% Output:
+%  - frame_idx(int)     : Frame_id used for initialization
 
     if frame_number == 1
         frame_idx = 1;
