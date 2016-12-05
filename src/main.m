@@ -4,6 +4,7 @@ clc;
 rng(1);
 
 addpath(genpath('helpers'));
+addpath(genpath('testing'));
 addpath(genpath('visualization'));
 
 %% Load parameter struct
@@ -80,7 +81,7 @@ if params.init.show_bootstrap_images
 end
 
 %% Code profiling
-if params.perf.profiling    
+if params.perf.profiling
     profile on; % trigger code profiling
 end
 
@@ -93,13 +94,14 @@ fprintf('...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
 fprintf('start continuous VO operation...\n');
-close all;
+
 global fig_cont;
 fig_cont = figure('name','Contiunous VO estimation');
 
 % set range of images to run on
-if params.cont.run_on_first_ten_images
-    range = (bootstrapFrames(params.ds,'second')+1):(bootstrapFrames(params.ds,'second')+10); % +1 due to init
+if (params.cont.run_on_first_x_images > 0)
+    range = (bootstrapFrames(params.ds,'second')+1):(bootstrapFrames(params.ds,'second')+...
+             params.cont.run_on_first_x_images);
 else
     range = (bootstrapFrames(params.ds,'second')+1):last_frame;
 end
@@ -128,7 +130,9 @@ for i = range
     end
 
     % process newest image
+    tic;
     [R_WC_i,t_WC_i,keypoints_new,landmarks_new] = processFrame(params,img,prev_img,keypoints_prev,landmarks_prev,K);
+    toc;
     
     % append newest position and rotation to logging variables
     W_vo_t_WC_i(:,i-range(1)+1) = t_WC_i;

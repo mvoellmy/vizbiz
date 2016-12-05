@@ -9,12 +9,17 @@ function plotLandmarks(landmarks)
 assert(size(landmarks,1) == 3,'landmarks have wrong dimensionality');
 
 scatter3(landmarks(1,:), landmarks(2,:), landmarks(3,:), ...
-         20*ones(1,length(landmarks)), 'red', 'filled');
+         10*ones(1,size(landmarks,2)), 'red', 'filled');
+     
+% axis properties
 axis equal;
 axis vis3d;
-grid off;
-xlabel('X');
-ylabel('Y');
-zlabel('Z');
+ax = gca;
+ax.Projection = 'perspective';
+
+box on;
+xlabel('x');
+ylabel('y');
+zlabel('z');
 
 end

@@ -5,7 +5,7 @@ function [R_WC_i, t_WC_i, p_new_matched, landmarks_updated] = ...
 % Input:
 %  - img_new(size) : current frame
 %  - img_prev(size) : previous frame
-%  - keypoints_prev(size) : ...
+%  - keypoints_prev(size) : 2D points , each [v u]
 %  - landmarks(3xN) : 3D points
 %  - K(3x3) : camera intrinsics matrix
 %
@@ -48,7 +48,6 @@ p_hom_new_matched = [p_new_matched;ones(1,size(p_new_matched,2))];
 landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,M1,M2);
 
 % append new landmarks
-%landmarks_updated = [landmarks landmarks_new(1:3,:)];
-landmarks_updated = landmarks_new;
+landmarks_updated = [landmarks landmarks_new(1:3,:)];
 
 end
