@@ -145,7 +145,7 @@ for i = range
 %     end
     
     % enable plots to refresh
-    pause(1.01);
+    pause(0.01);
 
     % update previous image, keypoints and landmarks
     %prev_img = img;

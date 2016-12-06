@@ -8,18 +8,18 @@ function params = loadParameters(mode)
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 
 % initialization parameters
 params.init.show_bootstrap_images = false;
 params.init.show_init_keypoints = true;
-params.init.show_landmarks = false;
+params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_corr_matches = true;
 
-% Correlation parameters
+% correspondence parameters
 params.corr.harris_patch_size = 9; % 9
 params.corr.harris_kappa = 0.08;
 params.corr.nonmaximum_supression_radius = 8;

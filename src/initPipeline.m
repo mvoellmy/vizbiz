@@ -62,7 +62,7 @@ else
     P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2); % todo: VERIFY landmarks must be in world frame!
     
     % remove landmarks with negative Z coordinate % todo: dedicate function
-    % with cyclindrical cutoff?
+    % with cyclindrical cutoff? and display amount of dropped landmarks?
     outFOV_idx = find(P_hom_init(3,:) <0 );
     P_hom_init(:,outFOV_idx) = [];
     
@@ -78,6 +78,7 @@ else
     landmarks_init = P_hom_init(1:3,:);
     
     % todo: display summary
+    % about number of keypoints, landmarks, 
 end
 
 % check for same number of keypoints and landmarks

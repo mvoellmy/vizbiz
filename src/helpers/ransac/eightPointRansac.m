@@ -74,8 +74,9 @@ end
 if params.eightPoint_ransac.show_inlier_matches
     figure(fig_init);
     subplot(2,2,4);
-    plotMatches(1:nnz(inliers),flipud(p_hom_i2(1:2,inliers)),flipud(p_hom_i1(1:2,inliers)),'g-');
-    title('Inlier(green) matches found');
+    plotPoints(flipud(p_hom_i2(1:2,inliers)),'g.');
+    plotMatches(1:nnz(inliers),flipud(p_hom_i2(1:2,inliers)),flipud(p_hom_i1(1:2,inliers)),'y-');
+    title('Inlier(yellow) matches found');
 end
 
 % compute the essential matrix from the fundamental matrix given K
