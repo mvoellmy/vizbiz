@@ -2,8 +2,8 @@ clear all;
 close all;
 clc;
 
-video_path = 'C:\Users\Fabio\Desktop\calib_seq.mov';
+[video_name,path_name] = uigetfile('Select the video source file');
 
 options.save_images = true;
 
-extractImagesFromVideo(video_path,options);
+extractImagesFromVideo([path_name,video_name],options);
