@@ -20,7 +20,7 @@ h = waitbar(0,'Extracting images...','Units','normalized','OuterPosition',[0.35 
 for f=1:frames
     
     if ~mod(f,options.extract_every_x)
-        thisframe = rot90(read(vidobj,f),-1);
+        thisframe = rot90(read(vidobj,f),options.rotate_images);
 
         figure(fig);
         imagesc(thisframe);
