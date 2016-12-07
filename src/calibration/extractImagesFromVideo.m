@@ -29,8 +29,10 @@ for f=1:frames
 
         if options.save_images
             i = n_extracted + 1;
-            thisfile = sprintf('./calib_images/camera_calib%04d.jpg',i); % todo: png good format?
+            thisfile = sprintf('./calib_images/camera_calib%04d.jpg',i); % todo: jpg good format?
             imwrite(thisframe,thisfile);
+            title(['Frame #',num2str(f)]);
+            
             n_extracted = n_extracted + 1;
         end
     end
@@ -43,9 +45,10 @@ close(h);
 close all;
 
 % display summary
-fprintf(['Calibration sequence %f seconds\n',...
-         '%i frames contained\n',...
+fprintf(['Calibration sequence %.2f seconds\n',...
+         'frame rate %.2f Hz\n',...
+         '%i frames contained\n',...         
          '%i calibration frames extracted\n\n'],...
-         vidobj.Duration,frames,n_extracted);
+         vidobj.Duration,vidobj.FrameRate,frames,n_extracted);
 
 end
