@@ -62,7 +62,7 @@ else
     % TODO
     % Generate Point tracks vector
     
-    point_tracks = cell(size(p_hom_i1,2));
+%     point_tracks = cell(size(p_hom_i1,2));
     
     view_ids = [1 2];
     
@@ -72,19 +72,19 @@ else
     
     xyzPoints = P_hom_init(1:3,:)';
     
-    camera1Pose.ViewId = 1;
-    camera2Pose.ViewId = 2;
-    camera1Pose.Orientaion = eye(3);
-    camera2Pose.Orientation = C2_R_C2C1;
-    camera1Pose.Location = zeros(3, 1);
-    camera2Pose.Location = C2_t_C2C1;
+
+    cameraPoses = table;
     
-    cameraPoses = [camera1Pose, camera2Pose];
+    cameraPoses.ViewId = [uint32(1);uint32(2)];
+    cameraPoses.Orientation = [{eye(3)};{C2_R_C2C1}];
+    cameraPoses.Location = [{zeros(1, 3)};{C2_t_C2C1'}];
+    
     
     cameraParams = cameraParameters('IntrinsicMatrix', K);
+%     
+    [P_hom_init, refinedPoses] = bundleAdjustment(xyzPoints, point_tracks, cameraPoses, cameraParams );
     
-    [refinedPoses, P_hom_init] = bundleAdjustment(xyzPoints, point_tracks, cameraPoses, cameraParams );
-    
+    P_hom_init = P_hom_init';
     
     % remove landmarks with negative Z coordinate % todo: dedicate function
     % with cyclindrical cutoff? and display amount of dropped landmarks?
