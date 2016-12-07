@@ -53,13 +53,38 @@ else
                  zeros(1,3),       1];
     W_T_WC2 = W_T_WC1 * C1_T_C1C2;
 
-    % feature: Refine pose with BA
-    % TODO
-
     % triangulate a point cloud using the final transformation (R,T)
     M1 = K*W_T_WC1(1:3,:);
     M2 = K*C2_T_C2C1(1:3,:); %M2 = K*W_T_WC2(1:3,:);
     P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2); % todo: VERIFY landmarks must be in world frame!
+    
+    % feature: Refine pose with BA    
+    % TODO
+    % Generate Point tracks vector
+    
+    point_tracks = cell(size(p_hom_i1,2));
+    
+    view_ids = [1 2];
+    
+    for i=1:size(p_hom_i1,2)
+        point_tracks(i) = pointTrack(view_ids,[p_hom_i1(1:2, i)'; p_hom_i2(1:2, i)' ]);
+    end
+    
+    xyzPoints = P_hom_init(1:3,:)';
+    
+    camera1Pose.ViewId = 1;
+    camera2Pose.ViewId = 2;
+    camera1Pose.Orientaion = eye(3);
+    camera2Pose.Orientation = C2_R_C2C1;
+    camera1Pose.Location = zeros(3, 1);
+    camera2Pose.Location = C2_t_C2C1;
+    
+    cameraPoses = [camera1Pose, camera2Pose];
+    
+    cameraParams = cameraParameters('IntrinsicMatrix', K);
+    
+    [refinedPoses, P_hom_init] = bundleAdjustment(xyzPoints, point_tracks, cameraPoses, cameraParams );
+    
     
     % remove landmarks with negative Z coordinate % todo: dedicate function
     % with cyclindrical cutoff? and display amount of dropped landmarks?
