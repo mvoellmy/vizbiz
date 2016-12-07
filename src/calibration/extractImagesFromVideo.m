@@ -21,12 +21,15 @@ for f=1:frames
     
     if ~mod(f,options.extract_every_x)
         thisframe = rot90(read(vidobj,f),options.rotate_images);
+        if options.convert_to_grayscale
+            thisframe = rgb2gray(thisframe);
+        end
 
         figure(fig);
         imagesc(thisframe);
         axis equal;
         axis off;
-
+        
         if options.save_images
             i = n_extracted + 1;
             thisfile = sprintf('./calib_images/camera_calib%04d.jpg',i); % todo: jpg good format?
