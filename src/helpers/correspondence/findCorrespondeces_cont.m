@@ -29,24 +29,15 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 % match descriptors
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
-% extract indices
-query_indeces = 1:length(matches);
-database_indeces = 1:size(database_keypoints,2);
-matched_query_indeces = query_indeces(matches > 0);
-%matched_database_indeces = database_indeces(matches > 0);
-
 % filter invalid matches
-valid_matches = matches(matches > 0);
+[~,matched_query_indices,matched_database_indices] = find(matches);
+valid_matches = 1:length(matched_query_indices);
+matched_query_keypoints = query_keypoints(:,matched_query_indices);
+matched_database_keypoints = database_keypoints(:,matched_database_indices);
 
-matched_query_keypoints = query_keypoints(:,matched_query_indeces);
-% remove unseen dbkeypoints
-matched_database_keypoints = database_keypoints(:,valid_matches);
-matched_database_indices = database_indeces(:,valid_matches);
-
-% TODO
-% verify that the output vector 'valid matches' links to keypoints in 
-% 'matched_database_keypoints' that actually exist.  
-
+% check for consistent correspondences
+assert(size(matched_query_keypoints,2) == length(valid_matches) && ...
+       size(matched_database_keypoints,2) == length(valid_matches));
 
 % display valid correspondences
 if params.cont.show_new_keypoints

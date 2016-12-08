@@ -34,12 +34,8 @@ corresponding_landmarks = p_W_landmarks(:,corresponding_matches);
 if params.localization_ransac.show_matched_keypoints
     figure(fig_cont);
     plotPoints(matched_query_keypoints,'g.');
-    title('Current frame: Revisited keypoints');
+    title('Current frame: Matched (green) keypoints');
 end
-
-% homogenize points
-% p_hom_i1 = [matched_database_keypoints; ones(1,length(matched_database_keypoints))];
-% p_hom_i2 = [matched_query_keypoints; ones(1,length(matched_query_keypoints))];
 
 % choose RANSAC options
 if params.localization_ransac.use_p3p
@@ -144,27 +140,23 @@ matched_database_keypoints = matched_database_keypoints(:, corresponding_matches
 % check for same number of query keypoints and database keypoints
 assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
 
-% display projected keypoints given best pose and inlier corespondences
-if params.localization_ransac.show_matched_keypoints
-    figure(fig_cont);
-    
-    best_guess_projected_pts = projectPoints(...
-        (R_C_W*corresponding_landmarks(:, best_guess_inliers>0)) + repmat(t_C_W,[1 size(corresponding_landmarks(:, best_guess_inliers>0), 2)]), K);
+% display projected keypoints given best pose and inlier correspondences
+if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_matched_keypoints)
+    figure(fig_cont);    
+    best_guess_projected_pts = projectPoints((R_C_W*corresponding_landmarks(:, best_guess_inliers>0)) + repmat(t_C_W,[1 size(corresponding_landmarks(:, best_guess_inliers>0), 2)]), K);
     plotPoints(flipud(best_guess_projected_pts),'yx');
-    viscircles(best_guess_projected_pts', params.localization_ransac.pixel_tolerance * ones(size(projected_points,2),1),'LineStyle','-', 'color', 'y');
+    viscircles(best_guess_projected_pts', params.localization_ransac.pixel_tolerance*ones(size(best_guess_projected_pts,2),1),'LineStyle','-','Color','y');
 end
 
 % display inlier matches
 if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_inlier_matches)
     figure(fig_cont);
-    plotMatches(1:nnz(best_guess_inliers),matched_query_keypoints,matched_database_keypoints,'y-');
-    % plotMatches(1:nnz(best_guess_inliers),p_hom_i2(1:2,best_guess_inliers),p_hom_i1(1:2,best_guess_inliers),'y-');
-    title('Current frame: Inlier matches found');
+    plotMatches(1:nnz(best_guess_inliers),flipud(matched_query_keypoints),matched_database_keypoints,'y-');
+    title('Current frame: Inlier (yellow) matches found');
 end
 
 % flip keypoints
 matched_query_keypoints = flipud(matched_query_keypoints);
 matched_database_keypoints = flipud(matched_database_keypoints);
-
 
 end
