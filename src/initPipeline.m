@@ -58,38 +58,16 @@ else
     M2 = K*C2_T_C2C1(1:3,:); %M2 = K*W_T_WC2(1:3,:);
     P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2); % todo: VERIFY landmarks must be in world frame!
     
-    % feature: Refine pose with BA    
-    % TODO
-    % Generate Point tracks vector
+    % Refine Pose with Bundle Adjustment
     
-%     point_tracks = cell(size(p_hom_i1,2));
+     [ P_hom_init, W_T_WC1, W_T_WC2 ] = bundleAdjust(P_hom_init, p_hom_i1, p_hom_i2, C2_R_C2C1, C2_t_C2C1, K );
     
-    view_ids = [1 2];
-    
-    for i=1:size(p_hom_i1,2)
-        point_tracks(i) = pointTrack(view_ids,[p_hom_i1(1:2, i)'; p_hom_i2(1:2, i)' ]);
-    end
-    
-    xyzPoints = P_hom_init(1:3,:)';
-    
-
-    cameraPoses = table;
-    
-    cameraPoses.ViewId = [uint32(1);uint32(2)];
-    cameraPoses.Orientation = [{eye(3)};{C2_R_C2C1}];
-    cameraPoses.Location = [{zeros(1, 3)};{C2_t_C2C1'}];
-    
-    
-    cameraParams = cameraParameters('IntrinsicMatrix', K);
-%     
-    [P_hom_init, refinedPoses] = bundleAdjustment(xyzPoints, point_tracks, cameraPoses, cameraParams );
-    
-    P_hom_init = P_hom_init';
     
     % remove landmarks with negative Z coordinate % todo: dedicate function
     % with cyclindrical cutoff? and display amount of dropped landmarks?
     outFOV_idx = find(P_hom_init(3,:) <0 );
     P_hom_init(:,outFOV_idx) = [];
+    
     
     % remove corresponding keypoints
     p_i2(:,outFOV_idx) = [];
@@ -112,8 +90,8 @@ assert(size(keypoints_init,2) == size(landmarks_init,2));
 % display initialization landmarks and bootstrap motion
 if (params.init.show_landmarks && ~params.init.use_KITTI_precalculated_init)
     figure('name','Landmarks and motion of bootstrap image pair');
-    plot3DFrustrum(W_T_WC1,5); % todo: increase scale internally
-    plot3DFrustrum(W_T_WC2,5);
+    plot3DFrustrum(W_T_WC1,50); % todo: increase scale internally
+    plot3DFrustrum(W_T_WC2,50);
     plotLandmarks(landmarks_init);
 end
 

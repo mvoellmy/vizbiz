@@ -93,6 +93,9 @@ toc;
 fprintf('...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
+
+if params.run_continous
+    
 fprintf('start continuous VO operation...\n');
 
 global fig_cont;
@@ -156,13 +159,18 @@ for i = range
 end
 fprintf('...VO-pipeline terminated.\n');
 
-if params.perf.profiling
-    profile viewer; % view profiling results
-end
-
-%% Performance summary
+%% Accuracy/Precision summary
 fprintf('display results...\n');
 if (params.ds~=1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
     plotGroundThruth_2D(W_vo_t_WC_i,ground_truth');    
 end
+
+end
+
+%% Profiling
+if params.perf.profiling
+    profile viewer; % view profiling results
+end
+
+
