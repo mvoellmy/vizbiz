@@ -14,6 +14,14 @@ pcshow(pc, 'VerticalAxis','y','VerticalAxisDir',...
 'down','MarkerSize',100);
 
 % axis properties
+
+% Should not be used, since it is dangerous
+% Can be enabled to have a reasonable plot until the outliers from parking are fixed.
+% xlim([-60 60])
+% ylim([-40 40])
+% zlim([-10 100])
+
+axis tight
 axis equal;
 axis vis3d;
 ax = gca;
@@ -24,12 +32,5 @@ xlabel('x');
 ylabel('y');
 zlabel('z');
 
-% Should not be used, since it is dangerous
-% Can be enabled to have a reasonable plot until the outliers from parking are fixed.
-% xlim([-60 60])
-% ylim([-40 40])
-% zlim([-10 100])
-
-axis tight
 
 end
