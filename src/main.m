@@ -148,7 +148,7 @@ for i = range_cont
         assert(false);
     end
 
-    if size(keypoints_prev,2) > 0
+    if size(keypoints_prev,2) > 0 % minim number?
         tic;
         % process newest image
         [T_CiCj_vo_i(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,prev_img,keypoints_prev,Ci_landmarks_prev,K);
