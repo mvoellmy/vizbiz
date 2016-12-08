@@ -46,6 +46,7 @@ params.localization_ransac.use_p3p = true;
 params.localization_ransac.num_iterations_pnp = 2000;
 params.localization_ransac.num_iterations_DLT = 200;
 params.localization_ransac.pixel_tolerance = 30;
+params.localization_ransac.show_iterations = true;
 
 
 % mode specific parameters

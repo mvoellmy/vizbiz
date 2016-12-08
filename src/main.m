@@ -112,7 +112,7 @@ toc;
 T_CiCj_vo_i(:,:,1) = eye(4); % world frame init
 T_CiCj_vo_i(:,:,2) = T_WC2; % first camera pose
 
-% transformation camera 1 to world (90° x-axis rotation)
+% transformation camera 1 to world (90ï¿½ x-axis rotation)
 T_WC1 = [1      0           0        0; 
          0 cos(pi/2)   -sin(pi/2)    0;
          0 sin(pi/2)    cos(pi/2)    0;
@@ -129,6 +129,8 @@ fprintf('start continuous VO operation...\n');
 
 global fig_cont;
 fig_cont = figure('name','Contiunous VO estimation');
+global fig_RANSAC_debug;
+fig_RANSAC_debug = figure('name','p3p / dlt estimation RANSAC');
 
 prev_img = img_init;
 keypoints_prev = keypoints_init;

@@ -10,7 +10,7 @@ function [matched_database_keypoints, matched_query_keypoints, valid_matches] = 
 % Output:
 %  - database_keypoints(2xN) : matched keypoints of first image
 %  - query_keypoints(2xN) : matched keypoints of second image
-%  - matches(1xN) : indeces of query keypoints matched with db keypoints
+%  - valid_matches(1xN) : indeces of query keypoints matched with db keypoints
 
 global fig_cont;
 
@@ -31,14 +31,22 @@ matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.ma
 
 % extract indices
 query_indeces = 1:length(matches);
-database_indeces = matches;
+database_indeces = 1:size(database_keypoints,2);
 matched_query_indeces = query_indeces(matches > 0);
-matched_database_indeces = database_indeces(matches > 0);
+%matched_database_indeces = database_indeces(matches > 0);
 
 % filter invalid matches
 valid_matches = matches(matches > 0);
+
 matched_query_keypoints = query_keypoints(:,matched_query_indeces);
-matched_database_keypoints = database_keypoints(:,matched_database_indeces);
+% remove unseen dbkeypoints
+matched_database_keypoints = database_keypoints(:,valid_matches);
+matched_database_indices = database_indeces(:,valid_matches);
+
+% TODO
+% verify that the output vector 'valid matches' links to keypoints in 
+% 'matched_database_keypoints' that actually exist.  
+
 
 % display valid correspondences
 if params.cont.show_new_keypoints
