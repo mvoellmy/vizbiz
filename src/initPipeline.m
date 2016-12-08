@@ -88,15 +88,10 @@ assert(size(keypoints_init,2) == size(landmarks_init,2));
 % display initialization landmarks and bootstrap motion
 if (params.init.show_landmarks && ~params.init.use_KITTI_precalculated_init)
     figure('name','Landmarks and motion of bootstrap image pair');
-  
+    hold on;
     plotLandmarks(landmarks_init);
-    hold on
-    camsize = 2;
-    camcolor = 'red';
-    
-    plotCam(T_WC1, camsize, camcolor);
-    plotCam(T_WC2, camsize, camcolor);
-
+    plotCam(T_WC1,2,'black');
+    plotCam(T_WC2,2,'red');
 end
 
 end
