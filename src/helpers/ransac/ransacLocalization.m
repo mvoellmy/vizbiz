@@ -20,6 +20,7 @@ function [R_C_W, t_C_W, matched_query_keypoints, matched_database_keypoints, cor
 % Output:
 %  - t_C_W(3x1) : translation vector
 %  - R_C_W(3x3) : rotation matrix camera 1 (world frame) to camera 2
+%  - matched_query_keypoints() : [v,u]
 
 global fig_cont;
 
@@ -40,18 +41,16 @@ p_hom_i2 = [matched_query_keypoints; ones(1,length(matched_query_keypoints))];
 
 % choose RANSAC options
 if params.localization_ransac.use_p3p
-    num_iterations = 200;
-    pixel_tolerance = 10;
     s = 3;
+    num_iterations = params.localization_ransac.num_iterations_pnp;
 else
-    num_iterations = 2000;
-    pixel_tolerance = 10;
     s = 6;
+    num_iterations = params.localization_ransac.num_iterations_DLT;
 end
 
 % initialize RANSAC
 inliers = zeros(1, size(matched_query_keypoints,2));
-matched_query_keypoints = flipud(matched_query_keypoints); % ??
+matched_query_keypoints = flipud(matched_query_keypoints); % !!
 max_num_inliers_history = zeros(1,num_iterations);
 max_num_inliers = 0;
 
@@ -59,7 +58,7 @@ max_num_inliers = 0;
 for i = 1:num_iterations
     [landmark_sample, idx] = datasample(...
         corresponding_landmarks, s, 2, 'Replace', false);
-    keypoint_sample = matched_query_keypoints(:, idx);
+    keypoint_sample = matched_query_keypoints(:, idx); % needed as [u,v]
     
     if params.localization_ransac.use_p3p
         normalized_bearings = K\[keypoint_sample; ones(1, 3)];
@@ -87,7 +86,7 @@ for i = 1:num_iterations
         (R_C_W_guess(:,:,1)*corresponding_landmarks) + repmat(t_C_W_guess(:,:,1),[1 size(corresponding_landmarks, 2)]), K);
     difference = matched_query_keypoints - projected_points;
     errors = sum(difference.^2, 1);
-    is_inlier = errors < pixel_tolerance^2;
+    is_inlier = errors < params.localization_ransac.pixel_tolerance^2;
     
     if params.localization_ransac.use_p3p
         projected_points = projectPoints(...
@@ -96,7 +95,7 @@ for i = 1:num_iterations
             [1 size(corresponding_landmarks, 2)]), K);
         difference = matched_query_keypoints - projected_points;
         errors = sum(difference.^2, 1);
-        alternative_is_inlier = errors < pixel_tolerance^2;
+        alternative_is_inlier = errors < params.localization_ransac.pixel_tolerance^2;
         if nnz(alternative_is_inlier) > nnz(is_inlier)
             is_inlier = alternative_is_inlier;
         end
@@ -122,6 +121,9 @@ else % calculate [R,T] with best inlier points
     R_C_W = M_C_W(:,1:3);
     t_C_W = M_C_W(:,end);
 end
+
+% flip keypoints
+matched_query_keypoints = flipud(matched_query_keypoints);
 
 % display inlier matches
 if (nnz(inliers) > 0 && params.localization_ransac.show_inlier_matches)

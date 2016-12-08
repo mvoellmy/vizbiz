@@ -105,18 +105,18 @@ end
 %% Initialize VO pipeline
 fprintf('initialize VO pipeline...\n');
 tic;
-[img_init,keypoints_init,landmarks_init,T_WC2] = initPipeline(params,img0,img1,K);
+[img_init,keypoints_init,C2_landmarks_init,T_WC2] = initPipeline(params,img0,img1,K);
 toc;
 
 % assign first two poses
 T_CiCj_vo_i(:,:,1) = eye(4); % world frame init
 T_CiCj_vo_i(:,:,2) = T_WC2; % first camera pose
 
-% transformation camera 1 to world (-90° x-axis rotation)
-T_WC1 = [1      0           0         0; 
-         0 cos(-pi/2)   -sin(pi/2)    0;
-         0 sin(-pi/2)    cos(pi/2)    0;
-                 zeros(1,3)           1];
+% transformation camera 1 to world (90° x-axis rotation)
+T_WC1 = [1      0           0        0; 
+         0 cos(pi/2)   -sin(pi/2)    0;
+         0 sin(pi/2)    cos(pi/2)    0;
+                 zeros(1,3)          1];
     
 % update stacked world reference pose
 T_WCi_vo(:,:,1) = T_WC1* T_CiCj_vo_i(:,:,1);
@@ -132,7 +132,7 @@ fig_cont = figure('name','Contiunous VO estimation');
 
 prev_img = img_init;
 keypoints_prev = keypoints_init;
-landmarks_prev = landmarks_init;
+Ci_landmarks_prev = C2_landmarks_init;
 
 for i = range_cont
     frame_idx = i-bootstrap_frame_idx_2+2; % due to init +2
@@ -152,7 +152,7 @@ for i = range_cont
 
     % process newest image
     tic;
-    [T_CiCj_vo_i(:,:,frame_idx),keypoints_new,landmarks_new] = processFrame(params,img,prev_img,keypoints_prev,landmarks_prev,K);
+    [T_CiCj_vo_i(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,prev_img,keypoints_prev,Ci_landmarks_prev,K);
     toc;
     
     % append newest position and rotation to logging variables
@@ -162,9 +162,9 @@ for i = range_cont
     pause(0.01);
 
     % update previous image, keypoints and landmarks
-    %prev_img = img;
-    %keypoints_prev = keypoints_new;
-    %landmarks_prev = landmarks_new;
+    prev_img = img;
+    keypoints_prev = keypoints_new;
+    Ci_landmarks_prev = Cj_landmarks_new;
     
     fprintf('\n\n');
 end

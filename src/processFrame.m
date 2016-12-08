@@ -1,5 +1,5 @@
-function [T_C1C2_i, p_new_matched, landmarks_updated] = ...
-    processFrame(params,img_new,img_prev,keypoints_prev,landmarks,K)
+function [T_C1C2_i, p_new_matched, C2_landmarks_updated] = ...
+    processFrame(params,img_new,img_prev,keypoints_prev,C1_landmarks,K)
 % TODO description
 % 
 % Input:
@@ -11,7 +11,7 @@ function [T_C1C2_i, p_new_matched, landmarks_updated] = ...
 %
 % Output:
 %  - T_WC_i(4x4) : ...
-%  - keypoints_new(size) : ...
+%  - p_new_matched(size) : 
 %  - landmarks_updated(size) : 3D points
 
 global fig_cont;
@@ -23,7 +23,7 @@ if params.cont.show_current_image
 end
 
 % state propagation and pose estimation
-[R_CW,t_CW,p_new_matched,p_prev_matched,~,~] = ransacLocalization(params,img_new,img_prev,keypoints_prev,landmarks,K);
+[R_CW,t_CW,p_new_matched,p_prev_matched,~,~] = ransacLocalization(params,img_new,img_prev,keypoints_prev,C1_landmarks,K);
 
 if ~isempty(R_CW) && ~isempty(t_CW)
     fprintf(' >> successfully localized\n');
@@ -42,9 +42,15 @@ M1 = K * eye(3,4);
 M2 = K * [R_CW, t_CW];
 p_hom_prev_matched = [p_prev_matched;ones(1,size(p_prev_matched,2))];
 p_hom_new_matched = [p_new_matched;ones(1,size(p_new_matched,2))];
-landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,M1,M2);
+landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,M1,M2); % TODO assure good keypoints
 
 % append new landmarks
-landmarks_updated = [landmarks landmarks_new(1:3,:)];
+C2_landmarks_updated = [C1_landmarks landmarks_new(1:3,:)];
+
+% display statistics
+fprintf(['Number of new landmarks trinagulated: %i\n',...
+         'Total number of landmarks: %i\n\n'],...
+         size(landmarks_new,2), size(C2_landmarks_updated,2));
+
 
 end
