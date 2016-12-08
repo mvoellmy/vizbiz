@@ -88,9 +88,10 @@ assert(size(keypoints_init,2) == size(landmarks_init,2));
 % display initialization landmarks and bootstrap motion
 if (params.init.show_landmarks && ~params.init.use_KITTI_precalculated_init)
     figure('name','Landmarks and motion of bootstrap image pair');
-    plot3DFrustrum(T_WC1,5); % todo: increase scale internally
-    plot3DFrustrum(T_WC2,5);
+    hold on;
     plotLandmarks(landmarks_init);
+    plotCam(T_WC1,2,'black');
+    plotCam(T_WC2,2,'red');
 end
 
 end
