@@ -1,4 +1,4 @@
-function [I_init, keypoints_init, landmarks_init] = initPipeline(params, I_i1, I_i2, K)
+function [I_init, keypoints_init, landmarks_init, T_WC2] = initPipeline(params, I_i1, I_i2, K)
 % Returns initialization image and corresponding keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.
@@ -12,6 +12,7 @@ function [I_init, keypoints_init, landmarks_init] = initPipeline(params, I_i1, I
 %  - I_init(size) : initialization image
 %  - keypoints_init(2xN) : matched keypoints from image pair, each [v,u]
 %  - landmarks_init(3xN) : common triangulated 3D points
+%  - T_WC2 (4x4) : Homogenious transformatin matrix Camera 1 (W) to Camera 2
 
 if params.init.use_KITTI_precalculated_init % todo: still needed?
     % assign second image as initialization image
@@ -40,25 +41,25 @@ else
     [Rots,u3] = decomposeEssentialMatrix(E);
 
     % disambiguate among the four possible configurations
-    [C2_R_C2C1,C2_t_C2C1] = disambiguateRelativePose(Rots,u3,p_hom_i1,p_hom_i2,K,K);
+    [R_C2C1,t_C2C1] = disambiguateRelativePose(Rots,u3,p_hom_i1,p_hom_i2,K,K);
     
     % world reference (first frame)
-    W_T_WC1 = [eye(3,3), zeros(3,1);
+    T_WC1 = [eye(3,3), zeros(3,1);
                zeros(1,3),       1];
 
     % construct C2 to W transformation
-    C2_T_C2C1 = [C2_R_C2C1,  C2_t_C2C1;
+    T_C2C1 = [R_C2C1,  t_C2C1;
                  zeros(1,3),       1];
-    C1_T_C1C2 = [C2_R_C2C1',  -C2_R_C2C1'*C2_t_C2C1;
+    T_C1C2 = [R_C2C1',  -R_C2C1'*t_C2C1;
                  zeros(1,3),       1];
-    W_T_WC2 = W_T_WC1 * C1_T_C1C2;
+    T_WC2 = T_WC1 * T_C1C2;
 
     % feature: Refine pose with BA
     % TODO
 
     % triangulate a point cloud using the final transformation (R,T)
-    M1 = K*W_T_WC1(1:3,:);
-    M2 = K*C2_T_C2C1(1:3,:); %M2 = K*W_T_WC2(1:3,:);
+    M1 = K*T_WC1(1:3,:);
+    M2 = K*T_C2C1(1:3,:); %M2 = K*W_T_WC2(1:3,:);
     P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2); % todo: VERIFY landmarks must be in world frame!
     
     % remove landmarks with negative Z coordinate % todo: dedicate function
@@ -87,8 +88,8 @@ assert(size(keypoints_init,2) == size(landmarks_init,2));
 % display initialization landmarks and bootstrap motion
 if (params.init.show_landmarks && ~params.init.use_KITTI_precalculated_init)
     figure('name','Landmarks and motion of bootstrap image pair');
-    plot3DFrustrum(W_T_WC1,5); % todo: increase scale internally
-    plot3DFrustrum(W_T_WC2,5);
+    plot3DFrustrum(T_WC1,5); % todo: increase scale internally
+    plot3DFrustrum(T_WC2,5);
     plotLandmarks(landmarks_init);
 end
 
