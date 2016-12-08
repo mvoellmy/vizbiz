@@ -93,8 +93,9 @@ if (params.init.show_landmarks && ~params.init.use_KITTI_precalculated_init)
     hold on
     camsize = 2;
     camcolor = 'red';
-    plotCamera('Location', T_WC1(1:3,4),'Orientation', T_WC1(1:3,1:3), 'Size', camsize,'Color', camcolor );
-    plotCamera('Location', T_WC2(1:3,4),'Orientation', T_WC2(1:3,1:3), 'Size', camsize,'Color', camcolor );
+    
+    plotCam(T_WC1, camsize, camcolor);
+    plotCam(T_WC2, camsize, camcolor);
 
 end
 
