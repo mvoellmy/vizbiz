@@ -61,7 +61,7 @@ else
     
     % Refine Pose with Bundle Adjustment
     
-     [ P_hom_init, W_T_WC1, W_T_WC2 ] = bundleAdjust(P_hom_init, p_hom_i1, p_hom_i2, C2_R_C2C1, C2_t_C2C1, K );
+    [ P_hom_init, W_T_WC1, W_T_WC2 ] = bundleAdjust(P_hom_init, p_hom_i1, p_hom_i2, R_C2C1', -t_C2C1, K );
     
     
     % remove landmarks with negative Z coordinate % todo: dedicate function

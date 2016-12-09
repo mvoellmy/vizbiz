@@ -1,4 +1,4 @@
-function [ P_hom_init, W_T_WC1, W_T_WC2 ] = bundleAdjust(P_hom_init, p_hom_i1, p_hom_i2, C2_R_C2C1, C2_t_C2C1, K )
+function [ P_hom_init, W_T_WC1, W_T_WC2 ] = bundleAdjust(P_hom_init, p_hom_i1, p_hom_i2, R_C1C2, t_C1C2, K )
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -15,8 +15,8 @@ function [ P_hom_init, W_T_WC1, W_T_WC2 ] = bundleAdjust(P_hom_init, p_hom_i1, p
     
     cameraPoses = table;    
     cameraPoses.ViewId = [uint32(1);uint32(2)];
-    cameraPoses.Orientation = [{eye(3)};{C2_R_C2C1}];
-    cameraPoses.Location = [{zeros(1, 3)};{C2_t_C2C1'}];
+    cameraPoses.Orientation = [{eye(3)};{R_C1C2}];
+    cameraPoses.Location = [{zeros(1, 3)};{t_C1C2'}];
     
     cameraParams = cameraParameters('IntrinsicMatrix', K);
 %     
