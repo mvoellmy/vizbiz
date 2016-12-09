@@ -37,7 +37,8 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
 % display fraction of matched keypoints
-fprintf('  %0.2f %% of keypoints matched\n',100*nnz(matches)/size(matches,2));
+fprintf('  %0.2f%% (%i/%i) of Keypoints matched\n', ...
+    100*nnz(matches)/size(matches,2), nnz(matches), size(matches,2));
 
 % extract indices
 query_indeces = 1:length(matches);
