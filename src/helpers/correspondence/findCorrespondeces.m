@@ -8,8 +8,8 @@ function [matched_database_keypoints, matched_query_keypoints, valid_matches] = 
 %  - query_image(size) : second image
 %
 % Output:
-%  - database_keypoints(2xN) : matched keypoints of first image, each [u v]
-%  - query_keypoints(2xN) : matched keypoints of second image, each [u v]
+%  - matched_database_keypoints(2xN) : matched keypoints of first image, each [u v]
+%  - matched_query_keypoints(2xN) : matched keypoints of second image, each [u v]
 %  - valid_matches(1xN) : indeces of query keypoints matched with db keypoints
 
 global fig_init;

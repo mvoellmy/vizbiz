@@ -12,16 +12,19 @@ function [R_C_W, t_C_W, matched_query_keypoints, matched_database_keypoints, cor
 %  - Query_image: New image. We search its relative rotation matrix to database
 %    image
 %  - database_image: Last image. It defines the current world frame.
-%  - database_keypoints (2xN): Pixel coordinates of keypoints
+%  - database_keypoints (2xN): Pixel coordinates of keypoints [v u]
 %  - p_w_landmarks(3xN) : 3D points of database image
 %  - K : Calibration matrix of the camera (assumed to be the same for both
 %    images)
 %
 % Output:
-%  - t_C_W(3x1) : translation vector
 %  - R_C_W(3x3) : rotation matrix camera 1 (world frame) to camera 2
-%  - matched_query_keypoints() : [v,u]
-%  - matched_database_keypoints : [v,u]
+%  - t_C_W(3x1) : translation vector
+%  - matched_query_keypoints (2xN) : [v u]
+%  - matched_database_keypoints (2xN) : [v u]
+% Unused outputs:
+%  - corresponding_matches ??
+%  - max_num_inliers_history ??
 
 global fig_cont;
 global fig_RANSAC_debug;
@@ -48,9 +51,12 @@ end
 
 % initialize RANSAC
 best_guess_inliers = zeros(1, size(matched_query_keypoints,2));
-matched_query_keypoints = flipud(matched_query_keypoints); % !!
 max_num_inliers_history = zeros(1,num_iterations);
 max_num_inliers = 0;
+
+% !! For ransac functions and projected points error estimation, keypoints in
+% [u v] format needed!!
+matched_query_keypoints = flipud(matched_query_keypoints); % !!
 
 % run RANSAC for pose estimation
 for i = 1:num_iterations
@@ -156,7 +162,6 @@ if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_inlier_matche
 end
 
 % flip keypoints
-matched_query_keypoints = flipud(matched_query_keypoints);
-matched_database_keypoints = flipud(matched_database_keypoints);
+matched_query_keypoints = flipud(matched_query_keypoints); % flip back to keep [v u] interface
 
 end

@@ -5,11 +5,12 @@ function [matched_database_keypoints, matched_query_keypoints, valid_matches] = 
 % Input:
 %  - params(struct) : parameter struct
 %  - database_image(size) : first image
+%  - database_keypoints: (2xN) : [v u] verified!
 %  - query_image(size) : second image
 %
 % Output:
-%  - database_keypoints(2xN) : matched keypoints of first image
-%  - query_keypoints(2xN) : matched keypoints of second image
+%  - matched_database_keypoints(2xN) : matched keypoints of first image [v u]
+%  - matched_query_keypoints(2xN) : matched keypoints of second image [v u]
 %  - valid_matches(1xN) : indeces of query keypoints matched with db keypoints
 
 global fig_cont;

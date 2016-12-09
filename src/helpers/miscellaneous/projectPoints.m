@@ -2,6 +2,9 @@ function [projected_points] = projectPoints(points_3d, K, D)
 % Projects 3d points to the image plane (3xN), given the camera matrix (3x3) and
 % distortion coefficients (4x1).
 
+% Output 
+% - projected_points (2xN) [u v] (most probably)
+
 % if distortion vector D is missing, assume zero distortion
 if nargin <= 2
     D = zeros(4,1);
