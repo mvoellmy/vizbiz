@@ -6,13 +6,13 @@ function [T_C1C2_i, p_new_matched, C2_landmarks_updated] = ...
 %  - params(struct) : parameter struct
 %  - img_new(size) : current frame
 %  - img_prev(size) : previous frame
-%  - keypoints_prev(2xN) : 2D points , each [v u]
+%  - keypoints_prev(2xN) : 2D points , [v u]
 %  - C1_landmarks(3xN) : 3D points
 %  - K(3x3) : camera intrinsics matrix
 %
 % Output:
 %  - T_C1C2_i(4x4) : ...
-%  - p_new_matched(size) : 
+%  - p_new_matched(2xN) [v u] 
 %  - C2_landmarks_updated(size) : 3D points
 
 global fig_cont;

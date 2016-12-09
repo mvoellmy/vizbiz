@@ -1,4 +1,4 @@
-function M = estimatePoseDLT(p, P, K)
+function M_CW = estimatePoseDLT(p, P, K)
 % Estimates the pose of a camera using a set of 2D-3D correspondences and a
 % given camera matrix
 %
@@ -6,7 +6,7 @@ function M = estimatePoseDLT(p, P, K)
 % P: [nx3] vector containing the 3D point positions
 % K: [3x3] camera matrix
 %
-% M: [3x4] projection matrix under the form M=[R|t] where R is a rotation
+% M_CW: [3x4] projection matrix under the form M=[R|t] where R is a rotation
 %    matrix. M encodes the transformation that maps points from the world
 %    frame to the camera frame
 
@@ -32,17 +32,17 @@ end
 
 % Solve for Q.M = 0 subject to the constraint ||M||=1
 [~,~,V] = svd(Q);
-M = V(:,end);
+M_CW = V(:,end);
 
-M = reshape(M, 4, 3)';
+M_CW = reshape(M_CW, 4, 3)';
 
 %% Extract [R|t] with the correct scale from M ~ [R|t]
 
-if det(M(:,1:3)) < 0
-    M = -M;
+if det(M_CW(:,1:3)) < 0
+    M_CW = -M_CW;
 end
 
-R = M(:,1:3);
+R = M_CW(:,1:3);
 
 % Find the closest orthogonal matrix to R
 % https://en.wikipedia.org/wiki/Orthogonal_Procrustes_problem
@@ -54,7 +54,7 @@ R_tilde = U*V';
 alpha = norm(R_tilde, 'fro')/norm(R, 'fro');
 
 % Build M with the corrected rotation and scale
-M = [R_tilde alpha * M(:,4)];
+M_CW = [R_tilde alpha * M_CW(:,4)];
 
 
 end
