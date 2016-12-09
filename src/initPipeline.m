@@ -72,8 +72,10 @@ else
     keypoints_init = flipud(p_i2);
     C1_landmarks_init = C1_P_hom_init(1:3,:);
     
-    % todo: display summary
-    % about number of keypoints, landmarks, 
+    % display statistics
+    fprintf(['  Number of initialization keypoints: %i\n',...
+             '  Number of initialization landmarks: %i\n\n'],...
+             size(keypoints_init,2), size(C1_landmarks_init,2));
 end
 
 % check for same number of keypoints and landmarks
