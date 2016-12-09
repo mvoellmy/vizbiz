@@ -1,4 +1,4 @@
-function [T_C1C2_i, p_new_matched, C2_landmarks_updated] = ...
+function [T_CiCj, p_new_matched, C2_landmarks_updated] = ...
     processFrame(params,img_new,img_prev,keypoints_prev,C1_landmarks,K)
 % TODO description
 % 
@@ -6,14 +6,14 @@ function [T_C1C2_i, p_new_matched, C2_landmarks_updated] = ...
 %  - params(struct) : parameter struct
 %  - img_new(size) : current frame
 %  - img_prev(size) : previous frame
-%  - keypoints_prev(2xN) : 2D points , [v u]
+%  - keypoints_prev(2xN) : 2D points ,[v u]
 %  - C1_landmarks(3xN) : 3D points
 %  - K(3x3) : camera intrinsics matrix
 %
 % Output:
-%  - T_C1C2_i(4x4) : ...
-%  - p_new_matched(2xN) [v u] 
-%  - C2_landmarks_updated(size) : 3D points
+%  - T_CiCj(4x4) : transformation of Cj relative to Ci
+%  - p_new_matched(2xN) : newly matched keypoints [v u] 
+%  - C2_landmarks_updated(3xN) : 3D points
 
 global fig_cont;
 
@@ -26,7 +26,7 @@ end
 % state propagation and pose estimation
 [R_CW,t_CW,p_new_matched,p_prev_matched,~,~] = ransacLocalization(params,img_new,img_prev,keypoints_prev,C1_landmarks,K);
 
-if ~isempty(R_CW) && ~isempty(t_CW)
+if (~isempty(R_CW) && ~isempty(t_CW))
     fprintf(' >> Successfully localized\n');
 else
     R_CW = eye(3,3);
@@ -35,8 +35,8 @@ else
 end
 
 % construct new camera pose
-T_C1C2_i = [R_CW'   -R_CW'*t_CW;
-            ones(1,3)         1];
+T_CiCj = [R_CW'   -R_CW'*t_CW;
+          ones(1,3)         1];
 
 % triangulate new points with keypoint tracks % TODO
 M1 = K * eye(3,4);

@@ -1,16 +1,15 @@
 function [matched_database_keypoints, matched_query_keypoints, valid_matches] = findCorrespondeces_cont(params, database_image, database_keypoints, query_image)
-% Detects N keypoint correspondeces given image pair
-% and returns the sorted keypoints of both images.
+% TODO description
 % 
 % Input:
 %  - params(struct) : parameter struct
 %  - database_image(size) : first image
-%  - database_keypoints: (2xN) : [v u] verified!
+%  - database_keypoints(2xN) : previous image keypoints, [v u]
 %  - query_image(size) : second image
 %
 % Output:
-%  - matched_database_keypoints(2xN) : matched keypoints of first image [v u]
-%  - matched_query_keypoints(2xN) : matched keypoints of second image [v u]
+%  - matched_database_keypoints(2xN) : matched keypoints of first image, [v u]
+%  - matched_query_keypoints(2xN) : matched keypoints of second image, [v u]
 %  - valid_matches(1xN) : indeces of query keypoints matched with db keypoints
 
 global fig_cont;

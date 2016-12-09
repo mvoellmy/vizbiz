@@ -1,24 +1,22 @@
 function [R_CiCj, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints, corresponding_matches, max_num_inliers_history] = ransacLocalization(params, ...
     query_image, database_image, database_keypoints, W_p_landmarks, K)
-
+% TODO description
+%
 % Inputs:
-%  - params: Parameter struct
-%  - Query_image: New image. We search its relative rotation matrix to database
-%    image
-%  - database_image: Last image. It defines the current world frame.
-%  - database_keypoints (2xN): Pixel coordinates of keypoints [v u]
-%  - W_p_landmarks(3xN) : 3D points of database image (Frame??? World??)
-%  - K : Calibration matrix of the camera (assumed to be the same for both
-%    images)
+%  - params(struct) : parameter struct
+%  - query_image(size) : new image
+%  - database_image(size) : previous image, it defines Ci frame
+%  - database_keypoints(2xN): previous keypoints, [v u]
+%  - W_p_landmarks(3xN) : 3D points of previous image (Frame??? World??) todo
+%  - K(3x3) : camera intrinsics matrix
 %
 % Output:
-%  - R_CiCj(3x3) : rotation matrix camera i (world frame) to camera j
-%  - Ci_t_CiCj(3x1) : translation vector in frame i (? not sure about frame!!!!!!)
-%  - matched_query_keypoints (2xN) : [v u]
-%  - matched_database_keypoints (2xN) : [v u]
-% Unused outputs:
-%  - corresponding_matches ??
-%  - max_num_inliers_history ??
+%  - R_CiCj(3x3) : rotation matrix Ci to Cj
+%  - Ci_t_CiCj(3x1) : translation vector of Ci to Cj expressed in frame Ci
+%  - matched_query_keypoints(2xN) : re-matched query keypoints, [v u]
+%  - matched_database_keypoints(2xN) : re-matched database keypoints, [v u]
+%  - corresponding_matches : todo ??
+%  - max_num_inliers_history : todo ??
 
 global fig_cont;
 global fig_RANSAC_debug;
@@ -43,14 +41,13 @@ else
     num_iterations = params.localization_ransac.num_iterations_DLT;
 end
 
+% flip query keypoints for error estimation with projected_points
+matched_query_keypoints = flipud(matched_query_keypoints);
+
 % initialize RANSAC
 best_guess_inliers = zeros(1, size(matched_query_keypoints,2));
 max_num_inliers_history = zeros(1,num_iterations);
 max_num_inliers = 0;
-
-% !! For ransac functions and projected points error estimation, keypoints in
-% [u v] format needed!!
-matched_query_keypoints = flipud(matched_query_keypoints); % !!
 
 % run RANSAC for pose estimation
 for i = 1:num_iterations
@@ -68,7 +65,7 @@ for i = 1:num_iterations
         R_C_W_guess = zeros(3, 3, 2);
         t_C_W_guess = zeros(3, 1, 2);
         for ii = 0:1
-            R_W_C_ii = real(poses(:, (2+ii*4):(4+ii*4))); % Rotation direction verified with description of p3p
+            R_W_C_ii = real(poses(:, (2+ii*4):(4+ii*4))); % rotation direction verified with description of p3p
             t_W_C_ii = real(poses(:, (1+ii*4)));
             R_C_W_guess(:,:,ii+1) = R_W_C_ii';
             t_C_W_guess(:,:,ii+1) = -R_W_C_ii'*t_W_C_ii;
@@ -107,7 +104,6 @@ for i = 1:num_iterations
     
     max_num_inliers_history(i) = max_num_inliers;
 end
-
 
 % display count of inliers evolution
 if params.localization_ransac.show_iterations
@@ -152,8 +148,8 @@ if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_matched_keypo
     viscircles(best_guess_projected_pts_uv', params.localization_ransac.pixel_tolerance*ones(size(best_guess_projected_pts_uv,2),1),'LineStyle','-','Color','y');
 end
 
-% flip keypoints back
-matched_query_keypoints = flipud(matched_query_keypoints); % flip back to keep [v u] interface
+% flip keypoints back to keep [v u] order
+matched_query_keypoints = flipud(matched_query_keypoints);
 
 % display inlier matches
 if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_inlier_matches)
@@ -161,6 +157,5 @@ if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_inlier_matche
     plotMatches(1:nnz(best_guess_inliers),matched_query_keypoints,matched_database_keypoints,'y-');
     title('Current frame: Inlier (yellow) matches found');
 end
-
 
 end
