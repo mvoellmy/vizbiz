@@ -2,12 +2,16 @@ clear all;
 close all;
 clc;
 
-[video_name,path_name] = uigetfile('*.*','Select the video source file...');
-
-options.extract_every_x = 10; % for all images set: 1
+% set desired options
+options.extract_every_x = 1; % for all images set: 1
 options.convert_to_grayscale = true;
 options.rotate_images = -1; % rotates images k*90°, 1: Counterclock wise, 0: No Rotation, -1: Clockwise
 options.save_images = true;
 
+%% 
+[~,path_name] = uigetfile('*.*','Select the first image...');
+convertImages2CalibImage(path_name,options);
 
-extractImagesFromVideo([path_name,video_name],options);
+%%
+%[video_name,path_name] = uigetfile('*.*','Select the video source file...');
+%extractImagesFromVideo([path_name,video_name],options);

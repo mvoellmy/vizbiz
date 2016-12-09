@@ -32,7 +32,7 @@ for f=1:frames
         
         if options.save_images
             i = n_extracted + 1;
-            thisfile = sprintf('./calib_images/camera_calib%04d.jpg',i); % todo: jpg good format?
+            thisfile = sprintf(['./',folder_name,'/camera_calib%04d.jpg'],i); % todo: jpg good format?
             imwrite(thisframe,thisfile);
             title(['Frame #',num2str(f)]);
             
