@@ -20,10 +20,11 @@ global fig_cont;
 if params.cont.show_current_image
     figure(fig_cont);
     imshow(img_new);
+    hold on;
 end
 
 % state propagation and pose estimation
-[R_CW,t_CW,p_new_matched,p_prev_matched,~,~] = ransacLocalization(params,img_new,img_prev,keypoints_prev,C1_landmarks,K);
+[R_CW,t_CW,p_new_matched,p_prev_matched,~] = ransacLocalization(params,img_new,img_prev,keypoints_prev,C1_landmarks,K);
 
 if ~isempty(R_CW) && ~isempty(t_CW)
     fprintf(' >> successfully localized\n');
@@ -31,7 +32,7 @@ else
     R_CW = eye(3,3);
     t_CW = zeros(3,1);
     fprintf('no transformation found\n');
-end
+endline
 
 % construct new camera pose
 T_C1C2_i = [R_CW'   -R_CW'*t_CW;

@@ -41,7 +41,6 @@ params.cont.show_matches = true;
 
 params.localization_ransac.show_matched_keypoints = true;
 params.localization_ransac.show_inlier_matches = true;
-
 params.localization_ransac.use_p3p = true;
 params.localization_ransac.num_iterations_pnp = 2000;
 params.localization_ransac.num_iterations_DLT = 200;

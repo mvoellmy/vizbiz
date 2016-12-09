@@ -1,4 +1,4 @@
-function [matched_database_keypoints, matched_query_keypoints, valid_matches] = findCorrespondeces_cont(params, database_image, database_keypoints, query_image)
+function [query_keypoints, matches] = findCorrespondeces_cont(params, database_image, database_keypoints, query_image)
 % Detects N keypoint correspondeces given image pair
 % and returns the sorted keypoints of both images.
 % 
@@ -8,9 +8,9 @@ function [matched_database_keypoints, matched_query_keypoints, valid_matches] = 
 %  - query_image(size) : second image
 %
 % Output:
-%  - database_keypoints(2xN) : matched keypoints of first image
-%  - query_keypoints(2xN) : matched keypoints of second image
-%  - valid_matches(1xN) : indeces of query keypoints matched with db keypoints
+%  - query_keypoints (2XN) : all new keypoints
+%  - matches (1xN)  : index vector. if non-zero links to matching database
+%    keypoints
 
 global fig_cont;
 
@@ -29,35 +29,46 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 % match descriptors
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
-% extract indices
-query_indeces = 1:length(matches);
-database_indeces = 1:size(database_keypoints,2);
-matched_query_indeces = query_indeces(matches > 0);
-%matched_database_indeces = database_indeces(matches > 0);
-
-% filter invalid matches
-valid_matches = matches(matches > 0);
-
-matched_query_keypoints = query_keypoints(:,matched_query_indeces);
-% remove unseen dbkeypoints
-matched_database_keypoints = database_keypoints(:,valid_matches);
-matched_database_indices = database_indeces(:,valid_matches);
-
-% TODO
-% verify that the output vector 'valid matches' links to keypoints in 
-% 'matched_database_keypoints' that actually exist.  
 
 
-% display valid correspondences
-if params.cont.show_new_keypoints
-    figure(fig_cont);
-    imshow(query_image);
-    hold on;
-    plotPoints(query_keypoints,'r.');
-    if params.cont.show_matches
-        plotMatches(matches,query_keypoints,database_keypoints,'m-');
-        title('Current frame: Matches found');
-    end
-end
+% % extract indices
+% query_indeces = 1:length(matches);
+% database_indeces = 1:size(database_keypoints,2);
+% matched_query_indeces = query_indeces(matches > 0);
+% %matched_database_indeces = database_indeces(matches > 0);
+% 
+% % filter invalid matches
+% valid_matches = matches(matches > 0);
+% 
+% matched_query_keypoints = query_keypoints(:,matched_query_indeces);
+% 
+% % remove unseen dbkeypoints & sort database keypoints
+% matched_database_keypoints = database_keypoints(:,valid_matches);
+% 
+% matched_database_indices = database_indeces(valid_matches);
+% 
+% % TODO
+% % verify that the output vector 'valid matches' links to keypoints in 
+% % 'matched_database_keypoints' that actually exist.  
+% 
+% valid_matches_cleaned = zeros(size(valid_matches));
+% 
+% for i = 1:size(valid_matches,2)
+%     [ind,~] = find(matched_database_indices == valid_matches(i));
+%     valid_matches_cleaned(i) = ind;
+% end
+% 
+% 
+% % display valid correspondences
+% if params.cont.show_new_keypoints
+%     figure(fig_cont);
+%     imshow(query_image);
+%     hold on;
+%     plotPoints(query_keypoints,'r.');
+%     if params.cont.show_matches
+%         plotMatches(matches,query_keypoints,database_keypoints,'m-');
+%         title('Current frame: Matches found');
+%     end
+% end
 
 end
