@@ -9,8 +9,7 @@ function E = eightPointRansac(params, p_hom_i1, p_hom_i2, K1, K2)
 %  - K2(3x3) : intrinsics matrix of camera 2
 %
 % Output:
-%  - best_guess_history(3x3xnum_iterations) : model history
-%  - max_num_inliers_history(1xnum_iterations) : number inlier history
+%  - E(3x3) : essential matrix
 
 global fig_init;
 
@@ -21,13 +20,15 @@ s = 8;
 num_iterations = ceil(log(1-params.eightPoint_ransac.p_success)/...
                  log(1-params.eightPoint_ransac.fract_inliers^s));
 
+% initialize RANSAC
 best_guess = NaN(3,3);          
-best_guess_history = NaN(3,3,num_iterations);
+best_guess_history = NaN(3,3,num_iterations); % todo: needed
 best_guess_inliers = NaN(1, size(p_hom_i2,2));
 max_num_inliers_history = NaN(1,num_iterations);
 max_num_inliers = 0;
 inliers = zeros(1,size(p_hom_i1,2));
 
+% run RANSAC for pose estimation
 for i=1:num_iterations
     [p_hom_i1_sample,idx] = datasample(p_hom_i1,s,2,'Replace',false);
     p_hom_i2_sample = p_hom_i2(:,idx);
@@ -35,10 +36,9 @@ for i=1:num_iterations
     % estimate fundamental matrix given data sample
     F_guess = fundamentalEightPoint_normalized(p_hom_i1_sample,p_hom_i2_sample);
     
-    % count how many other points fit this guess based on  error metric
+    % count inliers
     %errors = algError2EpipolarLine(p_hom_i1,p_hom_i2,F_guess);
     errors = geomError2EpipolarLine(p_hom_i1,p_hom_i2,F_guess);
-    
     inliers = errors <= params.eightPoint_ransac.max_error; % pixel error
     num_inliers = nnz(inliers);
 
@@ -50,10 +50,9 @@ for i=1:num_iterations
         max_num_inliers = num_inliers;
         best_guess = F_guess;
         best_guess_history(:,:,i) = best_guess;
-        max_num_inliers_history(i) = num_inliers;
+        max_num_inliers_history(i) = num_inliers;        
         
-        
-        %save best inliers
+        % save best inliers
         best_guess_inliers = inliers;
     else
         best_guess_history(:,:,i) = best_guess;
@@ -81,7 +80,7 @@ if params.eightPoint_ransac.show_inlier_matches
     subplot(2,2,4);
     plotPoints(flipud(p_hom_i2(1:2,best_guess_inliers)),'g.');
     plotMatches(1:nnz(best_guess_inliers),flipud(p_hom_i2(1:2,best_guess_inliers)),flipud(p_hom_i1(1:2,best_guess_inliers)),'y-');
-    title('Inlier(yellow) matches found');
+    title('Inlier (yellow) matches found');
 end
 
 % compute the essential matrix from the fundamental matrix given K

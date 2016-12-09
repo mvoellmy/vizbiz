@@ -39,16 +39,26 @@ matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.ma
 % display fraction of matched keypoints
 fprintf('  %0.2f %% of keypoints matched\n',100*nnz(matches)/size(matches,2));
 
-% extract indices
-query_indeces = 1:length(matches);
-database_indeces = matches;
-matched_query_indeces = query_indeces(matches > 0);
-matched_database_indeces = database_indeces(matches > 0);
+% % extract indices
+% query_indeces = 1:length(matches);
+% database_indeces = matches;
+% matched_query_indeces = query_indeces(matches > 0);
+% matched_database_indeces = database_indeces(matches > 0);
+% 
+% % filter invalid matches
+% valid_matches = matches(matches > 0);
+% matched_query_keypoints = flipud(query_keypoints(:,matched_query_indeces));
+% matched_database_keypoints = flipud(database_keypoints(:,matched_database_indeces));
 
 % filter invalid matches
-valid_matches = matches(matches > 0);
-matched_query_keypoints = flipud(query_keypoints(:,matched_query_indeces));
-matched_database_keypoints = flipud(database_keypoints(:,matched_database_indeces));
+[~,matched_query_indices,matched_database_indices] = find(matches);
+valid_matches = 1:length(matched_query_indices);
+matched_query_keypoints = flipud(query_keypoints(:,matched_query_indices));
+matched_database_keypoints = flipud(database_keypoints(:,matched_database_indices));
+
+% check for consistent correspondences
+assert(size(matched_query_keypoints,2) == length(valid_matches) && ...
+       size(matched_database_keypoints,2) == length(valid_matches));
 
 % display bootstrap pair keypoints
 if params.init.show_init_keypoints
@@ -76,8 +86,8 @@ if params.init.show_init_keypoints
         imshow(query_image);
         hold on;
         plotPoints(flipud(matched_query_keypoints),'r.');
-        %plotMatches(matches,query_keypoints,database_keypoints,'m-');
-        %title('Init image with matches');
+        plotMatches(matches,query_keypoints,database_keypoints,'m-');
+        title('Initialitation image with matches');
     end
 end
 
