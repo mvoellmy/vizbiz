@@ -48,7 +48,7 @@ else
 end
 
 %% Bootstraping
-fprintf('setup boostrapping...\n');
+fprintf('setup boostrapping...\n\n');
 % set bootstrap_frames
 if params.ds == 0
     img0 = imread([kitti_path '/00/image_0/' ...
@@ -80,13 +80,10 @@ if params.init.show_bootstrap_images
     imshow(img1);
 end
 
-
-
 %% Logging variables
 
 % set range of images to run on
 bootstrap_frame_idx_2 = bootstrapFrames(params.ds,'second');
-
 if (params.cont.run_on_first_x_images > 0)
     range_cont = (bootstrap_frame_idx_2+1):(bootstrap_frame_idx_2+...
              params.cont.run_on_first_x_images);
@@ -103,7 +100,7 @@ if params.perf.profiling
 end
 
 %% Initialize VO pipeline
-fprintf('initialize VO pipeline...\n');
+fprintf('\ninitialize VO pipeline...\n');
 tic;
 [img_init,keypoints_init,C2_landmarks_init,T_WC2] = initPipeline(params,img0,img1,K);
 toc;
@@ -125,12 +122,11 @@ T_WCi_vo(:,:,2) = T_WCi_vo(:,:,1)* T_CiCj_vo_i(:,:,2);
 fprintf('...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
-fprintf('start continuous VO operation...\n');
+fprintf('start continuous VO operation...');
 
-global fig_cont;
+global fig_cont fig_RANSAC_debug;
 fig_cont = figure('name','Contiunous VO estimation');
-global fig_RANSAC_debug;
-fig_RANSAC_debug = figure('name','p3p / dlt estimation RANSAC');
+fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
 
 prev_img = img_init;
 keypoints_prev = keypoints_init;
@@ -152,10 +148,14 @@ for i = range_cont
         assert(false);
     end
 
-    % process newest image
-    tic;
-    [T_CiCj_vo_i(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,prev_img,keypoints_prev,Ci_landmarks_prev,K);
-    toc;
+    if size(keypoints_prev,2) > 0 % minim number?
+        tic;
+        % process newest image
+        [T_CiCj_vo_i(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,prev_img,keypoints_prev,Ci_landmarks_prev,K);
+        toc;
+    else
+        error('No keypoints left!!');
+    end
     
     % append newest position and rotation to logging variables
     T_WCi_vo(:,:,frame_idx) = T_WCi_vo(:,:,frame_idx-1)*T_CiCj_vo_i(:,:,frame_idx);

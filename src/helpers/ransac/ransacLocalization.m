@@ -44,10 +44,6 @@ if params.localization_ransac.show_matched_keypoints
     title('Current frame: Matched query keypoints');
 end
 
-% homogenize points
-% p_hom_i1 = [matched_database_keypoints; ones(1,length(matched_database_keypoints))];
-% p_hom_i2 = [matched_query_keypoints; ones(1,length(matched_query_keypoints))];
-
 % choose RANSAC options
 if params.localization_ransac.use_p3p
     s = 3;
@@ -154,6 +150,7 @@ end
 
 
 
+
 % display projected keypoints given best pose and inlier corespondences
 if params.localization_ransac.show_matched_keypoints
     figure(fig_cont);
@@ -176,6 +173,5 @@ end
 % flip keypointsbest_guess_inliers
 matched_query_keypoints = flipud(matched_query_keypoints);
 matched_database_keypoints = flipud(matched_database_keypoints);
-
 
 end

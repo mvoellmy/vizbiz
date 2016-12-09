@@ -29,8 +29,6 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 % match descriptors
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
-
-
 % % extract indices
 % query_indeces = 1:length(matches);
 % database_indeces = 1:size(database_keypoints,2);
