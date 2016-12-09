@@ -1,4 +1,4 @@
-function [R_WC_i, t_WC_i, p_new_matched, landmarks_updated] = ...
+function [T_C1C2_i, p_new_matched, landmarks_updated] = ...
     processFrame(params,img_new,img_prev,keypoints_prev,landmarks,K)
 % TODO description
 % 
@@ -10,8 +10,7 @@ function [R_WC_i, t_WC_i, p_new_matched, landmarks_updated] = ...
 %  - K(3x3) : camera intrinsics matrix
 %
 % Output:
-%  - R_WC_i(3x3) : ...
-%  - t_WC_i(3x1) : ...
+%  - T_WC_i(4x4) : ...
 %  - keypoints_new(size) : ...
 %  - landmarks_updated(size) : 3D points
 
@@ -35,10 +34,8 @@ else
 end
 
 % construct new camera pose
-T_WC = [R_CW'   -R_CW'*t_CW;
+T_C1C2_i = [R_CW'   -R_CW'*t_CW;
         ones(1,3)         1];
-R_WC_i = T_WC(1:3,1:3);
-t_WC_i = T_WC(1:3,end);
 
 % triangulation of new points with keypoint tracks
 M1 = K * eye(3,4);

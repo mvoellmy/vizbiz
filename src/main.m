@@ -80,6 +80,23 @@ if params.init.show_bootstrap_images
     imshow(img1);
 end
 
+
+
+%% Logging variables
+
+% set range of images to run on
+bootstrap_frame_idx_2 = bootstrapFrames(params.ds,'second');
+
+if (params.cont.run_on_first_x_images > 0)
+    range_cont = (bootstrap_frame_idx_2+1):(bootstrap_frame_idx_2+...
+             params.cont.run_on_first_x_images);
+else
+    range_cont = (bootstrap_frame_idx_2+1):last_frame;
+end
+
+T_CiCj_vo_i = NaN(4,4,numel(range_cont)+2); % transformation matrix between frame i and j, range +2 due to init
+T_WCi_vo = NaN(4,4,numel(range_cont)+2); % transformation matrix between frame W and frame i range +2 due to init
+
 %% Code profiling
 if params.perf.profiling
     profile on; % trigger code profiling
@@ -88,8 +105,23 @@ end
 %% Initialize VO pipeline
 fprintf('initialize VO pipeline...\n');
 tic;
-[img_init,keypoints_init,landmarks_init] = initPipeline(params,img0,img1,K);
+[img_init,keypoints_init,landmarks_init,T_WC2] = initPipeline(params,img0,img1,K);
 toc;
+
+% assign first two poses
+T_CiCj_vo_i(:,:,1) = eye(4); % world frame init
+T_CiCj_vo_i(:,:,2) = T_WC2; % first camera pose
+
+% transformation camera 1 to world (-90° x-axis rotation)
+T_WC1 = [1      0           0         0; 
+         0 cos(-pi/2)   -sin(pi/2)    0;
+         0 sin(-pi/2)    cos(pi/2)    0;
+                 zeros(1,3)           1];
+    
+% update stacked world reference pose
+T_WCi_vo(:,:,1) = T_WC1* T_CiCj_vo_i(:,:,1);
+T_WCi_vo(:,:,2) = T_WCi_vo(:,:,1)* T_CiCj_vo_i(:,:,2);
+
 fprintf('...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
@@ -101,23 +133,12 @@ fprintf('start continuous VO operation...\n');
 global fig_cont;
 fig_cont = figure('name','Contiunous VO estimation');
 
-% set range of images to run on
-if (params.cont.run_on_first_x_images > 0)
-    range = (bootstrapFrames(params.ds,'second')+1):(bootstrapFrames(params.ds,'second')+...
-             params.cont.run_on_first_x_images);
-else
-    range = (bootstrapFrames(params.ds,'second')+1):last_frame;
-end
-
-% logging variables
-W_vo_t_WC_i = NaN(3,numel(range)); % delta translation in last camera frame
-W_vo_R_WC_i = NaN(3,3,numel(range)); % rotation matrix between frame i and i-1
-W_Pos_WC = NaN(3,numel(range)); % absolute position of camera in world frame
 prev_img = img_init;
 keypoints_prev = keypoints_init;
 landmarks_prev = landmarks_init;
 
-for i = range
+for i = range_cont
+    frame_idx = i-bootstrap_frame_idx_2+2; % due to init +2
     fprintf('\n\nProcessing frame %d\n=====================\n', i);
     if params.ds == 0
         img = imread([kitti_path '/00/image_0/' sprintf('%06d.png',i)]);
@@ -134,19 +155,12 @@ for i = range
 
     % process newest image
     tic;
-    [R_WC_i,t_WC_i,keypoints_new,landmarks_new] = processFrame(params,img,prev_img,keypoints_prev,landmarks_prev,K);
+    [T_CiCj_vo_i(:,:,frame_idx),keypoints_new,landmarks_new] = processFrame(params,img,prev_img,keypoints_prev,landmarks_prev,K);
     toc;
     
     % append newest position and rotation to logging variables
-    W_vo_t_WC_i(:,i-range(1)+1) = t_WC_i;
-    W_vo_R_WC_i(:,:,i-range(1)+1) = R_WC_i;
-    
-%     if (i==range(1)) % first init
-%         W_Pos_WC(:,i-range(1)+1) = [0;0;0];
-%     else
-%         W_Pos_WC(:,i-range(1)+1) = W_Pos_WC(i-1)+(R_WC_i*t_WC_i)
-%     end
-    
+    T_WCi_vo(:,:,frame_idx) = T_WCi_vo(:,:,frame_idx-1)*T_CiCj_vo_i(:,:,frame_idx);
+
     % enable plots to refresh
     pause(0.01);
 
@@ -163,7 +177,7 @@ fprintf('...VO-pipeline terminated.\n');
 fprintf('display results...\n');
 if (params.ds~=1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
-    plotGroundThruth_2D(W_vo_t_WC_i,ground_truth');    
+    plotGroundThruth_2D(T_WCi_vo(1:3,4,:),ground_truth');    
 end
 
 end

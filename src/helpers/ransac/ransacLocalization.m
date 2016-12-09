@@ -7,11 +7,19 @@ function [R_C_W, t_C_W, matched_query_keypoints, matched_database_keypoints, cor
 % inlier_mask should be 1xnum_matched (!!!) and contain, only for the
 %   matched keypoints (!!!), 0 if the match is an outlier, 1 otherwise.
 %
-% Input:
-%  - p_w_landmarks(3xN) : 3D points
+% Inputs:
+%  - params: Parameter struct
+%  - Query_image: New image. We search its relative rotation matrix to database
+%    image
+%  - database_image: Last image. It defines the current world frame.
+%  - database_keypoints (2xN): Pixel coordinates of keypoints
+%  - p_w_landmarks(3xN) : 3D points of database image
+%  - K : Calibration matrix of the camera (assumed to be the same for both
+%    images)
 %
 % Output:
 %  - t_C_W(3x1) : translation vector
+%  - R_C_W(3x3) : rotation matrix camera 1 (world frame) to camera 2
 
 global fig_cont;
 

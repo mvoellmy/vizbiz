@@ -6,6 +6,9 @@
 ## Compiled MEX binaries (all platforms)
 *.mex*
 
+## Calibration images
+/src/calibration/calib_images/
+
 
 
 ### LATEX
