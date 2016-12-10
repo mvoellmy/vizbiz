@@ -8,7 +8,7 @@ function params = loadParameters(mode)
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 
@@ -16,7 +16,7 @@ params.compare_against_groundthruth = true;
 params.init.show_bootstrap_images = false;
 params.init.show_init_keypoints = true;
 params.init.show_landmarks = true;
-params.init.use_KITTI_precalculated_init = false;
+params.init.use_KITTI_precalculated_init = true;
 params.init.show_corr_matches = true;
 
 % correspondence parameters
@@ -42,7 +42,7 @@ params.cont.show_matches = true;
 params.localization_ransac.show_matched_keypoints = true;
 params.localization_ransac.show_inlier_matches = true;
 
-params.localization_ransac.use_p3p = false;
+params.localization_ransac.use_p3p = true;
 params.localization_ransac.num_iterations_pnp = 5000; % 2000 fix?
 params.localization_ransac.num_iterations_DLT = 200;
 params.localization_ransac.pixel_tolerance = 10; % 10

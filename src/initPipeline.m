@@ -21,6 +21,8 @@ if params.init.use_KITTI_precalculated_init % todo: still needed?
     % load precalculated keypoints and landmarks
     keypoints_init = load('../datasets/kitti/precalculated/keypoints.txt')';
     C1_landmarks_init = load('../datasets/kitti/precalculated/landmarks.txt')';
+    
+    T_C1C2 = eye(4);
 else
     % assign second image as initialization image
     I_init = I_i2;

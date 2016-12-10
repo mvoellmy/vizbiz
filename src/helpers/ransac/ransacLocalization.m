@@ -56,10 +56,14 @@ max_num_inliers = 0;
 % run RANSAC for pose estimation
 for i = 1:num_iterations
     [landmark_sample,idx] = datasample(Ci_corresponding_landmarks,s,2,'Replace',false);
-    keypoint_sample = Cj_matched_query_keypoints_uv(:,idx); % needed as [u,v]
+    keypoint_sample_uv = Cj_matched_query_keypoints_uv(:,idx); % needed as [u,v]
+    
+    if params.localization_ransac.use_p3p == false
+        fprintf('Current datasample index of Cj_matched_query_keypoint_uv: %d, %d, %d, %d, %d, %d\n',idx(1),idx(2),idx(3),idx(4),idx(5),idx(6));
+    end
     
     if params.localization_ransac.use_p3p
-        normalized_bearings = K\[keypoint_sample; ones(1, 3)];
+        normalized_bearings = K\[keypoint_sample_uv; ones(1, 3)];
         for ii = 1:3
             normalized_bearings(:, ii) = normalized_bearings(:, ii) / norm(normalized_bearings(:, ii), 2);
         end
@@ -73,7 +77,7 @@ for i = 1:num_iterations
             t_C_W_guess(:,:,ii+1) = -R_W_C_ii'*t_W_C_ii;
         end
     else % no p3p
-        M_C_W_guess = estimatePoseDLT(keypoint_sample',landmark_sample',K);
+        M_C_W_guess = estimatePoseDLT(keypoint_sample_uv',landmark_sample',K);
         R_C_W_guess = M_C_W_guess(:,1:3);
         t_C_W_guess = M_C_W_guess(:,end);
     end
@@ -139,8 +143,6 @@ else
     R_CiCj = R_CjCi';
     Ci_t_CiCj = -R_CiCj*Cj_t_CjCi;
 end
-
-
 
 % check for same number of query keypoints and database keypoints
 assert(size(matched_query_keypoints_vu,2) == size(matched_database_keypoints_vu,2));
