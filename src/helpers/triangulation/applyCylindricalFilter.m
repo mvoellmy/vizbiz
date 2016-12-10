@@ -14,7 +14,7 @@ function [ P_hom, outFOV_idx ] = applyCylindricalFilter( P_hom, cutoff_constant 
 %  - outFOV_idx(Ox1) : Indeces of the Outliers. Can be used to remove the
 %  corresponding 2D keypoints.
 
-
+% todo: change indices once newest best_rot is merged with this
     size_unfiltered_landmarks = size(P_hom, 2);
     
     cutoff_radius = cutoff_constant * median(P_hom(3,:));
