@@ -1,6 +1,10 @@
-function [projected_points] = projectPoints(points_3d, K, D)
+function [projected_points_uv] = projectPoints(points_3d, K, D)
 % Projects 3d points to the image plane (3xN), given the camera matrix (3x3) and
 % distortion coefficients (4x1).
+
+% Input
+% - points_3d (3xN) in any camera frame
+% - K: calib matrix to camera frame of 3d points
 
 % Output 
 % - projected_points (2xN) [u v] (most probably)
@@ -21,8 +25,8 @@ x_d = distortPoints([xp;yp],D);
 xpp = x_d(1,:); ypp = x_d(2,:);
 
 % convert to pixel coordinates
-projected_points = K * [xpp; ypp; ones(1, num_points)];
-projected_points = projected_points(1:2, :);
+projected_points_uv = K * [xpp; ypp; ones(1, num_points)];
+projected_points_uv = projected_points_uv(1:2, :);
 
 end
 

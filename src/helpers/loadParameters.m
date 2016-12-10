@@ -42,10 +42,10 @@ params.cont.show_matches = true;
 params.localization_ransac.show_matched_keypoints = true;
 params.localization_ransac.show_inlier_matches = true;
 
-params.localization_ransac.use_p3p = true;
+params.localization_ransac.use_p3p = false;
 params.localization_ransac.num_iterations_pnp = 5000; % 2000 fix?
 params.localization_ransac.num_iterations_DLT = 200;
-params.localization_ransac.pixel_tolerance = 20; % 10
+params.localization_ransac.pixel_tolerance = 10; % 10
 params.localization_ransac.show_iterations = false;
 
 
