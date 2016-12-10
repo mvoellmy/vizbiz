@@ -22,7 +22,7 @@ if params.ds == 0
     K = [7.188560000000e+02 0 6.071928000000e+02
         0 7.188560000000e+02 1.852157000000e+02
         0 0 1];
-    fprintf('loading KITTI dataset...\n');
+    fprintf('load KITTI dataset...\n');
 elseif params.ds == 1
     malaga_path = '../datasets/malaga-urban-dataset-extract-07';
     assert(exist('malaga_path', 'var') ~= 0);
@@ -33,7 +33,7 @@ elseif params.ds == 1
     K = [621.18428 0 404.0076
         0 621.18428 309.05989
         0 0 1];
-    fprintf('loading MALAGA dataset...\n');
+    fprintf('load MALAGA dataset...\n');
 elseif params.ds == 2
     parking_path = '../datasets/parking';
     assert(exist('parking_path', 'var') ~= 0);
@@ -42,7 +42,7 @@ elseif params.ds == 2
      
     ground_truth = load([parking_path '/poses.txt']);
     ground_truth = ground_truth(:, [end-8 end]);
-    fprintf('loading PARKING dataset...\n');
+    fprintf('load PARKING dataset...\n');
 else
     assert(false);
 end
@@ -109,8 +109,7 @@ toc;
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to W
 T_CiCj_vo_j(:,:,2) = T_C1C2; % first camera pose, C2 to C1
 
-% transformation C1 to world (90deg x-axis rotation) % todo: use zeros
-% instead?
+% transformation C1 to world (90deg x-axis rotation) % todo: use zeros instead?
 T_WC1 = [1      0           0        0;
          0 cos(-pi/2)   -sin(-pi/2)    0;
          0 sin(-pi/2)    cos(-pi/2)    0;

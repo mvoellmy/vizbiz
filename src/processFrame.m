@@ -19,6 +19,9 @@ global fig_cont;
 % show current frame
 if params.cont.show_current_image
     figure(fig_cont);
+    subplot(1,2,1);
+    imshow(img_new);
+    subplot(1,2,2);
     imshow(img_new);
 end
 
@@ -30,7 +33,7 @@ if (~isempty(R_CiCj) && ~isempty(Ci_t_CiCj))
 else
     R_CiCj = eye(3,3);
     Ci_t_CiCj = zeros(3,1);
-    fprintf('No transformation found\n');
+    fprintf('  No transformation found\n');
 end
 
 % construct new camera pose

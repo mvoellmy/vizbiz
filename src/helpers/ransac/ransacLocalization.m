@@ -18,8 +18,7 @@ function [R_CiCj, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints
 %  - corresponding_matches : todo ??
 %  - max_num_inliers_history(1xnum_iterations) : number inlier history
 
-global fig_cont;
-global fig_RANSAC_debug;
+global fig_cont fig_RANSAC_debug;
 
 % find 2D correspondences
 [matched_database_keypoints,matched_query_keypoints,corresponding_matches] = findCorrespondeces_cont(params,database_image,database_keypoints,query_image);
@@ -28,6 +27,10 @@ Ci_corresponding_landmarks = Ci_landmarks(:,corresponding_matches);
 % display matched keypoints
 if params.localization_ransac.show_matched_keypoints
     figure(fig_cont);
+    subplot(1,2,1);
+    plotPoints(matched_query_keypoints,'g.');
+    title('Current frame: Matched (green) keypoints');
+    subplot(1,2,2);
     plotPoints(matched_query_keypoints,'g.');
     title('Current frame: Matched (green) keypoints');
 end
@@ -110,13 +113,12 @@ if params.localization_ransac.show_iterations
     
     % display fraction of inlier matches
     fprintf('  %0.2f %% of inliers matches found\n',100*max_num_inliers/size(matched_query_keypoints,2));
-
 end
 
 if (max_num_inliers == 0)
     R_CiCj = [];
     Ci_t_CiCj = [];
-    fprintf('no inlier matches found\n');
+    fprintf('  No inlier matches found\n');
 else
     % calculate [R,T] with best inlier points
     M_CjCi = estimatePoseDLT(...
@@ -140,12 +142,13 @@ assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
 
 % display projected keypoints given best pose and inlier correspondences
 if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_matched_keypoints)
-    figure(fig_cont);    
     best_guess_projected_pts_uv = projectPoints((R_CiCj*Ci_corresponding_landmarks(:, best_guess_inliers>0)) + ...
                                                 repmat(Ci_t_CiCj,[1 size(Ci_corresponding_landmarks(:, best_guess_inliers>0), 2)]), K);
+    figure(fig_cont);
+    subplot(1,2,1);
     plotPoints(flipud(best_guess_projected_pts_uv),'yx');
     plotPoints(flipud(best_guess_projected_pts_uv),'yo');
-    %viscircles(best_guess_projected_pts_uv', params.localization_ransac.pixel_tolerance*ones(size(best_guess_projected_pts_uv,2),1),'LineStyle','-','Color','y');
+    title('Current frame: Projected keypoints (yellow circles)');
 end
 
 % flip keypoints back to keep [v u] order
@@ -154,6 +157,7 @@ matched_query_keypoints = flipud(matched_query_keypoints);
 % display inlier matches
 if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_inlier_matches)
     figure(fig_cont);
+    subplot(1,2,2);
     plotMatches(1:nnz(best_guess_inliers),matched_query_keypoints,matched_database_keypoints,'y-');
     title('Current frame: Inlier (yellow) matches found');
 end

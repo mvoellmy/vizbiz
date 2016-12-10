@@ -42,6 +42,7 @@ assert(size(matched_query_keypoints,2) == length(valid_matches) && ...
 % display valid correspondences
 if params.cont.show_new_keypoints
     figure(fig_cont);
+    subplot(1,2,1);
     imshow(query_image);
     hold on;
     plotPoints(query_keypoints,'r.');
@@ -49,6 +50,9 @@ if params.cont.show_new_keypoints
         plotMatches(matches,query_keypoints,database_keypoints,'m-');
         title('Current frame: Matches found');
     end
+    subplot(1,2,2);
+    imshow(query_image);
+    hold on;
 end
 
 end
