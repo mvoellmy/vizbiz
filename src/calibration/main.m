@@ -1,4 +1,4 @@
-clear all;
+clear;
 close all;
 clc;
 
@@ -10,8 +10,8 @@ options.save_images = true;
 
 %% 
 [~,path_name] = uigetfile('*.*','Select the first image...');
-convertImages2CalibImage(path_name,options);
+convertImages2CalibImages(path_name,options);
 
 %%
-%[video_name,path_name] = uigetfile('*.*','Select the video source file...');
-%extractImagesFromVideo([path_name,video_name],options);
+[video_name,path_name] = uigetfile('*.*','Select the video source file...');
+extractImagesFromVideo([path_name,video_name],options);

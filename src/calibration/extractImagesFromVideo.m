@@ -1,4 +1,10 @@
 function extractImagesFromVideo(video_path,options)
+% Extracts image sequence from video and stores images as calibration
+% images with predefined naming convention (as required by calibration tool).
+%
+% Input:
+%  - video_path(path) : video sourc path
+%  - options(struct) : options structure
 
 fig = figure('name','Extracted images');
 

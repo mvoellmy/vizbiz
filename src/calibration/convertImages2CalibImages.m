@@ -1,4 +1,10 @@
-function convertImages2CalibImage(images_path,options)
+function convertImages2CalibImages(images_path,options)
+% Converts images from a user-specified directory into calibration images  
+% with predefined naming convention (as required by calibration tool).
+%
+% Input:
+%  - images_path(path) : image directory path
+%  - options(struct) : options structure
 
 fig = figure('name','Extracted images');
 
