@@ -8,7 +8,7 @@ function [ ] = plotCam( T_WC, camsize, camcolor )
 %
 % More options and overload can be added if neccessary
 
-plotCamera('Location', T_WC(1:3,4),'Orientation', T_WC(1:3,1:3), 'Size', camsize,'Color', camcolor );
+plotCamera('Location', T_WC(1:3,4),'Orientation', T_WC(1:3,1:3)', 'Size', camsize,'Color', camcolor );
 
 end
 

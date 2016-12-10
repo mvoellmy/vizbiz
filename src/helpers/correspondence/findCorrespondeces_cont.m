@@ -1,16 +1,16 @@
 function [matched_database_keypoints, matched_query_keypoints, valid_matches] = findCorrespondeces_cont(params, database_image, database_keypoints, query_image)
-% Detects N keypoint correspondeces given image pair
-% and returns the sorted keypoints of both images.
+% TODO description
 % 
 % Input:
 %  - params(struct) : parameter struct
 %  - database_image(size) : first image
+%  - database_keypoints(2xN) : previous image keypoints, [v u]
 %  - query_image(size) : second image
 %
 % Output:
-%  - database_keypoints(2xN) : matched keypoints of first image
-%  - query_keypoints(2xN) : matched keypoints of second image
-%  - matches(1xN) : indeces of query keypoints matched with db keypoints
+%  - matched_database_keypoints(2xN) : matched keypoints of first image, [v u]
+%  - matched_query_keypoints(2xN) : matched keypoints of second image, [v u]
+%  - valid_matches(1xN) : indeces of query keypoints matched with db keypoints
 
 global fig_cont;
 
@@ -29,20 +29,20 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 % match descriptors
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
-% extract indices
-query_indeces = 1:length(matches);
-database_indeces = matches;
-matched_query_indeces = query_indeces(matches > 0);
-matched_database_indeces = database_indeces(matches > 0);
-
 % filter invalid matches
-valid_matches = matches(matches > 0);
-matched_query_keypoints = query_keypoints(:,matched_query_indeces);
-matched_database_keypoints = database_keypoints(:,matched_database_indeces);
+[~,matched_query_indices,matched_database_indices] = find(matches);
+valid_matches = 1:length(matched_query_indices);
+matched_query_keypoints = query_keypoints(:,matched_query_indices);
+matched_database_keypoints = database_keypoints(:,matched_database_indices);
+
+% check for consistent correspondences
+assert(size(matched_query_keypoints,2) == length(valid_matches) && ...
+       size(matched_database_keypoints,2) == length(valid_matches));
 
 % display valid correspondences
 if params.cont.show_new_keypoints
     figure(fig_cont);
+    subplot(1,2,1);
     imshow(query_image);
     hold on;
     plotPoints(query_keypoints,'r.');
@@ -50,6 +50,9 @@ if params.cont.show_new_keypoints
         plotMatches(matches,query_keypoints,database_keypoints,'m-');
         title('Current frame: Matches found');
     end
+    subplot(1,2,2);
+    imshow(query_image);
+    hold on;
 end
 
 end
