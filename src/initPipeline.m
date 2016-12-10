@@ -62,10 +62,10 @@ else
     M2 = K*T_C2C1(1:3,:); %M2 = K*W_T_WC2(1:3,:);
     P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2); % todo: VERIFY landmarks must be in world frame!
     
-    % remove landmarks with negative Z coordinate % todo: dedicate function
-    % with cyclindrical cutoff? and display amount of dropped landmarks?
-    outFOV_idx = find(P_hom_init(3,:) <0 );
-    P_hom_init(:,outFOV_idx) = [];
+    
+    
+    [ P_hom_init, outFOV_idx ] = applyCylindricalFilter( P_hom_init, params.init.landmarks_cutoff );
+
     
     % remove corresponding keypoints
     p_i2(:,outFOV_idx) = [];
