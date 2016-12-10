@@ -109,11 +109,15 @@ toc;
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to W
 T_CiCj_vo_j(:,:,2) = T_C1C2; % first camera pose, C2 to C1
 
+%{
 % transformation C1 to world (90deg x-axis rotation) % todo: use zeros instead?
 T_WC1 = [1      0           0        0;
          0 cos(-pi/2)   -sin(-pi/2)    0;
          0 sin(-pi/2)    cos(-pi/2)    0;
                  zeros(1,3)          1];
+%}
+
+T_WC1 = eye(4);
 
 % update stacked world-referenced pose
 T_WCj_vo(:,:,1) = T_WC1; %T_WC1* T_CiCj_vo_i(:,:,1); % C1 to W

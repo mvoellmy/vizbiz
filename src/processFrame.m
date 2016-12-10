@@ -1,4 +1,4 @@
-function [T_CiCj, p_new_matched, Cj_landmarks_updated] = processFrame(params,img_new,img_prev,keypoints_prev,Ci_landmarks,K)
+function [T_CiCj, p_new_matched, Cj_landmarks_updated] = processFrame(params,img_new,img_prev,keypoints_prev,Ci_landmarks_prev,K)
 % TODO description
 % 
 % Input:
@@ -6,7 +6,7 @@ function [T_CiCj, p_new_matched, Cj_landmarks_updated] = processFrame(params,img
 %  - img_new(size) : current frame
 %  - img_prev(size) : previous frame
 %  - keypoints_prev(2xN) : 2D points,[v u]
-%  - C1_landmarks(3xN) : 3D points
+%  - Ci_landmarks_prev (3xN) : 3D points
 %  - K(3x3) : camera intrinsics matrix
 %
 % Output:
@@ -26,7 +26,7 @@ if params.cont.show_current_image
 end
 
 % state propagation and pose estimation
-[R_CiCj,Ci_t_CiCj,p_new_matched,p_prev_matched,~,~] = ransacLocalization(params,img_new,img_prev,keypoints_prev,Ci_landmarks,K);
+[R_CiCj,Ci_t_CiCj,p_new_matched,p_prev_matched,~,~] = ransacLocalization(params,img_new,img_prev,keypoints_prev,Ci_landmarks_prev,K);
 
 if (~isempty(R_CiCj) && ~isempty(Ci_t_CiCj))
     fprintf(' >> Successfully localized\n');
@@ -40,6 +40,7 @@ end
 T_CiCj = [R_CiCj   Ci_t_CiCj;
           ones(1,3)        1];
 
+%{
 % triangulate new points with keypoint tracks % TODO
 M1 = K * eye(3,4);
 M2 = K * [R_CiCj, Ci_t_CiCj];
@@ -54,10 +55,16 @@ Ci_landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,M1,M
 % append new landmarks in new frame
 %Cj_landmarks_updated = [Ci_landmarks Ci_landmarks_new(1:3,:)];
 Cj_landmarks_updated = T_CiCj(1:3,1:3)'*[Ci_landmarks Ci_landmarks_new(1:3,:)];
-
+          
 % display statistics
 fprintf(['  Number of new landmarks triangulated: %i\n',...
          '  Total number of landmarks: %i\n\n'],...
          size(Ci_landmarks_new,2), size(Cj_landmarks_updated,2));
+%}
+          
+          
+Cj_landmarks_updated = T_CiCj(1:3,1:3)'*Ci_landmarks_prev;
+          
+
 
 end
