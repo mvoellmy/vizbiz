@@ -38,7 +38,7 @@ end
 
 % construct new camera pose
 T_CiCj = [R_CiCj   Ci_t_CiCj;
-          ones(1,3)       1];
+          ones(1,3)        1];
 
 % triangulate new points with keypoint tracks % TODO
 M1 = K * eye(3,4);

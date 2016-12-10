@@ -49,7 +49,7 @@ end
 
 %% Bootstraping
 fprintf('setup boostrapping...\n\n');
-% set bootstrap_frames
+% set bootstrap_frames % todo move into bootstrapFrames() completely??
 if params.ds == 0
     img0 = imread([kitti_path '/00/image_0/' ...
         sprintf('%06d.png',bootstrapFrames(params.ds,'first'))]);
@@ -149,7 +149,7 @@ Ci_landmarks_prev = T_C1C2(1:3,1:3)'*C1_landmarks_init; % express in C2
 for j = range_cont
     frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
     fprintf('\n\nProcessing frame %d\n=====================\n', j);
-    if params.ds == 0
+    if params.ds == 0 % todo move into currentFrames() ??
         img = imread([kitti_path '/00/image_0/' sprintf('%06d.png',j)]);
     elseif params.ds == 1
         img = rgb2gray(imread([malaga_path ...

@@ -20,7 +20,7 @@ function [R_CiCj, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints
 
 global fig_cont fig_RANSAC_debug;
 
-% find 2D correspondences
+% find 2D correspondences % todo: move out of ransacLocalization()??
 [matched_database_keypoints,matched_query_keypoints,corresponding_matches] = findCorrespondeces_cont(params,database_image,database_keypoints,query_image);
 Ci_corresponding_landmarks = Ci_landmarks(:,corresponding_matches);
 
