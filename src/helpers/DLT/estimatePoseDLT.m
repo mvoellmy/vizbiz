@@ -1,9 +1,9 @@
-function M_CW = estimatePoseDLT(p, P, K)
-% Estimates the pose of a camera using a set of 2D-3D correspondences and a
-% given camera matrix
+function M_CW = estimatePoseDLT(Cj_p_uv, Ci_P, K)
+% Estimates the pose of a camera using a set of 2D (rotated frame) -3D (original frame) correspondences and a
+% given camera matrix (for rotated frame)
 %
-% p: [nx2] vector containing the undistorted coordinates of the 2D points
-% P: [nx3] vector containing the 3D point positions
+% p: [nx2] vector containing the undistorted coordinates of the 2D points [u v] most probably
+% P: [nx3] vector containing the 3D point positions in frame of camera i
 % K: [3x3] camera matrix
 %
 % M_CW: [3x4] projection matrix under the form M=[R|t] where R is a rotation
@@ -11,7 +11,7 @@ function M_CW = estimatePoseDLT(p, P, K)
 %    frame to the camera frame
 
 % Convert 2D points to normalized coordinates
-p_normalized = (K \ [p ones(length(p),1)]')';
+p_normalized = (K \ [Cj_p_uv ones(length(Cj_p_uv),1)]')';
 
 % Build the measurement matrix Q
 num_corners = length(p_normalized);
@@ -21,13 +21,13 @@ for i=1:num_corners
     u = p_normalized(i,1);
     v = p_normalized(i,2);
     
-    Q(2*i-1,1:3) = P(i,:);
+    Q(2*i-1,1:3) = Ci_P(i,:);
     Q(2*i-1,4) = 1;
-    Q(2*i-1,9:12) = -u * [P(i,:) 1];
+    Q(2*i-1,9:12) = -u * [Ci_P(i,:) 1];
     
-    Q(2*i,5:7) = P(i,:);
+    Q(2*i,5:7) = Ci_P(i,:);
     Q(2*i,8) = 1;
-    Q(2*i,9:12) = -v * [P(i,:) 1];
+    Q(2*i,9:12) = -v * [Ci_P(i,:) 1];
 end
 
 % Solve for Q.M = 0 subject to the constraint ||M||=1
