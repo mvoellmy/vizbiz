@@ -62,21 +62,10 @@ else
     M2 = K*T_C2C1(1:3,:); %M2 = K*W_T_WC2(1:3,:);
     P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2); % todo: VERIFY landmarks must be in world frame!
     
-    % Remove landmarks which are more than l_c*median of z away from the
-    % camera. Median of z is used since the points are naturally the
-    % farthest away in z.
     
-    size_unfiltered_landmarks = size(P_hom_init, 2);
     
-    cutoff = params.init.landmarks_cutoff * median(P_hom_init(3,:));
-    outFOV_idx = find( ( (P_hom_init(3,:) <0) | (sqrt(P_hom_init(1,:).^2 + P_hom_init(3,:).^2) > cutoff ) )); % Note: Single | is used to compare vectors. 
-    P_hom_init(:,outFOV_idx) = [];
+    [ P_hom_init, outFOV_idx ] = applyCylindricalFilter( P_hom_init, params.init.landmarks_cutoff );
 
-    size_filtered_landmarks = size(P_hom_init, 2);
-    
-    fprintf('  %0.2f%% (%i/%i) of Landmarks were accepted. \n',...
-        100*size_filtered_landmarks/size_unfiltered_landmarks, size_filtered_landmarks, size_unfiltered_landmarks);
-    
     
     % remove corresponding keypoints
     p_i2(:,outFOV_idx) = [];
