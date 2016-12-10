@@ -10,7 +10,7 @@ function [T_CiCj, p_new_matched, Cj_landmarks_updated] = processFrame(params,img
 %  - K(3x3) : camera intrinsics matrix
 %
 % Output:
-%  - T_CiCj(4x4) : transformation of Cj relative to Ci
+%  - T_CiCj(4x4) : transformation Cj to Ci
 %  - p_new_matched(2xN) : newly matched keypoints, [v u] 
 %  - Cj_landmarks_updated(3xN) : 3D points in frame Cj
 

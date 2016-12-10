@@ -11,7 +11,7 @@ function [R_CiCj, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints
 %  - K(3x3) : camera intrinsics matrix
 %
 % Output:
-%  - R_CiCj(3x3) : rotation matrix Ci to Cj
+%  - R_CiCj(3x3) : rotation matrix Cj to Ci
 %  - Ci_t_CiCj(3x1) : translation vector of Ci to Cj expressed in frame Ci
 %  - matched_query_keypoints(2xN) : re-matched query keypoints, [v u]
 %  - matched_database_keypoints(2xN) : re-matched database keypoints, [v u]
