@@ -12,7 +12,7 @@ function [I_init, keypoints_init, C1_landmarks_init, T_C1C2] = initPipeline(para
 %  - I_init(size) : initialization image
 %  - keypoints_init(2xN) : matched keypoints from image pair, each [v,u]
 %  - C1_landmarks_init(3xN) : C1-referenced triangulated 3D points
-%  - T_C1C2(4x4) : homogenious transformation matrix C2 to C1
+%  - T_C1C2(4x4) : homogeneous transformation matrix C2 to C1
 
 if params.init.use_KITTI_precalculated_init % todo: still needed?
     % assign second image as initialization image
@@ -58,10 +58,8 @@ else
     M2 = K*T_C2C1(1:3,:); %M2 = K*T_C1C2(1:3,:);
     C1_P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2);
     
-    % remove landmarks with negative Z coordinate % todo: dedicate function
-    % with cyclindrical cutoff? and display amount of dropped landmarks?
-    outFOV_idx = find(C1_P_hom_init(3,:) <0 );
-    C1_P_hom_init(:,outFOV_idx) = [];
+	% discard landmarks not contained in cylindrical neighborhood
+    [C1_P_hom_init, outFOV_idx] = applyCylindricalFilter(C1_P_hom_init, params.init.landmarks_cutoff);
     
     % remove corresponding keypoints
     p_i2(:,outFOV_idx) = [];

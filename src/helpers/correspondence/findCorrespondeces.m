@@ -41,17 +41,6 @@ matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.ma
 fprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f %%)\n',...
         nnz(matches),100*nnz(matches)/size(database_keypoints,2));
 
-% % extract indices
-% query_indeces = 1:length(matches);
-% database_indeces = matches;
-% matched_query_indeces = query_indeces(matches > 0);
-% matched_database_indeces = database_indeces(matches > 0);
-% 
-% % filter invalid matches
-% valid_matches = matches(matches > 0);
-% matched_query_keypoints = flipud(query_keypoints(:,matched_query_indeces));
-% matched_database_keypoints = flipud(database_keypoints(:,matched_database_indeces));
-
 % filter invalid matches
 [~,matched_query_indices,matched_database_indices] = find(matches);
 matched_query_keypoints = flipud(query_keypoints(:,matched_query_indices));

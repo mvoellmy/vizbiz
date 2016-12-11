@@ -18,6 +18,9 @@
 \usepackage{xcolor}
 \usepackage[english]{babel}
 \usepackage{hyperref}
+\usepackage[latin1]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
 
 %setup url
 \hypersetup{
@@ -28,7 +31,7 @@
 %setup header
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[LE,RO]{Pascal Buholzer, Fabio Dubois, Miro Völlmy, Milan Schilling}
+\fancyhead[LE,RO]{Pascal Buholzer, Fabio Dubois, Miro Voellmy, Milan Schilling}
 \fancyhead[RE,LO]{VAMR}
 %\fancyfoot[CE,CO]{\leftmark}
 \fancyfoot[LE,RO]{\thepage}
@@ -50,34 +53,38 @@
   title=\lstname,                 % show the filename of files included with \lstinputlisting;
 }
 
+%setup file input directory
+\makeatletter
+\def\input@path{{./includes/}}
+\makeatother
+
 %setup graphics directory
 \graphicspath{{./graphics/}}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 
 \section{Visual Odometry Pipeline}
-\subsection{Mini project}
 
-
-\subsection{Initialization}
-\subsubsection{Stereo initialization}
+\subsection{Sandbox}
 \begin{figure}[ht]
 	\includegraphics[width=0.8\textwidth]{pig}
 	\caption{Pig image}
 	\label{img_pig}
 \end{figure}
 
-\subsubsection{Monocular initialization}
+\subsection{Pipeline overview}
+\input{pipeline_overview}
 
 
+\subsection{Monocular initialization}
 
-\subsection{continuous Operation}
-
+\subsection{Continuous Operation}
 
 
 \newpage
-\subsection*{code.m}
+%\subsection*{code.m}
 %\lstinputlisting[language=C]{../code/lab06/lab06.ino}
 
 
