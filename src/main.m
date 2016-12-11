@@ -171,6 +171,7 @@ for j = range_cont
         toc;
         
         % add super title with frame number
+        figure(fig_cont);
         suptitle(sprintf('Frame #%i',j));
     else
         warning('No keypoints left!!');
