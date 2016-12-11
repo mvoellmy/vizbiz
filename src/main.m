@@ -1,7 +1,7 @@
 clear;
 close all;
 clc;
-rng(1);
+rng(1); % fix random seed
 
 addpath(genpath('helpers'));
 addpath(genpath('testing'));
