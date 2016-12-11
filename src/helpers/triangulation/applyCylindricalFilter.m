@@ -5,14 +5,18 @@ function [ P_hom, outFOV_idx ] = applyCylindricalFilter( P_hom, cutoff_constant 
 % farthest away in z.
 %
 % Input:
-%  - P_hom(3xN) : List of 3D Points in Worldframe with y pointing
+%  - P_hom(4xN) : List of 3D Points in Worldframe with y pointing
 %  vertically down
 %  - cutoff_constant(int) : Constant which is multiplied by the median of the landmarks in z.
 %
 % Output:
-%  - P_hom(3x(N-O)) : Filtered 3D Points
+%  - P_hom(4x(N-O)) : Filtered 3D Points
 %  - outFOV_idx(Ox1) : Indeces of the Outliers. Can be used to remove the
 %  corresponding 2D keypoints.
+%
+% Definitions:
+% - O(int) : Number of Outliers
+
 
 % todo: change indices once newest best_rot is merged with this
     size_unfiltered_landmarks = size(P_hom, 2);

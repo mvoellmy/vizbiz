@@ -20,6 +20,7 @@ params.init.show_init_keypoints = true;
 params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_corr_matches = true;
+params.init.use_BA = true;
 params.init.landmarks_cutoff = 5;
 
 % correspondence parameters

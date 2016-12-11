@@ -1,36 +1,63 @@
-function [ P_hom_init, W_T_WC1, W_T_WC2 ] = bundleAdjust(P_hom_init, p_hom_i1, p_hom_i2, R_C1C2, t_C1C2, K )
-%UNTITLED5 Summary of this function goes here
-%   Detailed explanation goes here
+function [ P_refined, T_refined ] = bundleAdjust(P, p, T, K, fixed_cams )
+% Wraps our conventionally used parameters to be used with the Bundle
+% Adjust function of Matlab. See implementation in initPipeline.m
+% Attention! Inputs are NOT homogenized coordinates.
+% 
+% Input:
+%  - P(3xN)     : List of 3D Points in world-frame
+%  - p(nC*2xN)  : Matrix containing 2D Points sorted according to
+%  their correspondance with each other and the 3D points.
+%  - T(nC*4x4)  : Stack of transformation matrices towards the individual
+%  camers
+%  - fixed_cams(1xC) : Vector with camera_ids defining which cams are fixed
+%  in world
+%
+% Output:
+%  - P_refined(3xN) : Bundle adjusted 3D Points in world-frame
+%  - T_refined(nC*4x4) : refined transformation matrices of cameras
+%
+% Definitions:
+% - nC(int) : number of cameras
 
+% Potential Improvements:
+%  Preallocate point_tracks
+%  Remove for loops where possible
 
-%   point_tracks = cell(size(p_hom_i1,2)); todo: Preallocate
+    nr_of_cams = size(p, 1)/2;
+    nr_of_keypoints = size(p,2);
     
-    P_hom_init_old = P_hom_init(1:3,:);
+    % Vector containing camera_ids
+    view_ids = 1:nr_of_cams;
 
-    view_ids = [1 2];
-    
-    for i=1:size(p_hom_i1,2)
-        point_tracks(i) = pointTrack(view_ids,[p_hom_i1(1:2, i)'; p_hom_i2(1:2, i)' ]);
+    for i=1:nr_of_keypoints
+        p_corresponding = vec2mat(p(:,i),2);
+        point_tracks(i) = pointTrack(view_ids, p_corresponding);
     end
     
-    xyzPoints = P_hom_init(1:3,:)';
+    % Fill cameraPoses vectors
+    orientations = cell(nr_of_cams, 1);
+    locations = cell(nr_of_cams, 1);
     
-    cameraPoses = table;    
-    cameraPoses.ViewId = [uint32(1);uint32(2)];
-    cameraPoses.Orientation = [{eye(3)};{R_C1C2}];
-    cameraPoses.Location = [{zeros(1, 3)};{t_C1C2'}];
+    for i=1:4:4*nr_of_cams % Might be possible to remove for loop
+        orientations((i-1)/4 + 1) = {T(i:i+2, 1:3)};
+        locations((i-1)/4 + 1) = {T(i:i+2, 4)'};
+    end
     
+    cameraPoses = table;
+    cameraPoses.ViewId = uint32(view_ids');
+    cameraPoses.Orientation = orientations;
+    cameraPoses.Location = locations;
     cameraParams = cameraParameters('IntrinsicMatrix', K');
-%     
-    [P_hom_init, refinedPoses, error] = bundleAdjustment(xyzPoints, point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', 1 );
-%     
-disp(error)
-    P_hom_init = P_hom_init';
     
-    W_T_WC1 = [cell2mat(refinedPoses.Orientation(1)), cell2mat(refinedPoses.Location(1))';
-               zeros(1,3),       1];
-         
-    W_T_WC2 = [cell2mat(refinedPoses.Orientation(2)), cell2mat(refinedPoses.Location(2))';
+    [P_refined, refinedPoses] = bundleAdjustment(P', point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', fixed_cams );
+    
+    P_refined = P_refined';
+    T_refined = zeros(size(T));
+    
+    for i=1:nr_of_cams % Pretty sure this can be indexed nicer and potentially done without a for loop
+        T_refined(1+(i-1)*4:4+(i-1)*4,1:4) = [cell2mat(refinedPoses.Orientation(i)), cell2mat(refinedPoses.Location(i))';
                zeros(1,3),       1];
     end
+    
+end
 
