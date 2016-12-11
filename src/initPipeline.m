@@ -1,5 +1,5 @@
 function [I_init, keypoints_init, C1_landmarks_init, T_C1C2] = initPipeline(params, I_i1, I_i2, K)
-% Returns initialization image and corresponding keypoints and landmarks
+% Returns initialization image and corresponding sorted keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.
 % 
@@ -12,7 +12,7 @@ function [I_init, keypoints_init, C1_landmarks_init, T_C1C2] = initPipeline(para
 %  - I_init(size) : initialization image
 %  - keypoints_init(2xN) : matched keypoints from image pair, each [v,u]
 %  - C1_landmarks_init(3xN) : C1-referenced triangulated 3D points
-%  - T_C1C2(4x4) : homogenious transformationn matrix C2 to C1
+%  - T_C1C2(4x4) : homogenious transformation matrix C2 to C1
 
 if params.init.use_KITTI_precalculated_init % todo: still needed?
     % assign second image as initialization image
@@ -27,8 +27,8 @@ else
     % assign second image as initialization image
     I_init = I_i2;
 
-    % find 2D correspondences
-    [p_i1,p_i2,~] = findCorrespondeces(params,I_i1,I_i2);
+    % find 2D correspondences (match indices not needed, since sorted)
+    [p_i1,p_i2,~] = findCorrespondeces(params,I_i1,I_i2); % todo: third output needed?
     
     % homogenize points
     p_hom_i1 = [p_i1; ones(1,length(p_i1))];

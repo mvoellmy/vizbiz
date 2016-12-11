@@ -1,6 +1,6 @@
 function [matched_database_keypoints, matched_query_keypoints, valid_matches] = findCorrespondeces(params, database_image, query_image)
 % Detects N keypoint correspondeces given image pair
-% and returns the sorted keypoints of both images.
+% and returns the SORTED keypoints of both images.
 % 
 % Input:
 %  - params(struct) : parameter struct
@@ -10,7 +10,7 @@ function [matched_database_keypoints, matched_query_keypoints, valid_matches] = 
 % Output:
 %  - matched_database_keypoints(2xN) : matched keypoints of first image, each [u v]
 %  - matched_query_keypoints(2xN) : matched keypoints of second image, each [u v]
-%  - valid_matches(1xN) : indeces of query keypoints matched with db keypoints
+%  - valid_matches(1xN) : !!! indeces of query keypoints matched with db keypoints
 
 global fig_init;
 
@@ -37,7 +37,9 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
 % display fraction of matched keypoints
-fprintf('  %0.2f %% of keypoints matched\n',100*nnz(matches)/size(matches,2));
+%fprintf('  %0.2f %% of keypoints matched\n',100*nnz(matches)/size(matches,2));
+fprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f %%)\n',...
+        nnz(matches),100*nnz(matches)/size(database_keypoints,2));
 
 % % extract indices
 % query_indeces = 1:length(matches);
@@ -52,13 +54,14 @@ fprintf('  %0.2f %% of keypoints matched\n',100*nnz(matches)/size(matches,2));
 
 % filter invalid matches
 [~,matched_query_indices,matched_database_indices] = find(matches);
-valid_matches = 1:length(matched_query_indices);
 matched_query_keypoints = flipud(query_keypoints(:,matched_query_indices));
 matched_database_keypoints = flipud(database_keypoints(:,matched_database_indices));
+valid_matches = 1:length(matched_query_indices); % still needed?
 
 % check for consistent correspondences
-assert(size(matched_query_keypoints,2) == length(valid_matches) && ...
-       size(matched_database_keypoints,2) == length(valid_matches));
+% assert(size(matched_query_keypoints,2) == length(valid_matches) && ...
+%        size(matched_database_keypoints,2) == length(valid_matches));
+assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
 
 % display bootstrap pair keypoints
 if params.init.show_init_keypoints

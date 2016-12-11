@@ -139,12 +139,13 @@ fprintf('start continuous VO operation...');
 
 global fig_cont fig_RANSAC_debug;
 fig_cont = figure('name','Contiunous VO estimation');
-%fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
+fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
 
 % hand-over initialization variables
 img_prev = img_init;
 keypoints_prev = keypoints_init;
 Ci_landmarks_prev = T_C1C2(1:3,1:3)'*C1_landmarks_init; % express in C2
+match_indices_prev = 1:size(keypoints_prev,2);
 
 for j = range_cont
     frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
@@ -179,9 +180,9 @@ for j = range_cont
     pause(1.01);
 
     % update previous image, keypoints and landmarks
-    img_prev = img;
-    keypoints_prev = keypoints_new;
-    Ci_landmarks_prev = Cj_landmarks_new;
+    %img_prev = img;
+    %keypoints_prev = keypoints_new;
+    %Ci_landmarks_prev = Cj_landmarks_new;
     
     fprintf('\n\n');
 end
@@ -195,5 +196,7 @@ end
 fprintf('display results...\n');
 if (params.ds~=1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
-    plotGroundThruth_2D(T_WCj_vo(1:3,4,:),ground_truth');    
+    plotGroundThruth_2D(T_WCj_vo(1:3,4,:),ground_truth');
+else
+    % todo: plot only path
 end

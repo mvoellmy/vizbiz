@@ -3,7 +3,7 @@ function keypoints = selectKeypoints(scores, num, r)
 % supression of a (2r + 1)*(2r + 1) box around the current maximum.
 
 % Outputs
-% - keypoints (2xN, [v,u])
+% - keypoints(2xN), [v,u]
 
 keypoints = zeros(2, num);
 temp_scores = padarray(scores, [r r]);

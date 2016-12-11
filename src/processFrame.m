@@ -19,9 +19,9 @@ global fig_cont;
 % show current frame
 if params.cont.show_current_image
     figure(fig_cont);
-    subplot(1,2,1);
+    subplot(2,1,1);
     imshow(img_new);
-    subplot(1,2,2);
+    subplot(2,1,2);
     imshow(img_new);
 end
 
@@ -53,7 +53,7 @@ Ci_landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,M1,M
 
 % append new landmarks in new frame
 %Cj_landmarks_updated = [Ci_landmarks Ci_landmarks_new(1:3,:)];
-Cj_landmarks_updated = T_CiCj(1:3,1:3)'*[Ci_landmarks Ci_landmarks_new(1:3,:)];
+Cj_landmarks_updated = T_CiCj(1:3,1:3)'*[Ci_landmarks_prev Ci_landmarks_new(1:3,:)];
           
 % display statistics
 fprintf(['  Number of new landmarks triangulated: %i\n',...
