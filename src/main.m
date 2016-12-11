@@ -163,7 +163,7 @@ for j = range_cont
         assert(false);
     end
 
-    if size(keypoints_prev,2) > 0 % todo: minimum number?
+    if (size(keypoints_prev,2) > 0) % todo: minimum number?
         tic;
         % process newest image
         [T_CiCj_vo_j(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,img_prev,keypoints_prev,Ci_landmarks_prev,K);
@@ -184,7 +184,7 @@ for j = range_cont
     %keypoints_prev = keypoints_new;
     %Ci_landmarks_prev = Cj_landmarks_new;
     
-    fprintf('\n\n');
+    fprintf('\n');
 end
 fprintf('...VO-pipeline terminated.\n');
 
@@ -194,9 +194,10 @@ end
 
 %% Performance summary
 fprintf('display results...\n');
-if (params.ds~=1 && params.compare_against_groundthruth)
+if (params.ds ~= 1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
-    plotGroundThruth_2D(T_WCj_vo(1:3,4,:),ground_truth');
-else
-    % todo: plot only path
+    plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth');
+elseif (params.ds == 1 && params.compare_against_groundthruth)
+    % plot VO trajectory
+    plotTrajectory_2D(T_WCj_vo(1:3,4,:));
 end
