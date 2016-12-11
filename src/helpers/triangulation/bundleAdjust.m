@@ -17,7 +17,7 @@ function [ P_refined, T_refined ] = bundleAdjust(P, p, T, K, fixed_cams )
 %  - T_refined(nC*4x4) : refined transformation matrices of cameras
 %
 % Definitions:
-% - nC(int) : number of cameras
+%  - nC(int) : number of cameras
 
 % Potential Improvements:
 %  Preallocate point_tracks
