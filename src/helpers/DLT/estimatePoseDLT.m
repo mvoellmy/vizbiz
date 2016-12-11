@@ -1,9 +1,9 @@
-function M_CW = estimatePoseDLT(Cj_p_uv, Ci_P, K)
+function M_CW = estimatePoseDLT(p, Ci_P, K)
 % Estimates the pose of a camera using a set of 2D (rotated frame) -3D (original frame) correspondences and a
 % given camera matrix (for rotated frame)
 %
-% p: [nx2] vector containing the undistorted coordinates of the 2D points [u v] most probably
-% P: [nx3] vector containing the 3D point positions in frame of camera i
+% p: [nx2] vector containing the undistorted coordinates of the 2D points, [u v] most probably
+% Ci_P: [nx3] vector containing the 3D point positions in frame of camera i
 % K: [3x3] camera matrix
 %
 % M_CW: [3x4] projection matrix under the form M=[R|t] where R is a rotation
@@ -11,7 +11,7 @@ function M_CW = estimatePoseDLT(Cj_p_uv, Ci_P, K)
 %    frame to the camera frame
 
 % Convert 2D points to normalized coordinates
-p_normalized = (K \ [Cj_p_uv ones(length(Cj_p_uv),1)]')';
+p_normalized = (K \ [p ones(length(p),1)]')';
 
 % Build the measurement matrix Q
 num_corners = length(p_normalized);
