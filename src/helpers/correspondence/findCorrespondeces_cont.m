@@ -54,7 +54,7 @@ if params.cont.show_new_keypoints
     plotPoints(query_keypoints,'r.');
     if params.cont.show_matches
         plotMatches(matches,query_keypoints,database_keypoints,'m-');
-        title('Current frame: Matches found');
+        title('Matches found');
     end
     subplot(2,1,2);
     imshow(query_image);

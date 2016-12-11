@@ -163,11 +163,14 @@ for j = range_cont
         assert(false);
     end
 
-    if (size(keypoints_prev,2) > 0) % todo: minimum number?
+    if (size(keypoints_prev,2) > 0) % todo: minimum number?        
         tic;
         % process newest image
         [T_CiCj_vo_j(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,img_prev,keypoints_prev,Ci_landmarks_prev,K);
         toc;
+        
+        % add super title with frame number
+        suptitle(sprintf('Frame #%i',j));
     else
         warning('No keypoints left!!');
         break;

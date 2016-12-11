@@ -30,10 +30,10 @@ if params.localization_ransac.show_matched_keypoints
     figure(fig_cont);
     subplot(2,1,1);
     plotPoints(matched_query_keypoints,'g.');
-    title('Current frame: Matched (green) keypoints');
+    title('Matched (green) keypoints');
     subplot(2,1,2);
     plotPoints(matched_query_keypoints,'g.');
-    title('Current frame: Matched (green) keypoints');
+    title('Matched (green) keypoints');
 end
 
 % choose RANSAC options
@@ -58,7 +58,7 @@ for i = 1:num_iterations
     [landmark_sample,idx] = datasample(Ci_corresponding_landmarks,s,2,'Replace',false);
     keypoint_sample = matched_query_keypoints(:,idx); % needed as [u,v]
     
-    if ~params.localization_ransac.use_p3p
+    if ~params.localization_ransac.use_p3p % todo: needed?
         fprintf('Current datasample index of Cj_matched_query_keypoint_uv: %d, %d, %d, %d, %d, %d\n',idx(1),idx(2),idx(3),idx(4),idx(5),idx(6));
     end
     
@@ -156,7 +156,7 @@ if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_matched_keypo
     subplot(2,1,1);
     plotPoints(flipud(best_guess_projected_pts_uv),'yx');
     plotPoints(flipud(best_guess_projected_pts_uv),'yo');
-    title('Current frame: Projected keypoints (yellow circles)');
+    title('Projected keypoints (yellow circles)');
 end
 
 % flip keypoints back to restore [v u] order
@@ -167,7 +167,7 @@ if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_inlier_matche
     figure(fig_cont);
     subplot(2,1,2);
     plotMatches(1:nnz(best_guess_inliers),matched_query_keypoints,matched_database_keypoints,'y-');
-    title('Current frame: Inlier (yellow) matches found');
+    title('Inlier (yellow) matches found');
 end
 
 end
