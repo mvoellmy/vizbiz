@@ -23,6 +23,7 @@ num_iterations = ceil(log(1-params.eightPoint_ransac.p_success)/...
 
 best_guess = NaN(3,3);          
 best_guess_history = NaN(3,3,num_iterations);
+best_guess_inliers = NaN(1, size(p_hom_i2,2));
 max_num_inliers_history = NaN(1,num_iterations);
 max_num_inliers = 0;
 inliers = zeros(1,size(p_hom_i1,2));
@@ -50,6 +51,10 @@ for i=1:num_iterations
         best_guess = F_guess;
         best_guess_history(:,:,i) = best_guess;
         max_num_inliers_history(i) = num_inliers;
+        
+        
+        %save best inliers
+        best_guess_inliers = inliers;
     else
         best_guess_history(:,:,i) = best_guess;
         max_num_inliers_history(i) = max_num_inliers;
@@ -70,12 +75,12 @@ if params.eightPoint_ransac.show_iterations
     fprintf('  %0.2f %% of inliers matches found\n',100*max_num_inliers/size(p_hom_i1,2));
 end
 
-% display inlier matches
+% display best guess inlier matches
 if params.eightPoint_ransac.show_inlier_matches
     figure(fig_init);
     subplot(2,2,4);
-    plotPoints(flipud(p_hom_i2(1:2,inliers)),'g.');
-    plotMatches(1:nnz(inliers),flipud(p_hom_i2(1:2,inliers)),flipud(p_hom_i1(1:2,inliers)),'y-');
+    plotPoints(flipud(p_hom_i2(1:2,best_guess_inliers)),'g.');
+    plotMatches(1:nnz(best_guess_inliers),flipud(p_hom_i2(1:2,best_guess_inliers)),flipud(p_hom_i1(1:2,best_guess_inliers)),'y-');
     title('Inlier(yellow) matches found');
 end
 

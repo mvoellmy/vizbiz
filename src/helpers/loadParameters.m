@@ -15,7 +15,7 @@ params.compare_against_groundthruth = true;
 % initialization parameters
 params.init.show_bootstrap_images = false;
 params.init.show_init_keypoints = true;
-params.init.show_landmarks = true;
+params.init.show_landmarks = false;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_corr_matches = true;
 params.init.landmarks_cutoff = 20;
@@ -38,13 +38,15 @@ params.eightPoint_ransac.max_error = 1;
 params.cont.run_on_first_x_images = 5;
 params.cont.show_current_image = true;
 params.cont.show_new_keypoints = true;
-params.cont.show_matches = false;
+params.cont.show_matches = true;
 
 params.localization_ransac.show_matched_keypoints = true;
 params.localization_ransac.show_inlier_matches = true;
-
 params.localization_ransac.use_p3p = true;
-
+params.localization_ransac.num_iterations_pnp = 5000; % 2000 fix?
+params.localization_ransac.num_iterations_DLT = 200;
+params.localization_ransac.pixel_tolerance = 20; % 10
+params.localization_ransac.show_iterations = true;
 
 
 % mode specific parameters
