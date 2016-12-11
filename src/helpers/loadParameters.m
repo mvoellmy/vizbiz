@@ -16,7 +16,7 @@ params.compare_against_groundthruth = true;
 params.init.show_bootstrap_images = false;
 params.init.show_init_keypoints = true;
 params.init.show_landmarks = true;
-params.init.use_KITTI_precalculated_init = true;
+params.init.use_KITTI_precalculated_init = false;
 params.init.show_corr_matches = true;
 
 % correspondence parameters

@@ -109,19 +109,15 @@ toc;
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to W
 T_CiCj_vo_j(:,:,2) = T_C1C2; % first camera pose, C2 to C1
 
-%{
 % transformation C1 to world (90deg x-axis rotation) % todo: use zeros instead?
 T_WC1 = [1      0           0        0;
          0 cos(-pi/2)   -sin(-pi/2)    0;
          0 sin(-pi/2)    cos(-pi/2)    0;
                  zeros(1,3)          1];
-%}
-
-T_WC1 = eye(4);
 
 % update stacked world-referenced pose
-T_WCj_vo(:,:,1) = T_WC1; %T_WC1* T_CiCj_vo_i(:,:,1); % C1 to W
-T_WCj_vo(:,:,2) = T_WC1*T_C1C2; %T_WCi_vo(:,:,1)* T_CiCj_vo_i(:,:,2); % C2 to W
+T_WCj_vo(:,:,1) = T_WC1; % T_WC1* T_CiCj_vo_i(:,:,1); % C1 to W
+T_WCj_vo(:,:,2) = T_WC1*T_C1C2; % T_WCi_vo(:,:,1)* T_CiCj_vo_i(:,:,2); % C2 to W
 
 % transform init point cloud to world frame
 W_P_hom_init = T_WC1*[C1_landmarks_init; zeros(1,size(C1_landmarks_init,2))];
@@ -143,12 +139,12 @@ fprintf('start continuous VO operation...');
 
 global fig_cont fig_RANSAC_debug;
 fig_cont = figure('name','Contiunous VO estimation');
-fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
+%fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
 
 % hand-over initialization variables
 img_prev = img_init;
 keypoints_prev = keypoints_init;
-Ci_landmarks_prev = T_C1C2(1:3,1:3)'*W_landmarks_init; % express in C2
+Ci_landmarks_prev = T_C1C2(1:3,1:3)'*C1_landmarks_init; % express in C2
 
 for j = range_cont
     frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2

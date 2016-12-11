@@ -40,7 +40,6 @@ end
 T_CiCj = [R_CiCj   Ci_t_CiCj;
           ones(1,3)        1];
 
-%{
 % triangulate new points with keypoint tracks % TODO
 M1 = K * eye(3,4);
 M2 = K * [R_CiCj, Ci_t_CiCj];
@@ -60,11 +59,5 @@ Cj_landmarks_updated = T_CiCj(1:3,1:3)'*[Ci_landmarks Ci_landmarks_new(1:3,:)];
 fprintf(['  Number of new landmarks triangulated: %i\n',...
          '  Total number of landmarks: %i\n\n'],...
          size(Ci_landmarks_new,2), size(Cj_landmarks_updated,2));
-%}
-          
-          
-Cj_landmarks_updated = T_CiCj(1:3,1:3)'*Ci_landmarks_prev;
-          
-
 
 end
