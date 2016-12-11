@@ -106,22 +106,23 @@ tic;
 toc;
 
 % assign first two poses
-T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to W
+T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to C1
 T_CiCj_vo_j(:,:,2) = T_C1C2; % first camera pose, C2 to C1
 
 % transformation C1 to world (90deg x-axis rotation) % todo: use zeros instead?
 T_WC1 = [1      0           0        0;
-         0 cos(-pi/2)   -sin(-pi/2)    0;
-         0 sin(-pi/2)    cos(-pi/2)    0;
+         0 cos(-pi/2)   -sin(-pi/2)  0;
+         0 sin(-pi/2)    cos(-pi/2)  0;
                  zeros(1,3)          1];
 
 % update stacked world-referenced pose
-T_WCj_vo(:,:,1) = T_WC1; % T_WC1* T_CiCj_vo_i(:,:,1); % C1 to W
-T_WCj_vo(:,:,2) = T_WC1*T_C1C2; % T_WCi_vo(:,:,1)* T_CiCj_vo_i(:,:,2); % C2 to W
+T_WCj_vo(:,:,1) = T_WC1; % C1 to W
+T_WCj_vo(:,:,2) = T_WC1*T_C1C2; % C2 to W
 
 % transform init point cloud to world frame
 W_P_hom_init = T_WC1*[C1_landmarks_init; zeros(1,size(C1_landmarks_init,2))];
 W_landmarks_init = W_P_hom_init(1:3,:);
+W_landmarks_map = W_landmarks_init; % full 3D map point cloud in frame W
 
 % display initialization landmarks and bootstrap motion
 if params.init.show_landmarks
@@ -179,7 +180,10 @@ for j = range_cont
     % append newest Ci to T transformation
     T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1)*T_CiCj_vo_j(:,:,frame_idx);
 
-    % enable plots to refresh
+    % update map with new landmarks
+    W_landmarks_map = [W_landmarks_map T_WCj_vo(1:3,1:3,frame_idx)*Cj_landmarks_new];
+
+    % allow plots to refresh
     pause(1.01);
 
     % update previous image, keypoints and landmarks
@@ -195,12 +199,22 @@ if params.perf.profiling
     profile viewer; % view profiling results
 end
 
-%% Performance summary
+%% Results summary
 fprintf('display results...\n');
+
 if (params.ds ~= 1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
     plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth');
 elseif (params.ds == 1 && params.compare_against_groundthruth)
     % plot VO trajectory
     plotTrajectory_2D(T_WCj_vo(1:3,4,:));
+end
+
+% display full map and cameras
+if params.show_map_and_cams
+    figure('name','Map landmarks');
+    plotLandmarks(W_landmarks_map);
+    hold on;
+    plotCam(T_WCj_vo(:,:,1),2,'black');
+    plotCam(T_WCj_vo(:,:,2:end),2,'red');
 end

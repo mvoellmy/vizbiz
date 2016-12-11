@@ -29,7 +29,7 @@ end
 [R_CiCj,Ci_t_CiCj,p_new_matched,p_prev_matched,~,~] = ransacLocalization(params,img_new,img_prev,keypoints_prev,Ci_landmarks_prev,K);
 
 if (~isempty(R_CiCj) && ~isempty(Ci_t_CiCj))
-    fprintf(' >> Successfully localized\n');
+    fprintf('  >> Successfully localized\n');
 else
     R_CiCj = eye(3,3);
     Ci_t_CiCj = zeros(3,1);
@@ -41,23 +41,28 @@ T_CiCj = [R_CiCj   Ci_t_CiCj;
           ones(1,3)        1];
 
 % triangulate new points with keypoint tracks % TODO
-M1 = K * eye(3,4);
-M2 = K * [R_CiCj, Ci_t_CiCj];
-p_hom_prev_matched = [p_prev_matched;ones(1,size(p_prev_matched,2))];
-p_hom_new_matched = [p_new_matched;ones(1,size(p_new_matched,2))];
-Ci_landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,M1,M2);
+Mi = K * eye(3,4);
+Mj = K * [R_CiCj, Ci_t_CiCj];
+p_hom_prev_matched = [p_prev_matched; ones(1,size(p_prev_matched,2))];
+p_hom_new_matched = [p_new_matched; ones(1,size(p_new_matched,2))];
+Ci_landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,Mi,Mj);
 
-% check for landmarks with negative Z component in Cj frame
-% TODO assure good landmarks
-% any(Ci_landmarks_new(3,:)<0)
+% remove landmarks with negative Z coordinate % todo: dedicate function
+% with cyclindrical cutoff? and display amount of dropped landmarks?
+outFOV_idx = find(Ci_landmarks_new(3,:) <0 );
+Ci_landmarks_new(:,outFOV_idx) = [];
+
+% TODO: remove corresponding keypoints
+
 
 % append new landmarks in new frame
 %Cj_landmarks_updated = [Ci_landmarks Ci_landmarks_new(1:3,:)];
-Cj_landmarks_updated = T_CiCj(1:3,1:3)'*[Ci_landmarks_prev Ci_landmarks_new(1:3,:)];
+%Cj_landmarks_updated = T_CiCj(1:3,1:3)'*[Ci_landmarks_prev Ci_landmarks_new(1:3,:)];
+Cj_landmarks_updated = T_CiCj(1:3,1:3)'*Ci_landmarks_new(1:3,:);
           
 % display statistics
 fprintf(['  Number of new landmarks triangulated: %i\n',...
-         '  Total number of landmarks: %i\n'],...
+         '  Number of updated landmarks: %i\n'],...
          size(Ci_landmarks_new,2), size(Cj_landmarks_updated,2));
 
 end

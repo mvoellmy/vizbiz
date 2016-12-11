@@ -38,8 +38,7 @@ fprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f %%)\n'
 [~,matched_query_indices,matched_database_indices] = find(matches);
 matched_query_keypoints = query_keypoints(:,matched_query_indices);
 matched_database_keypoints = database_keypoints(:,matched_database_indices);
-corr_ldk_matches = matches(matches > 0); % only for link to landmark
-%valid_matches = 1:length(matched_query_indices); % !!!
+corr_ldk_matches = matches(matches > 0); % only for link to landmark !!!
 
 % check for consistent correspondences
 assert(size(matched_query_keypoints,2) == length(corr_ldk_matches) && ...
