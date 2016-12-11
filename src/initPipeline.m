@@ -59,7 +59,9 @@ else
     M2 = K*T_C2C1(1:3,:); %M2 = K*W_T_WC2(1:3,:);
     P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2); % todo: VERIFY landmarks must be in world frame!
     
-    [ P_hom_init, W_T_WC1, W_T_WC2 ] = bundleAdjust(P_hom_init, p_hom_i1, p_hom_i2, R_C2C1', -t_C2C1, K );
+    T_WC1_ba = T_WC1;
+    T_WC2_ba = T_WC1_ba;
+    [ P_hom_init, T_WC1_ba, T_WC2_ba ] = bundleAdjust(P_hom_init, p_hom_i1, p_hom_i2, R_C2C1', -t_C2C1, K );
    
     
     [ P_hom_init, outFOV_idx ] = applyCylindricalFilter( P_hom_init, params.init.landmarks_cutoff );
@@ -88,8 +90,12 @@ if (params.init.show_landmarks && ~params.init.use_KITTI_precalculated_init)
     figure('name','Landmarks and motion of bootstrap image pair');
     hold on;
     plotLandmarks(landmarks_init);
-    plotCam(T_WC1,2,'black');
-    plotCam(T_WC2,2,'red');
+    plotCam(T_WC1,2,'green');
+    plotCam(T_WC2,2,'green');
+    plotCam(T_WC1_ba,2,'red');
+    plotCam(T_WC2_ba,2,'red');
+    
+    
 end
 
 end

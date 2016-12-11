@@ -5,6 +5,8 @@ function [ P_hom_init, W_T_WC1, W_T_WC2 ] = bundleAdjust(P_hom_init, p_hom_i1, p
 
 %   point_tracks = cell(size(p_hom_i1,2)); todo: Preallocate
     
+    P_hom_init_old = P_hom_init(1:3,:);
+
     view_ids = [1 2];
     
     for i=1:size(p_hom_i1,2)
@@ -18,10 +20,11 @@ function [ P_hom_init, W_T_WC1, W_T_WC2 ] = bundleAdjust(P_hom_init, p_hom_i1, p
     cameraPoses.Orientation = [{eye(3)};{R_C1C2}];
     cameraPoses.Location = [{zeros(1, 3)};{t_C1C2'}];
     
-    cameraParams = cameraParameters('IntrinsicMatrix', K);
+    cameraParams = cameraParameters('IntrinsicMatrix', K');
 %     
-    [P_hom_init, refinedPoses] = bundleAdjustment(xyzPoints, point_tracks, cameraPoses, cameraParams );
+    [P_hom_init, refinedPoses, error] = bundleAdjustment(xyzPoints, point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', 1 );
 %     
+disp(error)
     P_hom_init = P_hom_init';
     
     W_T_WC1 = [cell2mat(refinedPoses.Orientation(1)), cell2mat(refinedPoses.Location(1))';
@@ -29,6 +32,5 @@ function [ P_hom_init, W_T_WC1, W_T_WC2 ] = bundleAdjust(P_hom_init, p_hom_i1, p
          
     W_T_WC2 = [cell2mat(refinedPoses.Orientation(2)), cell2mat(refinedPoses.Location(2))';
                zeros(1,3),       1];
-    
-end
+    end
 

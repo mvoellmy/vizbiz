@@ -26,6 +26,7 @@ ax = gca;
 ax.Projection = 'perspective';
 
 box on;
+grid on
 xlabel('x');
 ylabel('y');
 zlabel('z');
