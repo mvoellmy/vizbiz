@@ -36,7 +36,7 @@ params.eightPoint_ransac.fract_inliers = 0.5;
 params.eightPoint_ransac.max_error = 1;
 
 % continuous operation parameters
-params.cont.run_on_first_x_images = 10;
+params.cont.run_on_first_x_images = 5;
 params.cont.show_current_image = true;
 params.cont.show_new_keypoints = true;
 params.cont.show_matches = true;

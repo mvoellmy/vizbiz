@@ -1,4 +1,4 @@
-function [I_init, keypoints_init, C1_landmarks_init, T_C1C2] = initPipeline(params, I_i1, I_i2, K)
+function [I_init, keypoints_init, C2_landmarks_init, T_C1C2] = initPipeline(params, I_i1, I_i2, K)
 % Returns initialization image and corresponding sorted keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.
@@ -11,7 +11,7 @@ function [I_init, keypoints_init, C1_landmarks_init, T_C1C2] = initPipeline(para
 % Output:
 %  - I_init(size) : initialization image
 %  - keypoints_init(2xN) : matched keypoints from image pair, each [v,u]
-%  - C1_landmarks_init(3xN) : C1-referenced triangulated 3D points
+%  - C2_landmarks_init(3xN) : C2-referenced triangulated 3D points
 %  - T_C1C2(4x4) : homogeneous transformation matrix C2 to C1
 
 if params.init.use_KITTI_precalculated_init % todo: still needed?
@@ -70,16 +70,18 @@ else
     
     % assign initialization entities
     keypoints_init = flipud(p_i2);
-    C1_landmarks_init = C1_P_hom_init(1:3,:);
-    
+
+    C2_landmarks_init = T_C2C1*C1_P_hom_init;
+    C2_landmarks_init = C2_landmarks_init(1:3,:);
+
     % display statistics
     % todo: extend with baseline length,...
     fprintf(['  Number of initialization keypoints: %i\n',...
              '  Number of initialization landmarks: %i\n'],...
-             size(keypoints_init,2), size(C1_landmarks_init,2));
+             size(keypoints_init,2), size(C2_landmarks_init,2));
 end
 
 % check for same number of keypoints and landmarks
-assert(size(keypoints_init,2) == size(C1_landmarks_init,2));
+assert(size(keypoints_init,2) == size(C2_landmarks_init,2));
 
 end

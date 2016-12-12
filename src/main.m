@@ -102,7 +102,7 @@ end
 %% Initialize VO pipeline
 fprintf('\ninitialize VO pipeline...\n');
 tic;
-[img_init,keypoints_init,C1_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K);
+[img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K);
 toc;
 
 % assign first two poses
@@ -120,7 +120,7 @@ T_WCj_vo(:,:,1) = T_WC1; % C1 to W
 T_WCj_vo(:,:,2) = T_WC1*T_C1C2; % C2 to W
 
 % transform init point cloud to world frame
-W_P_hom_init = T_WC1*[C1_landmarks_init; zeros(1,size(C1_landmarks_init,2))];
+W_P_hom_init = T_WC1*[C2_landmarks_init; zeros(1,size(C2_landmarks_init,2))];
 W_landmarks_init = W_P_hom_init(1:3,:);
 W_landmarks_map = W_landmarks_init; % full 3D map point cloud in frame W
 
@@ -145,7 +145,7 @@ fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
 % hand-over initialization variables
 img_prev = img_init;
 keypoints_prev = keypoints_init;
-Ci_landmarks_prev = T_C1C2(1:3,1:3)'*C1_landmarks_init; % express in C2
+Ci_landmarks_prev = T_C1C2(1:3,1:3)'*C2_landmarks_init; % express in C2
 match_indices_prev = 1:size(keypoints_prev,2);
 
 for j = range_cont
@@ -188,9 +188,9 @@ for j = range_cont
     pause(1.01);
 
     % update previous image, keypoints and landmarks
-    %img_prev = img;
-    %keypoints_prev = keypoints_new;
-    %Ci_landmarks_prev = Cj_landmarks_new;
+%     img_prev = img;
+%     keypoints_prev = keypoints_new;
+%     Ci_landmarks_prev = Cj_landmarks_new;
     
     fprintf('\n');
 end

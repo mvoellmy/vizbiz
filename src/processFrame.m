@@ -47,8 +47,9 @@ p_hom_prev_matched = [p_prev_matched; ones(1,size(p_prev_matched,2))];
 p_hom_new_matched = [p_new_matched; ones(1,size(p_new_matched,2))];
 Ci_landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,Mi,Mj);
 
-% remove landmarks with negative Z coordinate % todo: dedicate function
+% remove landmarks witah negative Z coordinate % todo: dedicate function
 % with cyclindrical cutoff? and display amount of dropped landmarks?
+% implemented: see initpipeline
 outFOV_idx = find(Ci_landmarks_new(3,:) <0 );
 Ci_landmarks_new(:,outFOV_idx) = [];
 
