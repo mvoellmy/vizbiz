@@ -3,12 +3,14 @@
 *.asv
 *.m~
 
+## Merge auto-save file
+*.orig
+
 ## Compiled MEX binaries (all platforms)
 *.mex*
 
 ## Calibration images
 /src/calibration/calib_images/
-
 
 
 ### LATEX
