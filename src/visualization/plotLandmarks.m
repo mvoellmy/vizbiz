@@ -9,7 +9,7 @@ function plotLandmarks(landmarks)
 assert(size(landmarks,1) == 3,'landmarks have wrong dimensionality');
 
 pc = pointCloud(landmarks');
-pcshow(pc,'VerticalAxis','y','VerticalAxisDir','down','MarkerSize',100);
+pcshow(pc,'VerticalAxis','z','VerticalAxisDir','up','MarkerSize',100);
 
 % axis properties
 

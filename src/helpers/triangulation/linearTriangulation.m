@@ -7,9 +7,9 @@
 %  - M2(3,4): projection matrix corresponding to second image
 %
 % Output:
-%  - P(4,N): homogeneous coordinates of 3-D points
+%  - C1_P(4,N): homogenious coordinates of 3-D points in C1 frame acc. exercise (not verified!)
 
-function P = linearTriangulation(p1,p2,M1,M2)
+function C1_P = linearTriangulation(p1,p2,M1,M2)
 
 % Sanity checks
 [dim,NumPoints] = size(p1);
@@ -23,7 +23,7 @@ assert(rows==3 && cols==4,'Projection matrices should be of size 3x4');
 [rows,cols] = size(M2);
 assert(rows==3 && cols==4,'Projection matrices should be of size 3x4');
 
-P = zeros(4,NumPoints);
+C1_P = zeros(4,NumPoints);
 
 % Linear algorithm
 for j=1:NumPoints
@@ -34,10 +34,10 @@ for j=1:NumPoints
     
     % Solve the linear homogeneous system of equations
     [~,~,v] = svd(A,0);
-    P(:,j) = v(:,4);
+    C1_P(:,j) = v(:,4);
 end
 
-P = P./repmat(P(4,:),4,1); % Dehomogeneize (P is expressed in homogeneous coordinates)
+C1_P = C1_P./repmat(C1_P(4,:),4,1); % Dehomogeneize (P is expressed in homogeneous coordinates)
 
 return
 
