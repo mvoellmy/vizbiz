@@ -1,4 +1,4 @@
-function [R_CiCj, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints, corr_ldk_matches, max_num_inliers_history] = ...
+function [R_CjCi, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints, corr_ldk_matches, max_num_inliers_history] = ...
     ransacLocalization(params, query_image, database_image, database_keypoints, Ci_landmarks, K)
 % TODO description
 %
@@ -21,7 +21,7 @@ function [R_CiCj, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints
 global fig_cont fig_RANSAC_debug;
 
 % find 2D correspondences % todo: move out of ransacLocalization()??
-[matched_database_keypoints,matched_query_keypoints, corr_ldk_matches] = ...
+[matched_database_keypoints,matched_query_keypoints,corr_ldk_matches] = ...
     findCorrespondeces_cont(params,database_image,database_keypoints,query_image);
 Ci_corresponding_landmarks = Ci_landmarks(:,corr_ldk_matches);
 
@@ -31,7 +31,7 @@ if params.localization_ransac.show_matched_keypoints
     subplot(2,1,1);
     plotPoints(matched_query_keypoints,'g.');
     plotCircles(matched_query_keypoints,'y',params.localization_ransac.pixel_tolerance);
-    title('Matched (green) keypoints');
+    title('Matched (green) keypoints with (yellow) confidence');
     subplot(2,1,2);
     plotPoints(matched_query_keypoints,'g.');
     title('Matched (green) keypoints');
@@ -69,35 +69,35 @@ for i = 1:num_iterations
             normalized_bearings(:, ii) = normalized_bearings(:, ii) / norm(normalized_bearings(:, ii), 2);
         end
         poses = p3p(landmark_sample, normalized_bearings);
-        R_C_W_guess = zeros(3, 3, 2);
-        t_C_W_guess = zeros(3, 1, 2);
+        R_CjCi_guess = zeros(3, 3, 2);
+        Cj_t_CjCi_guess = zeros(3, 1, 2); % todo: correct base frame?
         for ii = 0:1
             R_W_C_ii = real(poses(:, (2+ii*4):(4+ii*4))); % rotation direction verified with description of p3p
-            t_W_C_ii = real(poses(:, (1+ii*4)));
-            R_C_W_guess(:,:,ii+1) = R_W_C_ii';
-            t_C_W_guess(:,:,ii+1) = -R_W_C_ii'*t_W_C_ii;
+            t_W_C_ii = real(poses(:, (1+ii*4))); % expressed in W
+            R_CjCi_guess(:,:,ii+1) = R_W_C_ii';
+            Cj_t_CjCi_guess(:,:,ii+1) = -R_W_C_ii'*t_W_C_ii;
         end
     else
         M_C_W_guess = estimatePoseDLT(keypoint_sample',landmark_sample',K);
-        R_C_W_guess = M_C_W_guess(:,1:3);
-        t_C_W_guess = M_C_W_guess(:,end);
+        R_CjCi_guess = M_C_W_guess(:,1:3);
+        Cj_t_CjCi_guess = M_C_W_guess(:,end);
     end
     
     % count inliers
-    projected_points = projectPoints((R_C_W_guess(:,:,1)*Ci_corresponding_landmarks) +...
-                                     repmat(t_C_W_guess(:,:,1),[1 size(Ci_corresponding_landmarks, 2)]),K);
+    projected_points = projectPoints((R_CjCi_guess(:,:,1)*Ci_corresponding_landmarks) +...
+                                     repmat(Cj_t_CjCi_guess(:,:,1),[1 size(Ci_corresponding_landmarks, 2)]),K);
     difference = matched_query_keypoints - projected_points;
     errors = sum(difference.^2,1);
     inliers = errors < params.localization_ransac.pixel_tolerance^2;
     
     if params.localization_ransac.use_p3p
-        projected_points = projectPoints((R_C_W_guess(:,:,2) * Ci_corresponding_landmarks) +...
-                                         repmat(t_C_W_guess(:,:,2),[1 size(Ci_corresponding_landmarks, 2)]),K);
+        projected_points = projectPoints((R_CjCi_guess(:,:,2) * Ci_corresponding_landmarks) +...
+                                         repmat(Cj_t_CjCi_guess(:,:,2),[1 size(Ci_corresponding_landmarks, 2)]),K);
         difference = matched_query_keypoints - projected_points;
         errors = sum(difference.^2, 1);
-        alternative_is_inlier = errors < params.localization_ransac.pixel_tolerance^2;
-        if nnz(alternative_is_inlier) > nnz(inliers)
-            inliers = alternative_is_inlier;
+        alternative_inliers = errors < params.localization_ransac.pixel_tolerance^2;
+        if nnz(alternative_inliers) > nnz(inliers)
+            inliers = alternative_inliers;
         end
     end
     
@@ -123,15 +123,15 @@ if params.localization_ransac.show_iterations
 end
 
 % discard outliers
-matched_query_keypoints = matched_query_keypoints(:, best_guess_inliers > 0);
-matched_database_keypoints = matched_database_keypoints(:, best_guess_inliers > 0);
+matched_query_keypoints = matched_query_keypoints(:, best_guess_inliers);
+matched_database_keypoints = matched_database_keypoints(:, best_guess_inliers);
 
-corr_ldk_matches_inliers = corr_ldk_matches(:, best_guess_inliers > 0);
+corr_ldk_matches_inliers = corr_ldk_matches(:, best_guess_inliers);
 Ci_corresponding_landmarks = Ci_landmarks(:, corr_ldk_matches_inliers);
 
 if (max_num_inliers == 0)
-    R_CiCj = [];
-    Ci_t_CiCj = [];
+    R_CjCi = [];
+    Cj_t_CjCi = [];
     fprintf('  No inlier matches found\n');
 else
     % calculate [R,T] with best inlier points
@@ -140,31 +140,30 @@ else
         Ci_corresponding_landmarks', K);
     R_CjCi = M_CjCi(:,1:3);
     Cj_t_CjCi = M_CjCi(:,end);
-    
-    % calculate inverse rotation matrices
-    R_CiCj = R_CjCi';
-    Ci_t_CiCj = -R_CiCj*Cj_t_CjCi;
 end
+
+% calculate inverse rotation matrices
+R_CiCj = R_CjCi';
+Ci_t_CiCj = -R_CiCj*Cj_t_CjCi;
 
 % check for same number of query keypoints and database keypoints
 assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
 
 % display projected keypoints given best pose and inlier correspondences
-if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_matched_keypoints)
-    best_guess_projected_pts_uv = projectPoints((R_CiCj*Ci_corresponding_landmarks) + ...
-                                                repmat(Ci_t_CiCj,[1 size(Ci_corresponding_landmarks, 2)]), K);
+if (max_num_inliers > 0 && params.localization_ransac.show_matched_keypoints)
+    best_guess_projected_pts = projectPoints((R_CjCi*Ci_corresponding_landmarks) + ...
+                                                repmat(Cj_t_CjCi,[1 size(Ci_corresponding_landmarks, 2)]), K);
     figure(fig_cont);
     subplot(2,1,1);
-    plotPoints(flipud(best_guess_projected_pts_uv),'yx');
-    %plotPoints(flipud(best_guess_projected_pts_uv),'yo');
-    title('Projected keypoints (yellow circles)');
+    plotPoints(flipud(best_guess_projected_pts),'yx');
+    title('Projected keypoints (yellow crosses)');
 end
 
 % flip keypoints back to restore [v u] order
 matched_query_keypoints = flipud(matched_query_keypoints);
 
 % display inlier matches
-if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_inlier_matches)
+if (max_num_inliers > 0 && params.localization_ransac.show_inlier_matches)
     figure(fig_cont);
     subplot(2,1,2);
     plotMatches(1:nnz(best_guess_inliers),matched_query_keypoints,matched_database_keypoints,'y-');
