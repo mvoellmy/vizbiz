@@ -48,7 +48,7 @@ end
 
 %% Bootstraping
 fprintf('setup boostrapping...\n\n');
-% set bootstrap_frames % todo move into bootstrapFrames() completely??
+% set bootstrap_frames
 if params.ds == 0
     img0 = imread([kitti_path '/00/image_0/' ...
         sprintf('%06d.png',bootstrapFrames(params.ds,'first'))]);
@@ -99,19 +99,21 @@ end
 
 %% Initialize VO pipeline
 fprintf('initialize VO pipeline...\n');
-tic;
-[img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K);
-toc;
-
-% assign first two poses
-T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to C1
-T_CiCj_vo_j(:,:,2) = T_C1C2; % first camera pose, C2 to C1
 
 % transformation C1 to W (90deg x-axis rotation)
 T_WC1 = [1      0           0       0;
          0      0           1       0;
          0     -1           0       0;
                  zeros(1,3)         1];
+
+tic;
+% initialize pipeline with bootstrap images
+[img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K, T_WC1);
+toc;
+
+% assign first two poses
+T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to C1
+T_CiCj_vo_j(:,:,2) = T_C1C2; % first camera pose, C2 to C1
 
 % update stacked world-referenced pose
 T_WCj_vo(:,:,1) = T_WC1; % C1 to W
@@ -126,7 +128,7 @@ W_landmarks_map = W_landmarks_init; % full 3D map point cloud in frame W
 if params.init.show_landmarks
     figure('name','Landmarks and motion of bootstrap image pair');
     hold on;
-    plotLandmarks(W_landmarks_init);
+    plotLandmarks(W_landmarks_init,'z','up');
     plotCam(T_WCj_vo(:,:,1),2,'black');
     plotCam(T_WCj_vo(:,:,2),2,'red');
 end
@@ -134,87 +136,92 @@ end
 fprintf('...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
-fprintf('start continuous VO operation...\n');
-
-% setup figure handles
 global fig_cont fig_RANSAC_debug;
-fig_cont = figure('name','Contiunous VO estimation');
-fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
 
-% hand-over initialization variables
-img_prev = img_init;
-keypoints_prev = keypoints_init;
-Ci_landmarks_prev = C2_landmarks_init;
-match_indices_prev = 1:size(keypoints_prev,2);
+if params.run_continous
+    fprintf('start continuous VO operation...\n');
 
-for j = range_cont
-    fprintf('Processing frame %d\n=====================\n', j);
-    frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
-    
-    if params.ds == 0
-        img = imread([kitti_path '/00/image_0/' sprintf('%06d.png',j)]);
-    elseif params.ds == 1
-        img = rgb2gray(imread([malaga_path ...
-            '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
-            left_images(j).name]));
-    elseif params.ds == 2
-        img = im2uint8(rgb2gray(imread([parking_path ...
-            sprintf('/images/img_%05d.png',j)])));
-    else
-        assert(false);
-    end
+	% setup figure handles
+	fig_cont = figure('name','Contiunous VO estimation');
+	fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
 
-    if (size(keypoints_prev,2) > 0) % todo: minimum number?        
-        tic;
-        % process newest image
-        [T_CiCj_vo_j(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,img_prev,keypoints_prev,Ci_landmarks_prev,K);
-        toc;
+	% hand-over initialization variables
+	img_prev = img_init;
+	keypoints_prev = keypoints_init;
+	Ci_landmarks_prev = C2_landmarks_init;
+	match_indices_prev = 1:size(keypoints_prev,2);
+
+    for j = range_cont
+		fprintf('Processing frame %d\n=====================\n', j);
+        frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
         
-        % add super title with frame number
-        figure(fig_cont);
-        suptitle(sprintf('Frame #%i',j));
-    else
-        warning('No keypoints left!!');
-        break;
+        if params.ds == 0
+            img = imread([kitti_path '/00/image_0/' sprintf('%06d.png',j)]);
+        elseif params.ds == 1
+            img = rgb2gray(imread([malaga_path ...
+                '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
+                left_images(j).name]));
+        elseif params.ds == 2
+            img = im2uint8(rgb2gray(imread([parking_path ...
+                sprintf('/images/img_%05d.png',j)])));
+        else
+            assert(false);
+        end
+
+        if (size(keypoints_prev,2) > 0) % todo: minimum number?        
+            tic;
+            % process newest image
+            [T_CiCj_vo_j(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,img_prev,keypoints_prev,Ci_landmarks_prev,K);
+            toc;
+
+            % add super title with frame number
+            figure(fig_cont);
+            suptitle(sprintf('Frame #%i',j));
+        else
+            warning('No keypoints left!!');
+            break;
+        end
+
+        % append newest Cj to T transformation
+        T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1)*T_CiCj_vo_j(:,:,frame_idx);
+
+        % update map with new landmarks
+        W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
+        W_landmarks_new = W_P_hom_new(1:3,:);
+        W_landmarks_map = [W_landmarks_map W_landmarks_new];
+
+        % allow plots to refresh
+        pause(1.01);
+
+        % update previous image, keypoints and landmarks
+%         img_prev = img;
+%         keypoints_prev = keypoints_new;
+%         Ci_landmarks_prev = Cj_landmarks_new;
+
+        fprintf('\n');
     end
-    
-    % append newest Cj to T transformation
-    T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1)*T_CiCj_vo_j(:,:,frame_idx);
+    fprintf('...VO-pipeline terminated.\n');
 
-    % update map with new landmarks
-    W_landmarks_map = [W_landmarks_map T_WCj_vo(1:3,1:3,frame_idx)*Cj_landmarks_new];
+    if params.perf.profiling
+        profile viewer; % view profiling results
+    end
 
-    % allow plots to refresh
-    pause(1.01);
+    %% Results summary
+    fprintf('display results...\n');
 
-    % update previous image, keypoints and landmarks
-%     img_prev = img;
-%     keypoints_prev = keypoints_new;
-%     Ci_landmarks_prev = Cj_landmarks_new;
-    
-    fprintf('\n\n');
-end
-fprintf('...VO-pipeline terminated.\n');
-
-if params.perf.profiling
-    profile viewer; % view profiling results
-end
-
-%% Results summary
-fprintf('display results...\n');
-
-if (params.ds ~= 1 && params.compare_against_groundthruth)
-    % plot VO trajectory against ground truth   
-    plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth');
-elseif (params.ds == 1 && params.compare_against_groundthruth)
-    % plot VO trajectory
-    plotTrajectory_2D(T_WCj_vo(1:3,4,:));
+    if (params.ds ~= 1 && params.compare_against_groundthruth)
+        % plot VO trajectory against ground truth   
+        plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth');
+    elseif (params.ds == 1 && params.compare_against_groundthruth)
+        % plot VO trajectory
+        plotTrajectory_2D(T_WCj_vo(1:3,4,:));
+    end
 end
 
 % display full map and cameras
 if params.show_map_and_cams
     figure('name','Map landmarks');
-    plotLandmarks(W_landmarks_map);
+    plotLandmarks(W_landmarks_map,'z','up');
     hold on;
     plotCam(T_WCj_vo(:,:,1),2,'black');
     plotCam(T_WCj_vo(:,:,2:end),2,'red');

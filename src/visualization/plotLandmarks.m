@@ -1,5 +1,6 @@
-function plotLandmarks(landmarks)
-% Plots 3D landmarks in world frame.
+function plotLandmarks(landmarks, verticalAxis, verticalDir)
+% Plots landmarks in 3D space. By aligning verticalAxis (z) 'up' the
+% world-frame reference is chosen.
 % 
 % Input:
 %  - landmarks(3xN) : 3D landmarks in world frame, each [X,Y,Z]
@@ -9,7 +10,7 @@ function plotLandmarks(landmarks)
 assert(size(landmarks,1) == 3,'landmarks have wrong dimensionality');
 
 pc = pointCloud(landmarks');
-pcshow(pc,'VerticalAxis','z','VerticalAxisDir','up','MarkerSize',100);
+pcshow(pc,'VerticalAxis',verticalAxis,'VerticalAxisDir',verticalDir,'MarkerSize',100);
 
 % axis properties
 
@@ -26,6 +27,7 @@ ax = gca;
 ax.Projection = 'perspective';
 
 box on;
+grid on
 xlabel('x');
 ylabel('y');
 zlabel('z');
