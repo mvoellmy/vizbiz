@@ -25,6 +25,8 @@ if params.cont.show_current_image
     imshow(img_new);
 end
 
+% TODO: keypoint tracks 
+
 % state propagation and pose estimation
 [R_CiCj,Ci_t_CiCj,p_new_matched,p_prev_matched,~,~] = ransacLocalization(params,img_new,img_prev,keypoints_prev,Ci_landmarks_prev,K);
 
@@ -38,28 +40,27 @@ end
 
 % construct new camera pose
 T_CiCj = [R_CiCj   Ci_t_CiCj;
-          ones(1,3)        1];
+          zeros(1,3)       1];
+      
+T_CjCi = [R_CiCj'   -R_CiCj'*Ci_t_CiCj;
+          zeros(1,3)                 1];
 
-% triangulate new points with keypoint tracks % TODO
+% triangulate new points with keypoint
 Mi = K * eye(3,4);
 Mj = K * [R_CiCj, Ci_t_CiCj];
 p_hom_prev_matched = [p_prev_matched; ones(1,size(p_prev_matched,2))];
 p_hom_new_matched = [p_new_matched; ones(1,size(p_new_matched,2))];
 Ci_landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,Mi,Mj);
 
-% remove landmarks witah negative Z coordinate % todo: dedicate function
-% with cyclindrical cutoff? and display amount of dropped landmarks?
-% implemented: see initpipeline
-outFOV_idx = find(Ci_landmarks_new(3,:) <0 );
-Ci_landmarks_new(:,outFOV_idx) = [];
+% discard landmarks not contained in cylindrical neighborhood
+[Ci_landmarks_new, outFOV_idx] = applyCylindricalFilter(Ci_landmarks_new, params.cont.landmarks_cutoff);
 
-% TODO: remove corresponding keypoints
-
+% todo: remove corresponding keypoints
+%p_i2(:,outFOV_idx) = [];
 
 % append new landmarks in new frame
-%Cj_landmarks_updated = [Ci_landmarks Ci_landmarks_new(1:3,:)];
-%Cj_landmarks_updated = T_CiCj(1:3,1:3)'*[Ci_landmarks_prev Ci_landmarks_new(1:3,:)];
-Cj_landmarks_updated = T_CiCj(1:3,1:3)'*Ci_landmarks_new(1:3,:);
+Cj_P_hom_new = T_CjCi*[Ci_landmarks_new(1:3,:); ones(1,size(Ci_landmarks_new,2))];
+Cj_landmarks_updated = Cj_P_hom_new(1:3,:);
           
 % display statistics
 fprintf(['  Number of new landmarks triangulated: %i\n',...

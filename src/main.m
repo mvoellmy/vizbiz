@@ -36,12 +36,11 @@ elseif params.ds == 1
     fprintf('load MALAGA dataset...\n');
 elseif params.ds == 2
     parking_path = '../datasets/parking';
-    assert(exist('parking_path', 'var') ~= 0);
-    last_frame = 598;
-    K = load([parking_path '/K.txt']);
-     
+    assert(exist('parking_path', 'var') ~= 0);     
     ground_truth = load([parking_path '/poses.txt']);
     ground_truth = ground_truth(:, [end-8 end]);
+    last_frame = 598;
+    K = load([parking_path '/K.txt']);
     fprintf('load PARKING dataset...\n');
 else
     assert(false);
@@ -81,7 +80,6 @@ if params.init.show_bootstrap_images
 end
 
 %% Logging variables
-
 % set range of images to run on
 bootstrap_frame_idx_2 = bootstrapFrames(params.ds,'second');
 if (params.cont.run_on_first_x_images > 0)
@@ -100,13 +98,13 @@ if params.perf.profiling
 end
 
 %% Initialize VO pipeline
-fprintf('\ninitialize VO pipeline...\n');
+fprintf('initialize VO pipeline...\n');
 
 % transformation C1 to W (90deg x-axis rotation)
-T_WC1 = [1      0           0        0;
-         0 cos(-pi/2)   -sin(-pi/2)  0;
-         0 sin(-pi/2)    cos(-pi/2)  0;
-                 zeros(1,3)          1];
+T_WC1 = [1      0           0       0;
+         0      0           1       0;
+         0     -1           0       0;
+                 zeros(1,3)         1];
 
 tic;
 % initialize pipeline with bootstrap images
@@ -126,26 +124,37 @@ W_P_hom_init = T_WC1*[C2_landmarks_init; zeros(1,size(C2_landmarks_init,2))];
 W_landmarks_init = W_P_hom_init(1:3,:);
 W_landmarks_map = W_landmarks_init; % full 3D map point cloud in frame W
 
+% display initialization landmarks and bootstrap motion
+if params.init.show_landmarks
+    figure('name','Landmarks and motion of bootstrap image pair');
+    hold on;
+    plotLandmarks(W_landmarks_init);
+    plotCam(T_WCj_vo(:,:,1),2,'black');
+    plotCam(T_WCj_vo(:,:,2),2,'red');
+end
+
 fprintf('...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
 if params.run_continous    
     fprintf('start continuous VO operation...\n');
 
-    global fig_cont fig_RANSAC_debug;
-    fig_cont = figure('name','Contiunous VO estimation');
-    fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
+	% setup figure handles
+	global fig_cont fig_RANSAC_debug;
+	fig_cont = figure('name','Contiunous VO estimation');
+	fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
 
-    % hand-over initialization variables
-    img_prev = img_init;
-    keypoints_prev = keypoints_init;
-    Ci_landmarks_prev = T_C1C2(1:3,1:3)'*C2_landmarks_init; % express in C2
-    match_indices_prev = 1:size(keypoints_prev,2);
+	% hand-over initialization variables
+	img_prev = img_init;
+	keypoints_prev = keypoints_init;
+	Ci_landmarks_prev = C2_landmarks_init;
+	match_indices_prev = 1:size(keypoints_prev,2);
 
     for j = range_cont
+		fprintf('Processing frame %d\n=====================\n', j);
         frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
-        fprintf('\n\nProcessing frame %d\n=====================\n', j);
-        if params.ds == 0 % todo move into currentFrames() ??
+        
+        if params.ds == 0
             img = imread([kitti_path '/00/image_0/' sprintf('%06d.png',j)]);
         elseif params.ds == 1
             img = rgb2gray(imread([malaga_path ...
@@ -172,7 +181,7 @@ if params.run_continous
             break;
         end
 
-        % append newest Ci to T transformation
+        % append newest Cj to T transformation
         T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1)*T_CiCj_vo_j(:,:,frame_idx);
 
         % update map with new landmarks
@@ -211,8 +220,8 @@ end
 % display full map and cameras
 if params.show_map_and_cams
     figure('name','Map landmarks');
-    plotLandmarks(W_landmarks_map, 'z', 'up');
-    hold on;    
+    plotLandmarks(W_landmarks_map,'z','up');
+    hold on;
     plotCam(T_WCj_vo(:,:,1),2,'black');
     plotCam(T_WCj_vo(:,:,2:end),2,'red');
 end

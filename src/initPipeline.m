@@ -22,7 +22,7 @@ if params.init.use_KITTI_precalculated_init % todo: still needed?
     
     % load precalculated keypoints and landmarks
     keypoints_init = load('../datasets/kitti/precalculated/keypoints.txt')';
-    C1_landmarks_init = load('../datasets/kitti/precalculated/landmarks.txt')';
+    C2_landmarks_init = load('../datasets/kitti/precalculated/landmarks.txt')';
     
     T_C1C2 = eye(4);
 else
@@ -50,10 +50,8 @@ else
     T_C2C1 = [R_C2C1,  C2_t_C2C1;
               zeros(1,3),      1];
     T_C1C2 = [R_C2C1',  -R_C2C1'*C2_t_C2C1;
-              zeros(1,3),                1];
-    
-    T_C1C1 = eye(4,4);
-    
+              zeros(1,3),                1];    
+    T_C1C1 = eye(4,4);    
     T_WC2 = T_WC1*T_C1C2;
     
     % triangulate a point cloud using the final transformation (R,T)
@@ -70,7 +68,7 @@ else
     end
     
     % discard landmarks not contained in cylindrical neighborhood
-    [C1_P_hom_init, outFOV_idx] = applyCylindricalFilter( C1_P_hom_init, params.init.landmarks_cutoff );
+    [C1_P_hom_init, outFOV_idx] = applyCylindricalFilter(C1_P_hom_init, params.init.landmarks_cutoff);
     
     % remove corresponding keypoints
     p_i2(:,outFOV_idx) = [];
@@ -80,14 +78,6 @@ else
 
     C2_landmarks_init = T_C2C1*C1_P_hom_init;
     C2_landmarks_init = C2_landmarks_init(1:3,:);
-
-% display initialization landmarks and bootstrap motion
-if (params.init.show_landmarks && ~params.init.use_KITTI_precalculated_init)
-    figure('name','Landmarks and motion of bootstrap image pair');
-    hold on;
-    plotLandmarks(T_WC2(1:3,1:3)*C2_landmarks_init, 'z', 'up');
-    plotCam(T_WC1,2,'blue');
-    plotCam(T_WC2,2,'red');
 
     % display statistics
     % todo: extend with baseline length,...
