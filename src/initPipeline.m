@@ -1,4 +1,4 @@
-function [I_init, keypoints_init, C2_landmarks_init, T_C1C2] = initPipeline(params, I_i1, I_i2, K)
+function [I_init, keypoints_init, C2_landmarks_init, T_C1C2] = initPipeline(params, I_i1, I_i2, K, T_WC1)
 % Returns initialization image and corresponding sorted keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.
@@ -7,6 +7,8 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2] = initPipeline(para
 %  - params(struct) : parameter struct
 %  - I_i1(size) : first image
 %  - I_i2(size) : second image
+%  - K(3x3) : camera calibration matrix
+%  - T_WC1(4x4) : fixed transformation from C1 to W
 %
 % Output:
 %  - I_init(size) : initialization image
@@ -48,31 +50,33 @@ else
     T_C2C1 = [R_C2C1,  C2_t_C2C1;
               zeros(1,3),      1];
     T_C1C2 = [R_C2C1',  -R_C2C1'*C2_t_C2C1;
-              zeros(1,3),                1];
-
-    % feature: Refine pose with BA
-    % TODO
-
+              zeros(1,3),                1];    
+    T_C1C1 = eye(4,4);    
+    T_WC2 = T_WC1*T_C1C2;
+    
     % triangulate a point cloud using the final transformation (R,T)
-    M1 = K*eye(3,4);
+    M1 = K*T_C1C1(1:3,:);
     M2 = K*T_C2C1(1:3,:);
     C1_P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2);
     
-	% discard landmarks not contained in cylindrical neighborhood
+    if params.init.use_BA
+        fprintf('  bundle adjust points...\n')
+        [P_init, T_refined] = bundleAdjust(C1_P_hom_init(1:3,:), [p_hom_i1(1:2,:); p_hom_i2(1:2,:)], [T_WC1; T_WC2], K, 1);
+        C1_P_hom_init(1:3,:) = P_init;
+        T_WC1 = T_refined(1:4,1:4);
+        T_WC2 = T_refined(5:8,1:4);
+    end
+    
+    % discard landmarks not contained in cylindrical neighborhood
     [C1_P_hom_init, outFOV_idx] = applyCylindricalFilter(C1_P_hom_init, params.init.landmarks_cutoff);
     
     % remove corresponding keypoints
     p_i2(:,outFOV_idx) = [];
     
-    % feature: non-linear refinement with minimizing 
-    % Sum of Squared Reprojection Errors
-    % TODO
-    
     % assign initialization entities
     keypoints_init = flipud(p_i2);
-
-    C2_landmarks_init = T_C2C1*C1_P_hom_init;
-    C2_landmarks_init = C2_landmarks_init(1:3,:);
+    C2_P_hom_init = T_C2C1*C1_P_hom_init;
+    C2_landmarks_init = C2_P_hom_init(1:3,:);
 
     % display statistics
     % todo: extend with baseline length,...

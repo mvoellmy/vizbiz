@@ -1,5 +1,5 @@
 function plotCam(T_WC, camsize, camcolor)
-% Plots a cam in 3D.
+% Plots a camera in 3D space.
 % 
 % Input:
 %  - T_WC(4x4xN) : Transformation matrix from C to W
