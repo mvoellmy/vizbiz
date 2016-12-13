@@ -30,6 +30,7 @@ if params.localization_ransac.show_matched_keypoints
     figure(fig_cont);
     subplot(2,1,1);
     plotPoints(matched_query_keypoints,'g.');
+    plotCircles(matched_query_keypoints,'y',params.localization_ransac.pixel_tolerance);
     title('Matched (green) keypoints');
     subplot(2,1,2);
     plotPoints(matched_query_keypoints,'g.');
@@ -83,16 +84,16 @@ for i = 1:num_iterations
     end
     
     % count inliers
-    Cj_projected_points_uv = projectPoints((R_C_W_guess(:,:,1)*Ci_corresponding_landmarks) +...
+    projected_points = projectPoints((R_C_W_guess(:,:,1)*Ci_corresponding_landmarks) +...
                                      repmat(t_C_W_guess(:,:,1),[1 size(Ci_corresponding_landmarks, 2)]),K);
-    difference = matched_query_keypoints - Cj_projected_points_uv;
+    difference = matched_query_keypoints - projected_points;
     errors = sum(difference.^2,1);
     inliers = errors < params.localization_ransac.pixel_tolerance^2;
     
     if params.localization_ransac.use_p3p
-        Cj_projected_points_uv = projectPoints((R_C_W_guess(:,:,2) * Ci_corresponding_landmarks) +...
+        projected_points = projectPoints((R_C_W_guess(:,:,2) * Ci_corresponding_landmarks) +...
                                          repmat(t_C_W_guess(:,:,2),[1 size(Ci_corresponding_landmarks, 2)]),K);
-        difference = matched_query_keypoints - Cj_projected_points_uv;
+        difference = matched_query_keypoints - projected_points;
         errors = sum(difference.^2, 1);
         alternative_is_inlier = errors < params.localization_ransac.pixel_tolerance^2;
         if nnz(alternative_is_inlier) > nnz(inliers)
@@ -155,7 +156,7 @@ if (nnz(best_guess_inliers) > 0 && params.localization_ransac.show_matched_keypo
     figure(fig_cont);
     subplot(2,1,1);
     plotPoints(flipud(best_guess_projected_pts_uv),'yx');
-    plotPoints(flipud(best_guess_projected_pts_uv),'yo');
+    %plotPoints(flipud(best_guess_projected_pts_uv),'yo');
     title('Projected keypoints (yellow circles)');
 end
 

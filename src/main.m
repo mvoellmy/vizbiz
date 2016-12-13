@@ -9,7 +9,7 @@ addpath(genpath('visualization'));
 
 %% Load parameter struct
 fprintf('load parameter struct...\n');
-mode = 1; % todo: 1= normal, 2= ...
+mode = 1; % todo: needed?
 params = loadParameters(mode);
 
 %% Setup datasets
