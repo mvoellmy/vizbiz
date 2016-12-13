@@ -1,5 +1,6 @@
 function plotLandmarks(landmarks, verticalAxis, verticalDir)
-% Plots 3D landmarks in world frame.
+% Plots landmarks in 3D space. By aligning verticalAxis (z) 'up' the
+% world-frame reference is chosen.
 % 
 % Input:
 %  - landmarks(3xN) : 3D landmarks in world frame, each [X,Y,Z]

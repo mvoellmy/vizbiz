@@ -7,8 +7,8 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2] = initPipeline(para
 %  - params(struct) : parameter struct
 %  - I_i1(size) : first image
 %  - I_i2(size) : second image
-%  - K(3x3)     : Camera calibration matrix
-%  - T_WC1(4x4) : Transformation from C1 to World frame
+%  - K(3x3) : camera calibration matrix
+%  - T_WC1(4x4) : fixed transformation from C1 to W
 %
 % Output:
 %  - I_init(size) : initialization image
@@ -58,8 +58,8 @@ else
     
     % triangulate a point cloud using the final transformation (R,T)
     M1 = K*T_C1C1(1:3,:);
-    M2 = K*T_C2C1(1:3,:); %M2 = K*W_T_WC2(1:3,:);
-    C1_P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2); % todo: VERIFY landmarks must be in world frame!
+    M2 = K*T_C2C1(1:3,:);
+    C1_P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2);
     
     if params.init.use_BA
         fprintf('  bundle adjust points...\n')
@@ -69,16 +69,11 @@ else
         T_WC2 = T_refined(5:8,1:4);
     end
     
-    [ C1_P_hom_init, outFOV_idx ] = applyCylindricalFilter( C1_P_hom_init, params.init.landmarks_cutoff );
-    
-
+    % discard landmarks not contained in cylindrical neighborhood
+    [C1_P_hom_init, outFOV_idx] = applyCylindricalFilter( C1_P_hom_init, params.init.landmarks_cutoff );
     
     % remove corresponding keypoints
     p_i2(:,outFOV_idx) = [];
-    
-    % feature: non-linear refinement with minimizing 
-    % Sum of Squared Reprojection Errors
-    % TODO
     
     % assign initialization entities
     keypoints_init = flipud(p_i2);
