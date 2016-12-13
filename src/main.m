@@ -144,7 +144,7 @@ fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
 % hand-over initialization variables
 img_prev = img_init;
 keypoints_prev = keypoints_init;
-Ci_landmarks_prev = T_C1C2(1:3,1:3)'*C2_landmarks_init; % expressed in C2
+Ci_landmarks_prev = C2_landmarks_init;
 match_indices_prev = 1:size(keypoints_prev,2);
 
 for j = range_cont
