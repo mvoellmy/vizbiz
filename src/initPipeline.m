@@ -61,7 +61,7 @@ else
     
     if params.init.use_BA
         fprintf('  bundle adjust points...\n')
-        [ P_init, T_refined] = bundleAdjust(C1_P_hom_init(1:3,:), [p_hom_i1(1:2,:); p_hom_i2(1:2,:)], [T_WC1; T_WC2], K, 1 );
+        [P_init, T_refined] = bundleAdjust(C1_P_hom_init(1:3,:), [p_hom_i1(1:2,:); p_hom_i2(1:2,:)], [T_WC1; T_WC2], K, 1);
         C1_P_hom_init(1:3,:) = P_init;
         T_WC1 = T_refined(1:4,1:4);
         T_WC2 = T_refined(5:8,1:4);
@@ -76,8 +76,8 @@ else
     % assign initialization entities
     keypoints_init = flipud(p_i2);
 
-    C2_landmarks_init = T_C2C1*C1_P_hom_init;
-    C2_landmarks_init = C2_landmarks_init(1:3,:);
+    C2_P_hom_init = T_C2C1*C1_P_hom_init;
+    C2_landmarks_init = C2_P_hom_init(1:3,:);
 
     % display statistics
     % todo: extend with baseline length,...

@@ -48,7 +48,7 @@ end
 
 %% Bootstraping
 fprintf('setup boostrapping...\n\n');
-% set bootstrap_frames % todo move into bootstrapFrames() completely??
+% set bootstrap_frames
 if params.ds == 0
     img0 = imread([kitti_path '/00/image_0/' ...
         sprintf('%06d.png',bootstrapFrames(params.ds,'first'))]);
@@ -128,7 +128,7 @@ W_landmarks_map = W_landmarks_init; % full 3D map point cloud in frame W
 if params.init.show_landmarks
     figure('name','Landmarks and motion of bootstrap image pair');
     hold on;
-    plotLandmarks(W_landmarks_init);
+    plotLandmarks(W_landmarks_init,'z','up');
     plotCam(T_WCj_vo(:,:,1),2,'black');
     plotCam(T_WCj_vo(:,:,2),2,'red');
 end
@@ -136,11 +136,12 @@ end
 fprintf('...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
-if params.run_continous    
+global fig_cont fig_RANSAC_debug;
+
+if params.run_continous
     fprintf('start continuous VO operation...\n');
 
 	% setup figure handles
-	global fig_cont fig_RANSAC_debug;
 	fig_cont = figure('name','Contiunous VO estimation');
 	fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
 
