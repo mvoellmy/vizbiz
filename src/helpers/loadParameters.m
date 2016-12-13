@@ -20,7 +20,7 @@ params.init.show_init_keypoints = true;
 params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_corr_matches = true;
-params.init.use_BA = true;
+params.init.use_BA = false;
 params.init.landmarks_cutoff = 5;
 
 % correspondence parameters
@@ -38,7 +38,7 @@ params.eightPoint_ransac.fract_inliers = 0.5;
 params.eightPoint_ransac.max_error = 1;
 
 % continuous operation parameters
-params.cont.run_on_first_x_images = 5;
+params.cont.run_on_first_x_images = 1;
 params.cont.show_current_image = true;
 params.cont.show_new_keypoints = true;
 params.cont.show_matches = true;
