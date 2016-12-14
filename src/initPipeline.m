@@ -63,7 +63,7 @@ else
         [P_init, T_refined] = bundleAdjust(C1_P_hom_init(1:3,:), [p_hom_i1(1:2,:); p_hom_i2(1:2,:)], [T_WC1; T_WC2], K, 1);
         C1_P_hom_init(1:3,:) = P_init;
         
-        % Update homogenous transformations
+        % update homogeneous transformations
         T_WC1 = T_refined(1:4,1:4);
         T_WC2 = T_refined(5:8,1:4);
         T_C1W = tform2invtform(T_WC1);
