@@ -1,4 +1,4 @@
-function [R_CjCi, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints, corr_ldk_matches, max_num_inliers_history] = ...
+function [R_CiCj, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints, corr_ldk_matches, max_num_inliers_history] = ...
     ransacLocalization(params, query_image, database_image, database_keypoints, Ci_landmarks, K)
 % TODO description
 %
@@ -170,7 +170,7 @@ end
 
 % calculate inverse rotation matrices
 R_CiCj = R_CjCi';
-Ci_t_CiCj = -R_CiCj*Cj_t_CjCi; % TODO!! Verifiy to return the right thing
+Ci_t_CiCj = -R_CiCj*Cj_t_CjCi;
 
 % check for same number of query keypoints and database keypoints
 assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
