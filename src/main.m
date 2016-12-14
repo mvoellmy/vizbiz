@@ -176,7 +176,7 @@ if params.run_continous
 
             % add super title with frame number
             figure(fig_cont);
-            suptitle(sprintf('Frame #%i',j));
+%            suptitle(sprintf('Frame #%i',j));
         else
             warning('No keypoints left!!');
             break;
