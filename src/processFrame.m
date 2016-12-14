@@ -5,8 +5,8 @@ function [T_CiCj, p_new_matched, Cj_landmarks_updated] = processFrame(params,img
 %  - params(struct) : parameter struct
 %  - img_new(size) : current frame
 %  - img_prev(size) : previous frame
-%  - keypoints_prev(2xN) : 2D points,[v u]
-%  - Ci_landmarks_prev (3xN) : 3D points
+%  - keypoints_prev(2xN) : 2D points, [v u]
+%  - Ci_landmarks_prev(3xN) : 3D points
 %  - K(3x3) : camera intrinsics matrix
 %
 % Output:
