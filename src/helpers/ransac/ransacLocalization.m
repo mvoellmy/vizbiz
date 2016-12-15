@@ -1,23 +1,20 @@
 function [R_CiCj, Ci_t_CiCj, matched_query_inlier_keypoints, Ci_corresponding_inlier_landmarks] = ...
     ransacLocalization(params, matched_query_keypoints, Ci_corresponding_landmarks, K)
-% TODO description
 %
 % Inputs:
 %  - params(struct) : parameter struct
-%  - query_image(size) : new image
-%  - database_image(size) : previous image, it defines Ci frame
-%  - keypoints_prev_triang(2xN):  [v u] with corresponding landmark
-%  - Ci_landmarks(3xN) : 3D points in previous camera frame Ci to
+%  - matched_query_keypoints (2xN) : sorted matched query keypoints that
+%    have a correspondent landmark
+%  - Ci_corresponding_landmarks (3xN) : 3D points in previous camera frame Ci to
 %    database_keypoints (same index)
 %  - K(3x3) : camera intrinsics matrix
 %
 % Output:
 %  - R_CiCj(3x3) : rotation matrix Cj to Ci
 %  - Ci_t_CiCj(3x1) : translation vector of Ci to Cj expressed in frame Ci
-%  - matched_query_keypoints(2xN) : re-matched query keypoints, [v u]
-%  - matched_database_keypoints(2xN) : re-matched database keypoints, [v u]
-%  - corr_ldk_matches : todo ??
-%  - max_num_inliers_history(1xnum_iterations) : number inlier history
+%  - matched_query_inlier_keypoints(2xN) : inlier query keypoints, [v u]
+%  - Ci_corresponding_inlier_landmarks(3xN) : inlier landmarks
+
 
 global fig_cont fig_RANSAC_debug;
 
@@ -118,7 +115,9 @@ if params.localization_ransac.show_iterations
             max_num_inliers,100*max_num_inliers/size(matched_query_keypoints,2));
 end
 
-% TODO: check if best_guess_inliers is non-zero
+% check if there are any inliers
+assert(nnz(best_guess_inliers) > 0);
+
 
 % discard outliers
 matched_query_keypoints = matched_query_keypoints(:, best_guess_inliers);

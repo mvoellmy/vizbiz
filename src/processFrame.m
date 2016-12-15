@@ -1,15 +1,14 @@
-function [T_CiCj, p_new_matched_triang, updated_keypoint_tracker, Cj_corresponding_inlier_landmarks] = processFrame(params,img_new,img_prev, keypoints_prev_triang, keypoints_tracker_old,Ci_landmarks_prev,K)
+function [T_CiCj, p_new_matched_triang, updated_keypoint_tracker, Cj_corresponding_inlier_landmarks] =...
+    processFrame(params,img_new,img_prev, keypoints_prev_triang, keypoints_tracker_old,Ci_landmarks_prev,K)
 % TODO description
 % 
 % Input:
 %  - params(struct) : parameter struct
 %  - img_new(size) : current frame
 %  - img_prev(size) : previous frame
-%  - keypoints_prev(2xN) : 2D points, [v u]
 %  - keypoints_prev_triang (2xN) : 2D points, [v u] which have
 %    corresponding Landmarks
-%  - keypoints_prev_untriang (2xN) : 2D points, [v u] which dont have
-%    corresponding Landmarks
+%  - keypoints_tracker : container for tracking keypoints NOT DEFINED YET
 %  - Ci_landmarks_prev(3xN) : 3D points
 %  - K(3x3) : camera intrinsics matrix
 %
@@ -17,8 +16,7 @@ function [T_CiCj, p_new_matched_triang, updated_keypoint_tracker, Cj_correspondi
 %  - T_CiCj(4x4) : transformation Cj to Ci
 %  - p_new_matched_triang(2xN) : newly matched keypoints with 
 %    corresponding landmarks, [v u] 
-%  - p_new_matched_untriang (2xN) : newly matched keypoints without
-%    landmarks
+%  - updated_keypoint_tracker : updated container for tracking keypoints NOT DEFINED YET
 %  - Cj_landmarks_updated(3xN) : 3D points in frame Cj
 
 global fig_cont;

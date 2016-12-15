@@ -5,7 +5,8 @@ function [query_keypoints, matches] = ...
 % Input:
 %  - params(struct) : parameter struct
 %  - database_image(size) : first image
-%  - database_keypoints(2xN) : previous image keypoints, [v u]
+%  - database_keypoints(2xN) : previous image keypoints, [v u] which have a
+%    corresponding landmark
 %  - query_image(size) : second image
 %
 % Output:

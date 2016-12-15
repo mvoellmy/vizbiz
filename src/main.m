@@ -178,7 +178,8 @@ if params.run_continous
         if (size(keypoints_prev_triang,2) > 0) % todo: minimum number?        
             tic;
             % process newest image
-            [T_CiCj_vo_j(:,:,frame_idx),keypoints_new_triang, updated_keypoint_tracker,Cj_landmarks_new] = processFrame(params,img,img_prev, keypoints_prev_triang, keypoints_tracker,Ci_landmarks_prev,K);
+            [T_CiCj_vo_j(:,:,frame_idx),keypoints_new_triang, updated_keypoint_tracker,Cj_landmarks_new] =...
+                processFrame(params,img,img_prev, keypoints_prev_triang, keypoints_tracker,Ci_landmarks_prev,K);
             toc;
 
             % add super title with frame number
