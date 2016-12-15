@@ -29,8 +29,8 @@ else
     % assign second image as initialization image
     I_init = I_i2;
 
-    % find 2D correspondences (match indices not needed, since sorted)
-    [p_i1,p_i2,~] = findCorrespondeces(params,I_i1,I_i2); % todo: third output needed?
+    % find 2D correspondences (sorted)
+    [p_i1,p_i2] = findCorrespondeces(params,I_i1,I_i2);
     
     % homogenize points
     p_hom_i1 = [p_i1; ones(1,length(p_i1))];
@@ -49,22 +49,25 @@ else
     % construct C2 to W transformation
     T_C2C1 = [R_C2C1,  C2_t_C2C1;
               zeros(1,3),      1];
-    T_C1C2 = [R_C2C1',  -R_C2C1'*C2_t_C2C1;
-              zeros(1,3),                1];    
+    T_C1C2 = tform2invtform(T_C2C1);
     T_C1C1 = eye(4,4);    
     T_WC2 = T_WC1*T_C1C2;
     
     % triangulate a point cloud using the final transformation (R,T)
     M1 = K*T_C1C1(1:3,:);
     M2 = K*T_C2C1(1:3,:);
-    C1_P_hom_init = linearTriangulation(p_hom_i1,p_hom_i2,M1,M2);
+    C1_P_hom_init = linearTriangulation(p_hom_i1, p_hom_i2, M1, M2);
     
     if params.init.use_BA
-        fprintf('  bundle adjust points...\n')
         [P_init, T_refined] = bundleAdjust(C1_P_hom_init(1:3,:), [p_hom_i1(1:2,:); p_hom_i2(1:2,:)], [T_WC1; T_WC2], K, 1);
         C1_P_hom_init(1:3,:) = P_init;
+        
+        % update homogeneous transformations
         T_WC1 = T_refined(1:4,1:4);
         T_WC2 = T_refined(5:8,1:4);
+        T_C1W = tform2invtform(T_WC1);
+        T_C1C2 = T_C1W*T_WC2;
+        T_C2C1 = tform2invtform(T_C2C1);
     end
     
     % discard landmarks not contained in cylindrical neighborhood
