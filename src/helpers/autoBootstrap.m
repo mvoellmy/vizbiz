@@ -13,10 +13,9 @@ function [img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = autoBootst
 if params.init.show_bootstrap_images
     figure('name','Bootstrapping');
 end
-% todo: use params.init.show_bootstrap_images
 
 if params.auto_bootstrap
-    bootstrap_frame_idx_1 = 1; %bootstrapFrames(params.ds,'first'); % todo
+    bootstrap_frame_idx_1 = 1;
 
     if params.ds == 0
         img0 = imread([params.kitti_path '/00/image_0/' ...
