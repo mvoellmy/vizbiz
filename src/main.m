@@ -147,9 +147,16 @@ if params.run_continous
 
 	% hand-over initialization variables
 	img_prev = img_init;
-	keypoints_prev = keypoints_init;
+    % container for prev kp which have corresponding landmarks
+    keypoints_prev_triang = keypoints_init;
+    % container for prev kp which have no corresponding landmarks
+    keypoints_tracker = zeros(2, 1);
 	Ci_landmarks_prev = C2_landmarks_init;
-	match_indices_prev = 1:size(keypoints_prev,2);
+	match_indices_prev = 1:size(keypoints_prev_triang,2);
+    
+    
+    
+    
 
     for j = range_cont
 		fprintf('Processing frame %d\n=====================\n', j);
@@ -168,10 +175,10 @@ if params.run_continous
             assert(false);
         end
 
-        if (size(keypoints_prev,2) > 0) % todo: minimum number?        
+        if (size(keypoints_prev_triang,2) > 0) % todo: minimum number?        
             tic;
             % process newest image
-            [T_CiCj_vo_j(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,img_prev,keypoints_prev,Ci_landmarks_prev,K);
+            [T_CiCj_vo_j(:,:,frame_idx),keypoints_new_triang, updated_keypoint_tracker,Cj_landmarks_new] = processFrame(params,img,img_prev, keypoints_prev_triang, keypoints_tracker,Ci_landmarks_prev,K);
             toc;
 
             % add super title with frame number
@@ -195,8 +202,10 @@ if params.run_continous
 
         % update previous image, keypoints and landmarks
         img_prev = img;
-        keypoints_prev = keypoints_new;
+        %keypoints_prev = keypoints_new;
         Ci_landmarks_prev = Cj_landmarks_new;
+        
+        keypoints_prev_triang = keypoints_new_triang;
 
         fprintf('\n');
     end
