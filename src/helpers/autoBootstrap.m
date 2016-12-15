@@ -1,11 +1,14 @@
 function [img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = autoBootstrap(params)
-% Todo
+% Returns bootstrap image pair and corresponding indices.
 % 
 % Input:
-%  -
+%  - params(struct) : parameter struct
 %
 % Output:
-%  - 
+%  - img0(size) : first bootstrap image
+%  - img1(size) : second bootstrap image
+%  - bootstrap_frame_idx_1(1x1) : dataset image index of img0
+%  - bootstrap_frame_idx_2(1x1) : dataset image index of img1
 
 figure('name','Bootstrapping');
 % todo: use params.init.show_bootstrap_images

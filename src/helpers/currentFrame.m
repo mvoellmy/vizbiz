@@ -1,11 +1,12 @@
 function [img] = currentFrame(params, idx)
-% Todo
+% Returns current image.
 % 
 % Input:
-%  -
+%  - params(struct) : parameter struct
+%  - idx(1x1) : dataset frame index
 %
 % Output:
-%  - 
+%  - img(size) : current image
 
 if params.ds == 0
     img = imread([params.kitti_path '/00/image_0/' sprintf('%06d.png',idx)]);
