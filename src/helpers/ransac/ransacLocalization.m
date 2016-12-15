@@ -6,8 +6,9 @@ function [R_CiCj, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints
 %  - params(struct) : parameter struct
 %  - query_image(size) : new image
 %  - database_image(size) : previous image, it defines Ci frame
-%  - database_keypoints(2xN): previous keypoints, [v u]
-%  - Ci_landmarks(3xN) : 3D points in previous camera frame Ci
+%  - database_keypoints(2xN):  [v u] with corresponding landmark
+%  - Ci_landmarks(3xN) : 3D points in previous camera frame Ci to
+%    database_keypoints (same index)
 %  - K(3x3) : camera intrinsics matrix
 %
 % Output:

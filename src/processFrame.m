@@ -61,7 +61,9 @@ Ci_landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,Mi,M
 % append new landmarks in new frame
 Cj_P_hom_new = T_CjCi*[Ci_landmarks_new(1:3,:); ones(1,size(Ci_landmarks_new,2))];
 Cj_landmarks_updated = Cj_P_hom_new(1:3,:);
-          
+
+%Cj_landmarks_updated = 
+
 % display statistics
 fprintf(['  Number of new landmarks triangulated: %i\n',...
          '  Number of updated landmarks: %i\n'],...

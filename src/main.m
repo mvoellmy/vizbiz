@@ -194,9 +194,9 @@ if params.run_continous
         pause(1.01);
 
         % update previous image, keypoints and landmarks
-%         img_prev = img;
-%         keypoints_prev = keypoints_new;
-%         Ci_landmarks_prev = Cj_landmarks_new;
+        img_prev = img;
+        keypoints_prev = keypoints_new;
+        Ci_landmarks_prev = Cj_landmarks_new;
 
         fprintf('\n');
     end
