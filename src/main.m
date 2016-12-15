@@ -94,9 +94,12 @@ T_WCj_vo(:,:,2) = T_WC1*T_C1C2; % C2 to W
 % transform init point cloud to world frame
 W_P_hom_init = T_WC1*[C2_landmarks_init; zeros(1,size(C2_landmarks_init,2))];
 W_landmarks_init = W_P_hom_init(1:3,:);
-W_landmarks_map = W_landmarks_init; % full 3D map point cloud in frame W
 
-% display initialization landmarks and bootstrap motion
+% full 3D map point cloud in frame W
+W_landmarks_map = W_landmarks_init;
+
+% display initialization landmarks and bootstrap motion % todo: move this
+% to initPipeline()?
 if params.init.show_landmarks
     figure('name','Landmarks and motion of bootstrap image pair');
     hold on;
@@ -163,21 +166,21 @@ if params.run_continous
         fprintf('\n');
     end
     fprintf('...VO-pipeline terminated.\n');
+end
 
-    if params.perf.profiling
-        profile viewer; % view profiling results
-    end
+if params.perf.profiling
+    profile viewer; % view profiling results
+end 
 
-    %% Results summary
-    fprintf('display results...\n');
+%% Results summary
+fprintf('display results...\n');
 
-    if (params.ds ~= 1 && params.compare_against_groundthruth)
-        % plot VO trajectory against ground truth   
-        plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth');
-    elseif (params.ds == 1 && params.compare_against_groundthruth)
-        % plot VO trajectory
-        plotTrajectory_2D(T_WCj_vo(1:3,4,:));
-    end
+if (params.ds ~= 1 && params.compare_against_groundthruth)
+    % plot VO trajectory against ground truth   
+    plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth');
+elseif (params.ds == 1 && params.compare_against_groundthruth)
+    % plot VO trajectory
+    plotTrajectory_2D(T_WCj_vo(1:3,4,:));
 end
 
 % display full map and cameras

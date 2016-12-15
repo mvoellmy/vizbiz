@@ -115,12 +115,12 @@ else
         assert(false);
     end
     
-    subplot(1,2,1);
+    subplot(2,1,1);
     imshow(img0);
     axis equal;
     title('Bootstrap frame 1');
     
-    subplot(1,2,2);
+    subplot(2,1,2);
     imshow(img1);
     axis equal;
     title('Bootstrap frame 2');
