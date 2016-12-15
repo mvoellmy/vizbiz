@@ -14,9 +14,9 @@ params = loadParameters(mode);
 
 %% Setup datasets
 if params.ds == 0
-    kitti_path = '../datasets/kitti';
-    assert(exist('kitti_path', 'var') ~= 0);
-    ground_truth = load([kitti_path '/poses/00.txt']);
+    params.kitti_path = '../datasets/kitti';
+    assert(isfield(params, 'kitti_path') ~= 0);    
+    ground_truth = load([params.kitti_path '/poses/00.txt']);
     ground_truth = ground_truth(:, [end-8 end]);
     last_frame = 4540;
     K = [7.188560000000e+02 0 6.071928000000e+02
@@ -24,20 +24,17 @@ if params.ds == 0
         0 0 1];
     fprintf('load KITTI dataset...\n');
 elseif params.ds == 1
-    malaga_path = '../datasets/malaga-urban-dataset-extract-07';
-    assert(exist('malaga_path', 'var') ~= 0);
-    images = dir([malaga_path ...
-        '/malaga-urban-dataset-extract-07_rectified_800x600_Images']);
-    left_images = images(3:2:end);
-    last_frame = length(left_images);
+    params.malaga_path = '../datasets/malaga-urban-dataset-extract-07';
+    assert(isfield(params, 'malaga_path') ~= 0);
+    last_frame = 2121;
     K = [621.18428 0 404.0076
         0 621.18428 309.05989
         0 0 1];
     fprintf('load MALAGA dataset...\n');
 elseif params.ds == 2
-    parking_path = '../datasets/parking';
-    assert(exist('parking_path', 'var') ~= 0);     
-    ground_truth = load([parking_path '/poses.txt']);
+    params.parking_path = '../datasets/parking';
+    assert(isfield(params, 'parking_path') ~= 0);
+    ground_truth = load([params.parking_path '/poses.txt']);
     ground_truth = ground_truth(:, [end-8 end]);
     last_frame = 598;
     K = load([parking_path '/K.txt']);
@@ -49,39 +46,10 @@ end
 %% Bootstraping
 fprintf('setup boostrapping...\n\n');
 % set bootstrap_frames
-if params.ds == 0
-    img0 = imread([kitti_path '/00/image_0/' ...
-        sprintf('%06d.png',bootstrapFrames(params.ds,'first'))]);
-    img1 = imread([kitti_path '/00/image_0/' ...
-        sprintf('%06d.png',bootstrapFrames(params.ds,'second'))]);
-elseif params.ds == 1
-    img0 = rgb2gray(imread([malaga_path ...
-        '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
-        left_images(bootstrapFrames(params.ds,'first')).name]));
-    img1 = rgb2gray(imread([malaga_path ...
-        '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
-        left_images(bootstrapFrames(params.ds,'second')).name]));
-elseif params.ds == 2
-    img0 = rgb2gray(imread([parking_path ...
-        sprintf('/images/img_%05d.png',bootstrapFrames(params.ds,'first'))]));
-    img1 = rgb2gray(imread([parking_path ...
-        sprintf('/images/img_%05d.png',bootstrapFrames(params.ds,'second'))]));
-else
-    assert(false);
-end
+[img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = autoBootstrap(params);
 
-% display boostrap images
-if params.init.show_bootstrap_images    
-    figure('name','Boostrap images');
-    subplot(1,2,1);
-    imshow(img0);
-    subplot(1,2,2);
-    imshow(img1);
-end
-
-%% Logging variables
+%% Setup logging variables
 % set range of images to run on
-bootstrap_frame_idx_2 = bootstrapFrames(params.ds,'second');
 if (params.cont.run_on_first_x_images > 0)
     range_cont = (bootstrap_frame_idx_2+1):(bootstrap_frame_idx_2+...
              params.cont.run_on_first_x_images);
@@ -155,19 +123,9 @@ if params.run_continous
 		fprintf('Processing frame %d\n=====================\n', j);
         frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
         
-        if params.ds == 0
-            img = imread([kitti_path '/00/image_0/' sprintf('%06d.png',j)]);
-        elseif params.ds == 1
-            img = rgb2gray(imread([malaga_path ...
-                '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
-                left_images(j).name]));
-        elseif params.ds == 2
-            img = im2uint8(rgb2gray(imread([parking_path ...
-                sprintf('/images/img_%05d.png',j)])));
-        else
-            assert(false);
-        end
-
+        % pick current frame
+        img = currentFrame(params, j);
+        
         if (size(keypoints_prev,2) > 0) % todo: minimum number?        
             tic;
             % process newest image

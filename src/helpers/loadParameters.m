@@ -8,7 +8,8 @@ function params = loadParameters(mode)
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
+params.auto_bootstrap = true;
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 params.run_continous = false;
