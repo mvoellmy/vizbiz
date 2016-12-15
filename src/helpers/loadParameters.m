@@ -11,12 +11,12 @@ function params = loadParameters(mode)
 params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = true;
 params.perf.profiling = false;
-params.compare_against_groundthruth = true;
+params.compare_against_groundthruth = false;
 params.run_continous = true;
 params.show_map_and_cams = false;
 
 % initialization parameters
-params.init.show_bootstrap_images = false;
+params.init.show_bootstrap_images = true;
 params.init.show_init_keypoints = true;
 params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;

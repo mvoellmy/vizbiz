@@ -44,9 +44,13 @@ else
 end
 
 %% Bootstraping
-fprintf('setup boostrapping...\n\n');
+fprintf('setup boostrapping...\n');
+tic;
 % set bootstrap_frames
 [img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = autoBootstrap(params);
+toc;
+
+fprintf('...boostrapping done.\n\n');
 
 %% Setup logging variables
 % set range of images to run on
