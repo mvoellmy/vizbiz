@@ -1,5 +1,7 @@
 function E = eightPointRansac(params, p_hom_i1, p_hom_i2, K1, K2)
-% TODO
+% Estimates the essential matrix from a set of image keypoints and
+% robustifies pose estimate with RANSAC rejecting outlier keypoint
+% correspondences.
 % 
 % Input:
 %  - params(struct) : parameter struct
@@ -21,8 +23,6 @@ num_iterations = ceil(log(1-params.eightPoint_ransac.p_success)/...
                  log(1-params.eightPoint_ransac.fract_inliers^s));
 
 % initialize RANSAC
-best_guess = NaN(3,3);          
-best_guess_history = NaN(3,3,num_iterations); % todo: needed
 best_guess_inliers = NaN(1, size(p_hom_i2,2));
 max_num_inliers_history = NaN(1,num_iterations);
 max_num_inliers = 0;
@@ -36,26 +36,20 @@ for i=1:num_iterations
     % estimate fundamental matrix given data sample
     F_guess = fundamentalEightPoint_normalized(p_hom_i1_sample,p_hom_i2_sample);
     
-    % count inliers
+    % count inliers based on pixel difference
     %errors = algError2EpipolarLine(p_hom_i1,p_hom_i2,F_guess);
     errors = geomError2EpipolarLine(p_hom_i1,p_hom_i2,F_guess);
-    inliers = errors <= params.eightPoint_ransac.max_error; % pixel error
+    inliers = errors <= params.eightPoint_ransac.max_error;
     num_inliers = nnz(inliers);
 
-    if (num_inliers > max_num_inliers)
-        % rerun on inlier correspondences
-        %F_guess = fundamentalEightPoint_normalized(p_hom_i1(:,inliers),p_hom_i2(:,inliers));
-        
+    if (num_inliers > max_num_inliers)        
         % update benchmark
         max_num_inliers = num_inliers;
-        best_guess = F_guess;
-        best_guess_history(:,:,i) = best_guess;
         max_num_inliers_history(i) = num_inliers;        
         
         % save best inliers
         best_guess_inliers = inliers;
     else
-        best_guess_history(:,:,i) = best_guess;
         max_num_inliers_history(i) = max_num_inliers;
     end
 end
@@ -87,7 +81,7 @@ end
 E = K2'*best_guess*K1;
 
 if isnan(E)
-    error('eightPointRansac found no inliers!');
+    fprintf('  No inlier matches found\n');
 end
 
 end
