@@ -149,7 +149,9 @@ if params.run_continous
 	img_prev = img_init;
     % container for prev kp which have corresponding landmarks
     keypoints_prev_triang = keypoints_init;
-    % container for prev kp which have no corresponding landmarks
+    % container for matched keypoints which have yet no corresponding
+    % landmark, and the pose where they were seen the first time --> keypoint tracker
+    % TODO: define the tracker container right, maybe with a struct?
     keypoints_tracker = zeros(2, 1);
 	Ci_landmarks_prev = C2_landmarks_init;
 	match_indices_prev = 1:size(keypoints_prev_triang,2);
@@ -201,12 +203,11 @@ if params.run_continous
         % allow plots to refresh
         pause(1.01);
 
-        % update previous image, keypoints and landmarks
+        % update previous image, keypoints, landmarks and tracker
         img_prev = img;
-        %keypoints_prev = keypoints_new;
-        Ci_landmarks_prev = Cj_landmarks_new;
-        
         keypoints_prev_triang = keypoints_new_triang;
+        Ci_landmarks_prev = Cj_landmarks_new;
+        keypoints_tracker = updated_keypoint_tracker;
 
         fprintf('\n');
     end
