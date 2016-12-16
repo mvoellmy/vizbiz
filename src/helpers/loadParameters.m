@@ -1,9 +1,7 @@
-function params = loadParameters(mode)
+function params = loadParameters()
 % Returns collection of parameters used throughout the VO pipeline.
 % 
-% Input:
-%  - mode(1x1) : parameter setting mode
-%
+
 % Output:
 %  - params(struct) : parameter struct
 
@@ -53,12 +51,6 @@ params.localization_ransac.num_iterations_DLT = 200;
 params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]
 params.localization_ransac.show_iterations = false;
 
-
-% mode specific parameters
-if mode == 1
-
-else
-    error('invalid parameter mode');
-end
+params.keypoint_tracker.show_matches = true;
 
 end

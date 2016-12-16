@@ -9,8 +9,7 @@ addpath(genpath('visualization'));
 
 %% Load parameter struct
 fprintf('load parameter struct...\n');
-mode = 1; % todo: needed?
-params = loadParameters(mode);
+params = loadParameters();
 
 %% Setup datasets
 if params.ds == 0
@@ -136,7 +135,7 @@ end
 fprintf('...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
-global fig_cont fig_RANSAC_debug;
+global fig_cont fig_kp_tracks fig_RANSAC_debug;
 
 if params.run_continous
     fprintf('start continuous VO operation...\n');
@@ -144,6 +143,7 @@ if params.run_continous
 	% setup figure handles
 	fig_cont = figure('name','Contiunous VO estimation');
 	fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
+    fig_kp_tracks = figure('name','Keypoint tracker');
 
 	% hand-over initialization variables
 	img_prev = img_init;
