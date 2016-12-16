@@ -152,9 +152,15 @@ if params.run_continous
     % container for matched keypoints which have yet no corresponding
     % landmark, and the pose where they were seen the first time --> keypoint tracker
     % TODO: define the tracker container right, maybe with a struct?
-    keypoints_tracker = zeros(2, 1);
+    
+    % set of candidate keypoints in last camera frame
+    candidate_keypoints = zeros(2, 1);
+    
+    % landmarks in last camera frame
 	Ci_landmarks_prev = C2_landmarks_init;
-	match_indices_prev = 1:size(keypoints_prev_triang,2);
+    
+    % unused?
+	%match_indices_prev = 1:size(keypoints_prev_triang,2);
     
     
     
@@ -181,7 +187,7 @@ if params.run_continous
             tic;
             % process newest image
             [T_CiCj_vo_j(:,:,frame_idx),keypoints_new_triang, updated_keypoint_tracker,Cj_landmarks_new] =...
-                processFrame(params,img,img_prev, keypoints_prev_triang, keypoints_tracker,Ci_landmarks_prev,K);
+                processFrame(params,img,img_prev, keypoints_prev_triang, candidate_keypoints,Ci_landmarks_prev,K);
             toc;
 
             % add super title with frame number
@@ -207,7 +213,7 @@ if params.run_continous
         img_prev = img;
         keypoints_prev_triang = keypoints_new_triang;
         Ci_landmarks_prev = Cj_landmarks_new;
-        keypoints_tracker = updated_keypoint_tracker;
+        candidate_keypoints = updated_keypoint_tracker;
 
         fprintf('\n');
     end
