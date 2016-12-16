@@ -1,5 +1,5 @@
-function [T_CiCj, p_new_matched_triang, updated_keypoint_tracker, Cj_corresponding_inlier_landmarks] =...
-    processFrame(params,img_new,img_prev, keypoints_prev_triang, keypoints_tracker_old,Ci_landmarks_prev,K)
+function [T_CiCj, p_new_matched_triang, updated_kp_tracks, Cj_corresponding_inlier_landmarks] =...
+    processFrame(params,img_new,img_prev, keypoints_prev_triang, kp_tracks_old,Ci_landmarks_prev,K)
 % TODO description
 % 
 % Input:
@@ -8,7 +8,7 @@ function [T_CiCj, p_new_matched_triang, updated_keypoint_tracker, Cj_correspondi
 %  - img_prev(size) : previous frame
 %  - keypoints_prev_triang (2xN) : 2D points, [v u] which have
 %    corresponding Landmarks
-%  - keypoints_tracker : container for tracking keypoints NOT DEFINED YET
+%  - kp_tracks_old : struct container for tracking keypoints
 %  - Ci_landmarks_prev(3xN) : 3D points
 %  - K(3x3) : camera intrinsics matrix
 %
@@ -16,7 +16,7 @@ function [T_CiCj, p_new_matched_triang, updated_keypoint_tracker, Cj_correspondi
 %  - T_CiCj(4x4) : transformation Cj to Ci
 %  - p_new_matched_triang(2xN) : newly matched keypoints with 
 %    corresponding landmarks, [v u] 
-%  - updated_keypoint_tracker : updated container for tracking keypoints NOT DEFINED YET
+%  - updated_kp_tracks : struct updated container for tracking keypoints
 %  - Cj_landmarks_updated(3xN) : 3D points in frame Cj
 
 global fig_cont;
@@ -90,10 +90,10 @@ T_CjCi = [R_CiCj'   -R_CiCj'*Ci_t_CiCj;
 query_descriptors = describeKeypoints(img_new,query_keypoints,params.corr.descriptor_radius);
 
 % describe database keypoints
-%database_descriptors = describeKeypoints(img_prev,keypoints_tracker_old,params.corr.descriptor_radius);
+database_descriptors = describeKeypoints(img_prev,kp_tracks_old.candiate_kp,params.corr.descriptor_radius);
 
 % match descriptors
-%matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
 % discard kp that could not be tracked
 % [~,matched_query_indices,keypoints_prev_untriang_indices] = find(matches_untriang);
@@ -106,7 +106,7 @@ query_descriptors = describeKeypoints(img_new,query_keypoints,params.corr.descri
       
 % % triangulate new points with keypoint
 % Mi = K * eye(3,4);
-% Mj = K * [R_CiCj, Ci_t_CiCj];
+% Mj = K * [R_CiCj, Ci_t_CiCj];kp
 % p_hom_prev_matched = [p_prev_matched; ones(1,size(p_prev_matched,2))];
 % p_hom_new_matched = [p_new_matched_triang; ones(1,size(p_new_matched_triang,2))];
 % Ci_landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,Mi,Mj);
@@ -123,7 +123,7 @@ query_descriptors = describeKeypoints(img_new,query_keypoints,params.corr.descri
 
 Cj_corresponding_inlier_landmarks = T_CjCi*[Ci_corresponding_inlier_landmarks(1:3,:); ones(1,size(Ci_corresponding_inlier_landmarks,2))];
 Cj_corresponding_inlier_landmarks = Cj_corresponding_inlier_landmarks(1:3,:);
-updated_keypoint_tracker = keypoints_tracker_old;
+updated_kp_tracks = kp_tracks_old;
 
 
 % % display statistics

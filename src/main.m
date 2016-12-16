@@ -151,10 +151,13 @@ if params.run_continous
     keypoints_prev_triang = keypoints_init;
     % container for matched keypoints which have yet no corresponding
     % landmark, and the pose where they were seen the first time --> keypoint tracker
-    % TODO: define the tracker container right, maybe with a struct?
-    
+       
     % set of candidate keypoints in last camera frame
-    candidate_keypoints = zeros(2, 1);
+    kp_tracks.candiate_kp = zeros(2, 1);
+    % keypoint coordinates of every candiate in its first observed frame
+    kp_tracks.first_obs_kp = zeros(2, 1);
+    % keypoint pose of every candiate in its first observed frame
+    kp_tracks.first_obs_pose = zeros(4, 4, 1);
     
     % landmarks in last camera frame
 	Ci_landmarks_prev = C2_landmarks_init;
@@ -186,8 +189,9 @@ if params.run_continous
         if (size(keypoints_prev_triang,2) > 0) % todo: minimum number?        
             tic;
             % process newest image
-            [T_CiCj_vo_j(:,:,frame_idx),keypoints_new_triang, updated_keypoint_tracker,Cj_landmarks_new] =...
-                processFrame(params,img,img_prev, keypoints_prev_triang, candidate_keypoints,Ci_landmarks_prev,K);
+            % TODO: new argument: pose Camera i in World frame
+            [T_CiCj_vo_j(:,:,frame_idx),keypoints_new_triang, updated_kp_tracks,Cj_landmarks_new] =...
+                processFrame(params,img,img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev,K);
             toc;
 
             % add super title with frame number
@@ -213,7 +217,7 @@ if params.run_continous
         img_prev = img;
         keypoints_prev_triang = keypoints_new_triang;
         Ci_landmarks_prev = Cj_landmarks_new;
-        candidate_keypoints = updated_keypoint_tracker;
+        kp_tracks = updated_kp_tracks;
 
         fprintf('\n');
     end
