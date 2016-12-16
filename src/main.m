@@ -46,8 +46,8 @@ end
 %% Bootstraping
 fprintf('setup boostrapping...\n');
 tic;
-% set bootstrap_frames
-[img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = autoBootstrap(params);
+% set bootstrap frames
+[img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = autoBootstrap(params, K);
 toc;
 
 fprintf('...boostrapping done.\n\n');
@@ -98,8 +98,7 @@ W_landmarks_init = W_P_hom_init(1:3,:);
 % full 3D map point cloud in frame W
 W_landmarks_map = W_landmarks_init;
 
-% display initialization landmarks and bootstrap motion % todo: move this
-% to initPipeline()?
+% display initialization landmarks and bootstrap motion
 if params.init.show_landmarks
     figure('name','Landmarks and motion of bootstrap image pair');
     hold on;
