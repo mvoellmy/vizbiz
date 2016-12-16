@@ -1,6 +1,8 @@
 function [T_CiCj, p_new_matched_triang, updated_kp_tracks, Cj_corresponding_inlier_landmarks] =...
     processFrame(params,img_new,img_prev, keypoints_prev_triang, kp_tracks_old,Ci_landmarks_prev,T_WCi,K)
-% TODO description
+% Estimates pose transformation T_CiCj between to images.
+% Tracks potential new keypoints and triangulates new landmarks if
+% trianguability is good.
 % 
 % Input:
 %  - params(struct) : parameter struct
@@ -10,6 +12,7 @@ function [T_CiCj, p_new_matched_triang, updated_kp_tracks, Cj_corresponding_inli
 %    corresponding Landmarks
 %  - kp_tracks_old : struct container for tracking keypoints
 %  - Ci_landmarks_prev(3xN) : 3D points
+%  - T_WCi : (4x4) Current transformation world to Ci
 %  - K(3x3) : camera intrinsics matrix
 %
 % Output:
@@ -17,7 +20,8 @@ function [T_CiCj, p_new_matched_triang, updated_kp_tracks, Cj_corresponding_inli
 %  - p_new_matched_triang(2xN) : newly matched keypoints with 
 %    corresponding landmarks, [v u] 
 %  - updated_kp_tracks : struct updated container for tracking keypoints
-%  - Cj_landmarks_updated(3xN) : 3D points in frame Cj
+%  - Cj_corresponding_inlier_landmarks (3xN) : 3D points in frame Cj
+%    verified inliers by ransac
 
 global fig_cont;
 
@@ -88,27 +92,52 @@ T_CjCi = [R_CiCj'   -R_CiCj'*Ci_t_CiCj;
 
 
 %% Candiate Keypoint tracker
+% variable init - assume no matches
+matches_untriang = zeros(1,size(query_keypoints,2));
+updated_kp_tracks.candidate_kp = [];   % 2xN
+updated_kp_tracks.first_obs_kp = [];   % 2xN
+updated_kp_tracks.first_obs_pose = []; % 16xN
 
 % descripe query keypoints
 query_descriptors = describeKeypoints(img_new,query_keypoints,params.corr.descriptor_radius);
 
 % if there are candiate keypoints, try to match
-if (size(kp_tracks_old.candiate_kp,2) > 1)
+if (size(kp_tracks_old.candidate_kp,2) > 0) % 0 in first frame
     % describe database keypoints
-    database_descriptors = describeKeypoints(img_prev,kp_tracks_old.candiate_kp,params.corr.descriptor_radius);
+    database_descriptors = describeKeypoints(img_prev,kp_tracks_old.candidate_kp,params.corr.descriptor_radius);
 
     % match descriptors
     matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
-    % discard kp that could not be tracked
-    % [~,matched_query_indices,keypoints_prev_untriang_indices] = find(matches_untriang);
-    % keypoints_prev_untriang = keypoints_prev_untriang(matches_untriang);
-    %kp_tracks_old.
-    % TODO: track these matches
+    % update candidate_kp coordinates with matched current kp
+    idx_matched_kp_tracks_cand = matches_untriang(matches_untriang>0); % z.B 17
+    % updated_kp_tracks.candidate_kp(:,idx_matched_kp_tracks_cand) = query_keypoints(:,matches_untriang>0); %new v,u coord
+    
+    % update kp information that could be tracked
+    updated_kp_tracks.candidate_kp(:,idx_matched_kp_tracks_cand) = query_keypoints(:,idx_matched_kp_tracks_cand); %new v,u coord
+    updated_kp_tracks.first_obs_kp(:,idx_matched_kp_tracks_cand) = kp_tracks_old.first_obs_kp(:,idx_matched_kp_tracks_cand);
+    updated_kp_tracks.first_obs_pose(:,idx_matched_kp_tracks_cand) = kp_tracks_old.first_obs_pose(:,idx_matched_kp_tracks_cand);
+
+    % discard kp that could not be tracked --> new sorting (unkown)
+    updated_kp_tracks.candidate_kp = updated_kp_tracks.candidate_kp(:,idx_matched_kp_tracks_cand);
+    updated_kp_tracks.first_obs_kp = updated_kp_tracks.first_obs_kp(:,idx_matched_kp_tracks_cand);
+    updated_kp_tracks.first_obs_pose = updated_kp_tracks.first_obs_pose(:,idx_matched_kp_tracks_cand);
 end
 
-% TODO: triangulate new LM if track good
-      
+% append all new found keypoints and their pose
+new_kp = query_keypoints(:,matches_untriang==0); % kp which could not be matched
+T_WCi_col = T_WCi(:); % convert to col vector for storage
+updated_kp_tracks.candidate_kp = [updated_kp_tracks.candidate_kp, new_kp];
+updated_kp_tracks.first_obs_kp = [updated_kp_tracks.first_obs_kp, new_kp]; % is equal to candidate when adding
+updated_kp_tracks.first_obs_pose = [updated_kp_tracks.first_obs_pose, repmat(T_WCi_col,[1, size(new_kp, 2)])];   
+
+%% Triangulate new landmarks
+
+% how to convert col back to matrix: matrix2D = reshape(columnVector, [m_rows m_columns]);
+% TODO: calculate bearing vector from every candiate_kp
+
+% TODO: If norm(bearing_vector) < trehshold --> triangulate new landmark
+
 % % triangulate new points with keypoint
 % Mi = K * eye(3,4);
 % Mj = K * [R_CiCj, Ci_t_CiCj];kp
@@ -116,19 +145,26 @@ end
 % p_hom_new_matched = [p_new_matched_triang; ones(1,size(p_new_matched_triang,2))];
 % Ci_landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,Mi,Mj);
 
+%% Update keypoint tracks, Cj_landmarks and p_new_matched_triang
+
+% TODO: Delete candidate keypoint used for triangulation from updated_kp_tracks
+
+% TODO: Filter landmarks with cylindrical filter
+
 % discard landmarks not contained in cylindrical neighborhood
 % [Ci_landmarks_new, outFOV_idx] = applyCylindricalFilter(Ci_landmarks_new, params.cont.landmarks_cutoff);
 
-% todo: remove corresponding keypoints
+% TODO: Delete keypoints of landmarks deleted by cylindrical filter
 %p_i2(:,outFOV_idx) = [];
 
-% append new landmarks in new frame
+% TODO: Append used candidate keypoints to p_new_matched_triang
+
+% TODO: Append landmarks in Cj-Frame at index corresponding to p_new_matched_triang
 % Cj_P_hom_new = T_CjCi*[Ci_landmarks_new(1:3,:); ones(1,size(Ci_landmarks_new,2))];
 % Cj_landmarks_updated = Cj_P_hom_new(1:3,:);
-
+  
 Cj_corresponding_inlier_landmarks = T_CjCi*[Ci_corresponding_inlier_landmarks(1:3,:); ones(1,size(Ci_corresponding_inlier_landmarks,2))];
 Cj_corresponding_inlier_landmarks = Cj_corresponding_inlier_landmarks(1:3,:);
-updated_kp_tracks = kp_tracks_old;
 
 
 % % display statistics

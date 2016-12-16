@@ -153,21 +153,17 @@ if params.run_continous
     % landmark, and the pose where they were seen the first time --> keypoint tracker
        
     % set of candidate keypoints in last camera frame
-    kp_tracks.candiate_kp = zeros(2, 1);
+    kp_tracks.candidate_kp = []; % 2xN
     % keypoint coordinates of every candiate in its first observed frame
-    kp_tracks.first_obs_kp = zeros(2, 1);
+    kp_tracks.first_obs_kp = [];  % 2xN
     % keypoint pose of every candiate in its first observed frame
-    kp_tracks.first_obs_pose = zeros(4, 4, 1);
+    kp_tracks.first_obs_pose = []; % 16xN
     
     % landmarks in last camera frame
 	Ci_landmarks_prev = C2_landmarks_init;
     
     % unused?
-	%match_indices_prev = 1:size(keypoints_prev_triang,2);
-    
-    
-    
-    
+	%match_indices_prev = 1:size(keypoints_prev_triang,2); 
 
     for j = range_cont
 		fprintf('Processing frame %d\n=====================\n', j);
@@ -196,18 +192,19 @@ if params.run_continous
             [T_CiCj_vo_j(:,:,frame_idx),keypoints_new_triang, updated_kp_tracks,Cj_landmarks_new] =...
                 processFrame(params,img,img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev,T_WCi, K);
             toc;
-
+            
             % add super title with frame number
             figure(fig_cont);
 %            suptitle(sprintf('Frame #%i',j));
         else
-            warning('No keypoints left!!');
+            warning('Toss few keypoints left!!');
             break;
         end
 
         % append newest Cj to T transformation
         T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1)*T_CiCj_vo_j(:,:,frame_idx);
-
+        
+        % TODO: Check it!
         % update map with new landmarks
         W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
         W_landmarks_new = W_P_hom_new(1:3,:);
