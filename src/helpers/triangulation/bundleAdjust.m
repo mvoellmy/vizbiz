@@ -4,17 +4,17 @@ function [ P_refined, T_refined ] = bundleAdjust(P, p, T, K, fixed_cams )
 % Attention! Inputs are NOT homogenized coordinates.
 % 
 % Input:
-%  - P(3xN)     : List of 3D Points in world-frame
-%  - p(nC*2xN)  : Matrix containing 2D Points sorted according to
+%  - P(3xN)     : list of 3D Points in world-frame
+%  - p(nC*2xN)  : matrix containing 2D Points sorted according to
 %  their correspondance with each other and the 3D points.
-%  - T(nC*4x4)  : Stack of transformation matrices towards the individual
+%  - T(nC*4x4)  : stack of transformation matrices towards the individual
 %  cameras
 %  - K(3x3) : intrinsics matrix of camera
-%  - fixed_cams(1xC) : Vector with camera_ids defining which cams are fixed
+%  - fixed_cams(1xC) : vector with camera_ids defining which cams are fixed
 %  in world
 %
 % Output:
-%  - P_refined(3xN) : Bundle adjusted 3D Points in world-frame
+%  - P_refined(3xN) : bundle adjusted 3D points in world-frame
 %  - T_refined(nC*4x4) : refined transformation matrices of cameras
 %
 % Definitions:
