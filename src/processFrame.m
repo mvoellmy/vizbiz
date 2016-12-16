@@ -1,5 +1,5 @@
 function [T_CiCj, p_new_matched_triang, updated_kp_tracks, Cj_corresponding_inlier_landmarks] =...
-    processFrame(params,img_new,img_prev, keypoints_prev_triang, kp_tracks_old,Ci_landmarks_prev,K)
+    processFrame(params,img_new,img_prev, keypoints_prev_triang, kp_tracks_old,Ci_landmarks_prev,T_WCi,K)
 % TODO description
 % 
 % Input:
@@ -30,6 +30,7 @@ if params.cont.show_current_image
     imshow(img_new);
 end
 
+%% Estimate delta rotation between frame i and j
 
 [query_keypoints,matches] = ...
     findCorrespondeces_cont(params,img_prev,keypoints_prev_triang,img_new);
@@ -86,21 +87,25 @@ T_CjCi = [R_CiCj'   -R_CiCj'*Ci_t_CiCj;
           zeros(1,3)                 1];
 
 
+%% Candiate Keypoint tracker
+
 % descripe query keypoints
 query_descriptors = describeKeypoints(img_new,query_keypoints,params.corr.descriptor_radius);
 
-% describe database keypoints
-database_descriptors = describeKeypoints(img_prev,kp_tracks_old.candiate_kp,params.corr.descriptor_radius);
+% if there are candiate keypoints, try to match
+if (size(kp_tracks_old.candiate_kp,2) > 1)
+    % describe database keypoints
+    database_descriptors = describeKeypoints(img_prev,kp_tracks_old.candiate_kp,params.corr.descriptor_radius);
 
-% match descriptors
-matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+    % match descriptors
+    matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
-% discard kp that could not be tracked
-% [~,matched_query_indices,keypoints_prev_untriang_indices] = find(matches_untriang);
-% keypoints_prev_untriang = keypoints_prev_untriang(matches_untriang);
-
-% TODO: track these matches
-
+    % discard kp that could not be tracked
+    % [~,matched_query_indices,keypoints_prev_untriang_indices] = find(matches_untriang);
+    % keypoints_prev_untriang = keypoints_prev_untriang(matches_untriang);
+    %kp_tracks_old.
+    % TODO: track these matches
+end
 
 % TODO: triangulate new LM if track good
       

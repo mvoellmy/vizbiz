@@ -186,12 +186,15 @@ if params.run_continous
             assert(false);
         end
 
-        if (size(keypoints_prev_triang,2) > 0) % todo: minimum number?        
+        if (size(keypoints_prev_triang,2) > 10) % todo: minimum number?        
             tic;
             % process newest image
-            % TODO: new argument: pose Camera i in World frame
+            
+            % extract current camera pose
+            T_WCi = T_WCj_vo(:,:,frame_idx-1); 
+            
             [T_CiCj_vo_j(:,:,frame_idx),keypoints_new_triang, updated_kp_tracks,Cj_landmarks_new] =...
-                processFrame(params,img,img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev,K);
+                processFrame(params,img,img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev,T_WCi, K);
             toc;
 
             % add super title with frame number
