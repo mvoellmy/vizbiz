@@ -18,7 +18,7 @@ params.init.show_init_keypoints = true;
 params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_corr_matches = true;
-params.init.use_BA = true;
+params.init.use_BA = false;
 params.init.landmarks_cutoff = 5;
 
 % correspondence parameters
@@ -43,7 +43,7 @@ params.cont.show_matches = true;
 params.cont.landmarks_cutoff = 5;
 
 params.localization_ransac.show_matched_keypoints = true;
-params.localization_ransac.show_inlier_matches = true;
+params.localization_ransac.show_inlier_matches = false;
 
 params.localization_ransac.use_p3p = true;
 params.localization_ransac.num_iterations_pnp = 2000; % 2000 fix?

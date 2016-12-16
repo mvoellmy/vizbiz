@@ -116,13 +116,12 @@ if params.localization_ransac.show_iterations
 end
 
 % check if there are any inliers
+% TODO: Handle exception - why do we need this - dont we handle it at Line 139?
 assert(nnz(best_guess_inliers) > 0);
-
 
 % discard outliers
 matched_query_keypoints = matched_query_keypoints(:, best_guess_inliers);
 Ci_corresponding_inlier_landmarks = Ci_corresponding_landmarks(:, best_guess_inliers);
-
 
 % display projected keypoints given best pose and inlier correspondences
 if (max_num_inliers > 0 && params.localization_ransac.show_matched_keypoints)
@@ -136,7 +135,6 @@ if (max_num_inliers > 0 && params.localization_ransac.show_matched_keypoints)
     title('Projected keypoints in Cj-Frame (yellow crosses)');
 end
 
-
 %% Final rotation matrix calculation
 if (max_num_inliers == 0)
     R_CjCi = [];
@@ -147,7 +145,6 @@ else
     M_CjCi = estimatePoseDLT(matched_query_keypoints', Ci_corresponding_inlier_landmarks', K);
     R_CjCi = M_CjCi(:,1:3);
     Cj_t_CjCi = M_CjCi(:,end);       
-  
 end
 
 %% end-processing

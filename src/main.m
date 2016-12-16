@@ -151,7 +151,8 @@ if params.run_continous
     keypoints_prev_triang = keypoints_init;
     % container for matched keypoints which have yet no corresponding
     % landmark, and the pose where they were seen the first time --> keypoint tracker
-       
+    
+    % Create container for keypoint tracker (new keypoints with no landmarks)
     % set of candidate keypoints in last camera frame
     kp_tracks.candidate_kp = []; % 2xN
     % keypoint coordinates of every candiate in its first observed frame
