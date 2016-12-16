@@ -197,7 +197,7 @@ if params.run_continous
             figure(fig_cont);
 %            suptitle(sprintf('Frame #%i',j));
         else
-            warning('Toss few keypoints left!!');
+            warning('Too few keypoints left!! Break continuous operation loop - Terminating...');
             break;
         end
 

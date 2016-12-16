@@ -23,7 +23,7 @@ function [T_CiCj, p_new_matched_triang, updated_kp_tracks, Cj_corresponding_inli
 %  - Cj_corresponding_inlier_landmarks (3xN) : 3D points in frame Cj
 %    verified inliers by ransac
 
-global fig_cont;
+global fig_cont fig_kp_tracks;
 
 % show current frame
 if params.cont.show_current_image
@@ -31,6 +31,17 @@ if params.cont.show_current_image
     subplot(2,1,1);
     imshow(img_new);
     subplot(2,1,2);
+    imshow(img_new);
+end
+
+% show current frame
+if params.keypoint_tracker.show_matches
+    figure(fig_kp_tracks);
+    subplot(2,1,1);
+    hold on;
+    imshow(img_new);
+    subplot(2,1,2);
+    hold on;
     imshow(img_new);
 end
 
@@ -130,6 +141,27 @@ T_WCi_col = T_WCi(:); % convert to col vector for storage
 updated_kp_tracks.candidate_kp = [updated_kp_tracks.candidate_kp, new_kp];
 updated_kp_tracks.first_obs_kp = [updated_kp_tracks.first_obs_kp, new_kp]; % is equal to candidate when adding
 updated_kp_tracks.first_obs_pose = [updated_kp_tracks.first_obs_pose, repmat(T_WCi_col,[1, size(new_kp, 2)])];   
+
+
+% display matched keypoint tracks
+if params.keypoint_tracker.show_matches
+    figure(fig_kp_tracks);
+    subplot(2,1,1);
+    if (size(kp_tracks_old.candidate_kp,2) > 0) % 0 in first frame
+        plotPoints(kp_tracks_old.candidate_kp,'r.');
+    end
+    % plotCircles(matched_query_keypoints,'y',params.localization_ransac.pixel_tolerance);
+    title('Candidate Keypoints: Old (red)');
+    
+    subplot(2,1,2);
+    if (size(kp_tracks_old.candidate_kp,2) > 0) % 0 in first frame
+        plotPoints(kp_tracks_old.candidate_kp,'r.');
+        plotMatches(matches_untriang,query_keypoints,kp_tracks_old.candidate_kp,'m-');
+    end
+    plotPoints(updated_kp_tracks.candidate_kp,'y.');
+    
+    title('Candidate Keypoints: Old (red), updated (yellow), Matches');
+end
 
 %% Triangulate new landmarks
 
