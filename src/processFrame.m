@@ -79,7 +79,6 @@ if params.localization_ransac.show_matched_keypoints
     title('Matched (green) keypoints');
 end
 
-
 % estimate pose from i to j
 [R_CiCj,Ci_t_CiCj,p_new_matched_triang,Ci_corresponding_inlier_landmarks] = ...
     ransacLocalization(params,matched_query_keypoints,Ci_corresponding_landmarks,K);
@@ -92,15 +91,12 @@ else
     fprintf('  No transformation found\n');
 end
 
-
-
 % construct new camera pose
 T_CiCj = [R_CiCj   Ci_t_CiCj;
           zeros(1,3)       1];
       
 T_CjCi = [R_CiCj'   -R_CiCj'*Ci_t_CiCj;
           zeros(1,3)                 1];
-
 
 %% Candiate Keypoint tracker
 % variable init - assume no matches
@@ -199,7 +195,10 @@ Cj_corresponding_inlier_landmarks = T_CjCi*[Ci_corresponding_inlier_landmarks(1:
 Cj_corresponding_inlier_landmarks = Cj_corresponding_inlier_landmarks(1:3,:);
 
 
-% % display statistics
+%% display statistics
+fprintf('Number of matched keypoint candidates: %i (%f Percent)'...
+         ,nnz(matches_untriang),100*nnz(matches_untriang)/size(kp_tracks_old.candidate_kp,2)); 
+
 % fprintf(['  Number of new landmarks triangulated: %i\n',...
 %          '  Number of updated landmarks: %i\n'],...
 %          size(Ci_landmarks_new,2), size(Cj_landmarks_updated,2));
