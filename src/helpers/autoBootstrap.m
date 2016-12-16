@@ -40,6 +40,7 @@ if params.auto_bootstrap
     % search for second bootstrapping image
     bootstrap_pair_found = false;
     candidate_frame_idx = bootstrap_frame_1_idx;
+    C1_avg_depth = params.boot.landmarks_cutoff;
 
     while ~bootstrap_pair_found    
         candidate_frame_idx = candidate_frame_idx + 1;
@@ -71,8 +72,7 @@ if params.auto_bootstrap
         
         % extract baseline distance
         T_C1C2 = tform2invtform(T_C2C1);
-        T_C1C2(1:3,4)'
-        C1_baseline = norm(T_C1C2(1:3,4)')
+        C1_baseline = T_C1C2(3,4); % todo: correct?
 
         % triangulate a point cloud using the final transformation (R,t)
         M1 = K*T_C1C1(1:3,:);
@@ -80,19 +80,19 @@ if params.auto_bootstrap
         C1_P_hom_init = linearTriangulation(p_hom_i1, p_hom_i2, M1, M2);
         
         % discard landmarks not contained in cylindrical neighborhood
-        [C1_P_hom_init, ~] = applyCylindricalFilter(C1_P_hom_init, params.boot.landmarks_cutoff);
-        
-        % todo: apply non-negative filter
+        [C1_P_hom_init, ~] = applyCylindricalFilter(C1_P_hom_init, params.boot.landmarks_cutoff);        
+        % todo: apply non-negative filter instead
         
         % calculate average depth of triangulated points
-        C1_avg_depth = mean(C1_P_hom_init(3,:));
+        C1_avg_depth = 0.5*(C1_avg_depth + mean(C1_P_hom_init(3,:)));
         fprintf('  Baseline estimate of frame pair (%i,%i): %0.4f\n',...
                 bootstrap_frame_1_idx,candidate_frame_idx,C1_baseline);
         
         % decide wether candidate is suited as bootstrap image
-        if candidate_frame_idx == 10%(C1_baseline/C1_avg_depth >= 0.05)
-           img1 = img_candidate;
+        if (C1_baseline/C1_avg_depth >= 0.1)
            bootstrap_frame_2_idx = candidate_frame_idx;
+           img1 = img_candidate;
+           
            bootstrap_pair_found = true;
         end
         fprintf('\n');
