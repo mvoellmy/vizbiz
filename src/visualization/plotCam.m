@@ -11,7 +11,8 @@ function plotCam(T_WC, camsize, camcolor)
 % More options and overload can be added if neccessary
 
 for c=1:size(T_WC,3)
-    plotCamera('Location', T_WC(1:3,4,c),'Orientation', T_WC(1:3,1:3,c)', 'Size', camsize,'Color', camcolor );
+    if (~isnan(T_WC(1,1,c)))    % dont plot if NAN (after break)
+        plotCamera('Location', T_WC(1:3,4,c),'Orientation', T_WC(1:3,1:3,c)', 'Size', camsize,'Color', camcolor );
+    end
 end
-
 end
