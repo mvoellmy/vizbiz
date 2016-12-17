@@ -140,17 +140,19 @@ else
     else
         assert(false);
     end
-        
-    figure(fig_boot);
-    subplot(2,1,1);
-    imshow(img0);
-    axis equal;
-    title('Bootstrap frame 1');
     
-    subplot(2,1,2);
-    imshow(img1);
-    axis equal;
-    title('Bootstrap frame 2');
+    if params.boot.show_bootstrap_images
+        figure(fig_boot);
+        subplot(2,1,1);
+        imshow(img0);
+        axis equal;
+        title('Bootstrap frame 1');
+
+        subplot(2,1,2);
+        imshow(img1);
+        axis equal;
+        title('Bootstrap frame 2');
+    end
 end
 
 % display frames chosen
