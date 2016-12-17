@@ -37,7 +37,7 @@ elseif params.ds == 2
     ground_truth = load([params.parking_path '/poses.txt']);
     ground_truth = ground_truth(:, [end-8 end]);
     last_frame = 598;
-    K = load([parking_path '/K.txt']);
+    K = load([params.parking_path '/K.txt']);
     fprintf('load PARKING dataset...\n');
 else
     assert(false);
@@ -103,8 +103,8 @@ if params.init.show_landmarks
     figure('name','Landmarks and motion of bootstrap image pair');
     hold on;
     plotLandmarks(W_landmarks_init,'z','up');
-    plotCam(T_WCj_vo(:,:,1),2,'black');
-    plotCam(T_WCj_vo(:,:,2),2,'red');
+    plotCam(T_WCj_vo(:,:,1),1,'black');
+    plotCam(T_WCj_vo(:,:,2),1,'red');
 end
 
 fprintf('...initialization done.\n\n');

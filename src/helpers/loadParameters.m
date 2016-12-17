@@ -8,7 +8,7 @@ function params = loadParameters(mode)
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = true;
 params.perf.profiling = false;
 params.compare_against_groundthruth = false;
@@ -20,7 +20,10 @@ params.boot.show_bootstrap_images = true;
 params.boot.num_keypoints = 600;
 params.boot.show_boot_keypoints = true;
 params.boot.show_corr_matches = true;
-params.boot.landmarks_cutoff = 50;
+params.boot.landmarks_cutoff = 100;
+params.boot.show_boot_landmarks = false;
+params.boot.min_num_inlier_kps = 100;
+params.boot.min_b2dratio = 0.1;
 
 % initialization parameters
 params.init.show_init_keypoints = true;
@@ -42,7 +45,7 @@ params.eightPoint_ransac.show_iterations = false;
 params.eightPoint_ransac.show_inlier_matches = true;
 params.eightPoint_ransac.p_success = 0.999999;
 params.eightPoint_ransac.fract_inliers = 0.5;
-params.eightPoint_ransac.max_error = 0.8;
+params.eightPoint_ransac.max_error = 1;
 
 % continuous operation parameters
 params.cont.run_on_first_x_images = 1; % 0: for all images
