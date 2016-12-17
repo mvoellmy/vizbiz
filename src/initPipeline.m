@@ -38,7 +38,7 @@ else
 
     % estimate the essential matrix E using normalized 8-point algorithm
     % and RANSAC for outlier rejection
-    E = eightPointRansac(params,p_hom_i1,p_hom_i2,K,K);
+    [E, ~] = eightPointRansac(params,p_hom_i1,p_hom_i2,K,K);
 
     % extract the relative camera pose (R,t) from the essential matrix
     [Rots,u3] = decomposeEssentialMatrix(E);

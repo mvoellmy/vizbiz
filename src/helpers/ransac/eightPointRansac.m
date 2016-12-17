@@ -1,4 +1,4 @@
-function E = eightPointRansac(params, p_hom_i1, p_hom_i2, K1, K2)
+function [E, max_num_inliers] = eightPointRansac(params, p_hom_i1, p_hom_i2, K1, K2)
 % Estimates the essential matrix from a set of image keypoints and
 % robustifies pose estimate with RANSAC rejecting outlier keypoint
 % correspondences.
@@ -12,6 +12,7 @@ function E = eightPointRansac(params, p_hom_i1, p_hom_i2, K1, K2)
 %
 % Output:
 %  - E(3x3) : essential matrix
+%  - max_num_inliers(1x1) : maximal number of kp matches satisfying E
 
 global fig_boot fig_init;
 
