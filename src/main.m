@@ -1,5 +1,5 @@
 clear;
-close all;
+% close all;
 clc;
 rng(1); % fix random seed
 
@@ -100,7 +100,7 @@ end
 %% Initialize VO pipeline
 fprintf('initialize VO pipeline...\n');
 
-% transformation C1 to W (90deg x-axis rotation)
+% transformation C1 to W (-90deg x-axis rotation)
 T_WC1 = [1      0           0       0;
          0      0           1       0;
          0     -1           0       0;

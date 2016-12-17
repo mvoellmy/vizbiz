@@ -12,16 +12,16 @@ params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 params.run_continous = false;
-params.show_map_and_cams = true;
+params.show_map_and_cams = false;
 
 % initialization parameters
 params.init.show_bootstrap_images = false;
 params.init.show_init_keypoints = true;
-params.init.show_landmarks = true;
+params.init.show_landmarks = false;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_corr_matches = true;
 params.init.use_BA = true;
-params.init.landmarks_cutoff = 5;
+params.init.landmarks_cutoff = 20;
 
 % correspondence parameters
 params.corr.harris_patch_size = 9; % 9 [pixels]

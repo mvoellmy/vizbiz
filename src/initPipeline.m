@@ -52,36 +52,69 @@ else
     T_C1C2 = tform2invtform(T_C2C1);
     T_C1C1 = eye(4,4);    
     T_WC2 = T_WC1*T_C1C2;
+    T_C1W = tform2invtform(T_WC1);
+    T_C2W = tform2invtform(T_WC2);
+
+    
     
     % triangulate a point cloud using the final transformation (R,T)
     M1 = K*T_C1C1(1:3,:);
     M2 = K*T_C2C1(1:3,:);
     C1_P_hom_init = linearTriangulation(p_hom_i1, p_hom_i2, M1, M2);
     
+    % discard landmarks not contained in cylindrical neighborhood
+    [C1_P_hom_init, outFOV_idx] = applyCylindricalFilter(C1_P_hom_init, params.init.landmarks_cutoff);
+    
+    % remove corresponding keypoints
+    p_i2(:,outFOV_idx) = [];
+    p_hom_i1(:,outFOV_idx) = [];
+    p_hom_i2(:,outFOV_idx) = [];
+
+    W_P_hom_init = T_WC1*C1_P_hom_init;
+    
+ 
+    
     if params.init.use_BA
-        fprintf('  bundle adjust points...\n')
-        [P_init, T_refined] = bundleAdjust(C1_P_hom_init(1:3,:), [p_hom_i1(1:2,:); p_hom_i2(1:2,:)], [T_WC1; T_WC2], K, 1);
-        C1_P_hom_init(1:3,:) = P_init;
+        figure('name','BundleaAdjustment Comparison');
+        subplot(1,2,1)
+        title('Before BA');
+        plotLandmarks(C1_P_hom_init(1:3,:),'y','down');
+        hold on
+        plotCam(T_C1C1,2,'black');
+        plotCam(T_C1C2,2,'red');
         
+        fprintf('  bundle adjust points...\n')
+        [W_P_init, T_refined] = bundleAdjust(W_P_hom_init(1:3,:), [p_hom_i1(1:2,:); p_hom_i2(1:2,:)], [T_WC1; T_WC2], K, 1);
+       
         % update homogeneous transformations
         T_WC1 = T_refined(1:4,1:4);
         T_WC2 = T_refined(5:8,1:4);
         T_C1W = tform2invtform(T_WC1);
         T_C1C2 = T_C1W*T_WC2;
         T_C2C1 = tform2invtform(T_C2C1);
+        
+        W_P_hom_init(1:3,:) = W_P_init;
+        C1_P_hom_init = T_C1W*W_P_hom_init;
+        
+
+        W_P_hom_init = T_WC1*C1_P_hom_init;
+        W_landmarks_init = W_P_hom_init(1:3,:);
+
+        subplot(1,2,2)
+        title('After BA');
+        plotLandmarks(C1_P_hom_init(1:3,:),'y','down');
+        hold on
+        plotCam(T_C1C1,2,'black');
+        plotCam(T_C1C2,2,'red');
     end
-    
-    % discard landmarks not contained in cylindrical neighborhood
-    [C1_P_hom_init, outFOV_idx] = applyCylindricalFilter(C1_P_hom_init, params.init.landmarks_cutoff);
-    
-    % remove corresponding keypoints
-    p_i2(:,outFOV_idx) = [];
     
     % assign initialization entities
     keypoints_init = flipud(p_i2);
     C2_P_hom_init = T_C2C1*C1_P_hom_init;
     C2_landmarks_init = C2_P_hom_init(1:3,:);
 
+    
+    
     % display statistics
     % todo: extend with baseline length,...
     fprintf(['  Number of initialization keypoints: %i\n',...
