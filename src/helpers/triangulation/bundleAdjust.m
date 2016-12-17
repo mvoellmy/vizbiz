@@ -4,9 +4,10 @@ function [ W_P_refined, T_WC_refined ] = bundleAdjust(W_P, p, T_WC, K, fixed_cam
 % Attention! Inputs are NOT homogenized coordinates.
 % 
 % Input:
-%  - P(3xN)     : List of 3D Points in world-frame
-%  - p(nC*2xN)  : Matrix containing 2D Points sorted according to
+%  - P(3xN)     : list of 3D Points in world-frame
+%  - p(nC*2xN)  : matrix containing 2D Points sorted according to
 %  their correspondance with each other and the 3D points.
+
 %  - T_WC(4x4xnC)  : Stack of transformation matrices from the cams to
 %  world
 %  - fixed_cams(1xC) : Vector with camera_ids defining which cams are fixed
@@ -15,6 +16,7 @@ function [ W_P_refined, T_WC_refined ] = bundleAdjust(W_P, p, T_WC, K, fixed_cam
 % Output:
 %  - W_P_refined(3xN) : Bundle adjusted 3D Points in world-frame
 %  - T_WC_refined(4x4xnC) : refined transformation matrices of cameras
+
 %
 % Definitions:
 %  - nC(int) : number of cameras
@@ -23,11 +25,7 @@ function [ W_P_refined, T_WC_refined ] = bundleAdjust(W_P, p, T_WC, K, fixed_cam
 %  Preallocate point_tracks
 %  Remove for loops where possible
 
-    nr_of_cams = size(p, 1)/2;
-    nr_of_keypoints = size(p,2);
-    
-    % vector containing camera_ids
-    view_ids = 1:nr_of_cams;
+    fprintf('  bundle adjust points...\n')
 
     for i=1:nr_of_keypoints % todo: might be possible to remove for loop
         p_corresponding = vec2mat(p(:,i),2);
@@ -58,5 +56,6 @@ function [ W_P_refined, T_WC_refined ] = bundleAdjust(W_P, p, T_WC, K, fixed_cam
         T_WC_refined(1:4, 1:4, i) = [cell2mat(refinedPoses.Orientation(i))', cell2mat(refinedPoses.Location(i))';
                                   zeros(1,3),       1];
     end
+
     
 end

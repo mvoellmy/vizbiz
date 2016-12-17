@@ -41,6 +41,7 @@ end
 % choose RANSAC options
 if params.localization_ransac.use_p3p
     s = 3;
+    % todo: calculate num_iterations
     num_iterations = params.localization_ransac.num_iterations_pnp;
 else
     s = 6;

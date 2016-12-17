@@ -29,8 +29,8 @@ else
     % assign second image as initialization image
     I_init = I_i2;
 
-    % find 2D correspondences (match indices not needed, since sorted)
-    [p_i1,p_i2,~] = findCorrespondeces(params,I_i1,I_i2); % todo: third output needed?
+    % find 2D correspondences (sorted)
+    [p_i1,p_i2] = findCorrespondeces(params,I_i1,I_i2);
     
     % homogenize points
     p_hom_i1 = [p_i1; ones(1,length(p_i1))];
@@ -89,7 +89,6 @@ else
 
         C1_P_hom_init = T_C1W*W_P_hom_init;
         
-
         % discard landmarks not contained in cylindrical neighborhood
         [C1_P_hom_init, outFOV_idx] = applyCylindricalFilter(C1_P_hom_init, params.init.landmarks_cutoff);
         W_P_hom_init = T_WC1*C1_P_hom_init;
