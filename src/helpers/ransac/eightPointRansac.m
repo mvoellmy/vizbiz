@@ -55,7 +55,7 @@ for i=1:num_iterations
 end
 
 % rerun on inlier correspondences
-best_guess = fundamentalEightPoint_normalized(p_hom_i1(:,inliers),p_hom_i2(:,inliers));
+best_guess = fundamentalEightPoint_normalized(p_hom_i1(:,best_guess_inliers),p_hom_i2(:,best_guess_inliers));
 
 % display count of inliers evolution
 if params.eightPoint_ransac.show_iterations
