@@ -8,10 +8,10 @@ function params = loadParameters(mode)
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
-params.run_continous = false;
+params.run_continous = true;
 params.show_map_and_cams = false;
 
 % initialization parameters
@@ -20,7 +20,7 @@ params.init.show_init_keypoints = true;
 params.init.show_landmarks = false;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_corr_matches = true;
-params.init.use_BA = true;
+params.init.use_BA = false;
 params.init.landmarks_cutoff = 20;
 
 % correspondence parameters

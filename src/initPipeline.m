@@ -46,11 +46,12 @@ else
     % disambiguate among the four possible configurations
     [R_C2C1,C2_t_C2C1] = disambiguateRelativePose(Rots,u3,p_hom_i1,p_hom_i2,K,K);
     
-    % construct C2 to W transformation
+    % construct transformation
     T_C2C1 = [R_C2C1,  C2_t_C2C1;
               zeros(1,3),      1];
     T_C1C2 = tform2invtform(T_C2C1);
-    T_C1C1 = eye(4,4);    
+    T_C1C1 = eye(4,4);
+    
     T_WC2 = T_WC1*T_C1C2;
     T_C1W = tform2invtform(T_WC1);
     T_C2W = tform2invtform(T_WC2);
@@ -70,18 +71,17 @@ else
     p_hom_i1(:,outFOV_idx) = [];
     p_hom_i2(:,outFOV_idx) = [];
 
-    W_P_hom_init = T_WC1*C1_P_hom_init;
     
- 
+    W_P_hom_init = T_WC1*C1_P_hom_init;
     
     if params.init.use_BA
         figure('name','BundleaAdjustment Comparison');
         subplot(1,2,1)
         title('Before BA');
-        plotLandmarks(C1_P_hom_init(1:3,:),'y','down');
+        plotLandmarks(W_P_hom_init(1:3,:),'z','up');
         hold on
-        plotCam(T_C1C1,2,'black');
-        plotCam(T_C1C2,2,'red');
+        plotCam(T_WC1,2,'black');
+        plotCam(T_WC2,2,'red');
         
         fprintf('  bundle adjust points...\n')
         [W_P_init, T_refined] = bundleAdjust(W_P_hom_init(1:3,:), [p_hom_i1(1:2,:); p_hom_i2(1:2,:)], [T_WC1; T_WC2], K, 1);
@@ -97,16 +97,25 @@ else
         C1_P_hom_init = T_C1W*W_P_hom_init;
         
 
+
+    end
+    
+    % discard landmarks not contained in cylindrical neighborhood
+    [C1_P_hom_init, outFOV_idx] = applyCylindricalFilter(C1_P_hom_init, params.init.landmarks_cutoff);
+    
+    % remove corresponding keypoints
+    p_i2(:,outFOV_idx) = [];
+    p_hom_i1(:,outFOV_idx) = [];
+    p_hom_i2(:,outFOV_idx) = [];
+
         W_P_hom_init = T_WC1*C1_P_hom_init;
-        W_landmarks_init = W_P_hom_init(1:3,:);
 
         subplot(1,2,2)
         title('After BA');
-        plotLandmarks(C1_P_hom_init(1:3,:),'y','down');
+        plotLandmarks(W_P_hom_init(1:3,:),'z','up');
         hold on
-        plotCam(T_C1C1,2,'black');
-        plotCam(T_C1C2,2,'red');
-    end
+        plotCam(T_WC1,2,'black');
+        plotCam(T_WC2,2,'red');
     
     % assign initialization entities
     keypoints_init = flipud(p_i2);
