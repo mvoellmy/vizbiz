@@ -8,13 +8,12 @@ addpath(genpath('testing'));
 addpath(genpath('visualization'));
 
 %% Load parameter struct
-fprintf('load parameter struct...\n');
 gui = false;
 params = loadParameters(gui);
 
 %% Code profiling
 if params.perf.profiling
-    profile on; % trigger code profiling
+    profile on;
 end
 
 %% Run VO pipeline

@@ -50,7 +50,7 @@ if gui
 
     % continuous operation parameters
     params.cont.run_on_first_x_images = 0; % 0: for all images
-    params.cont.show_current_image = true;
+    params.cont.show_current_image = false;
     params.cont.show_new_keypoints = false;
     params.cont.show_matches = false;
     params.cont.landmarks_cutoff = 5;
@@ -70,7 +70,7 @@ else
     params.auto_bootstrap = true;
     params.perf.profiling = false;
     params.compare_against_groundthruth = false;
-    params.run_continous = false;
+    params.run_continous = true;
     params.show_map_and_cams = false;
 
     % bootstrap parameters

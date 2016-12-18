@@ -1,7 +1,7 @@
 function runVOPipeline(params, gui_handles)
 % Returns collection of parameters used throughout the VO pipeline.
 % 
-% Input:
+% Input: todo
 %  - params(struct) : parameter struct
 %  - gui_handles(handles) : GUI handles
 %
@@ -77,6 +77,8 @@ tic;
 % initialize pipeline with bootstrap images
 [img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K, T_WC1);
 toc;
+updateImage(img_init, gui_handles.ax_current_frame);
+pause(0.01);
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to C1
@@ -85,6 +87,11 @@ T_CiCj_vo_j(:,:,2) = T_C1C2; % first camera pose, C2 to C1
 % update stacked world-referenced pose
 T_WCj_vo(:,:,1) = T_WC1; % C1 to W
 T_WCj_vo(:,:,2) = T_WC1*T_C1C2; % C2 to W
+
+% 2D trajectory in world frame
+W_traj = T_WCj_vo(1:2,4,1);
+W_traj(:,2) = T_WCj_vo(1:2,4,2);
+updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
 
 % transform init point cloud to world frame
 W_P_hom_init = T_WC1*[C2_landmarks_init; zeros(1,size(C2_landmarks_init,2))];
@@ -111,8 +118,8 @@ if params.run_continous
     fprintf('start continuous VO operation...\n');
 
 	% setup figure handles
-	fig_cont = figure('name','Contiunous VO estimation');
-	fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
+	%fig_cont = figure('name','Contiunous VO estimation');
+	%fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
 
 	% hand-over initialization variables
 	img_prev = img_init;
@@ -126,16 +133,19 @@ if params.run_continous
         
         % pick current frame
         img = currentFrame(params, j);
+        updateImage(img, gui_handles.ax_current_frame);
         
         if (size(keypoints_prev,2) > 0) % todo: minimum number?        
             tic;
             % process newest image
             [T_CiCj_vo_j(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,img_prev,keypoints_prev,Ci_landmarks_prev,K);
             toc;
-
+            
             % add super title with frame number
-            figure(fig_cont);
-            suptitle(sprintf('Frame #%i',j));
+            if params.cont.show_current_image
+                figure(fig_cont);
+                suptitle(sprintf('Frame #%i',j));
+            end
         else
             warning('No keypoints left!!');
             break;
@@ -144,13 +154,17 @@ if params.run_continous
         % append newest Cj to T transformation
         T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1)*T_CiCj_vo_j(:,:,frame_idx);
 
+        % extend 2D trajectory
+        W_traj =[W_traj T_WCj_vo(1:2,4,frame_idx)];
+        updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
+        
         % update map with new landmarks
         W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
         W_landmarks_new = W_P_hom_new(1:3,:);
         W_landmarks_map = [W_landmarks_map W_landmarks_new];
 
         % allow plots to refresh
-        pause(1.01);
+        pause(0.01);
 
         % update previous image, keypoints and landmarks
 %         img_prev = img;
