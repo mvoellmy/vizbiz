@@ -8,7 +8,7 @@ function params = loadParameters(mode)
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 params.run_continous = false;
@@ -21,7 +21,8 @@ params.init.show_landmarks = false;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_corr_matches = true;
 params.init.use_BA = true;
-params.init.landmarks_cutoff = 10;
+params.init.show_BA_comp = true;
+params.init.landmarks_cutoff = 5;
 
 % correspondence parameters
 params.corr.harris_patch_size = 9; % 9 [pixels]

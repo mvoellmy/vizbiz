@@ -68,15 +68,16 @@ else
     W_P_hom_init = T_WC1*C1_P_hom_init;
 
     if params.init.use_BA
-        figure('name','BundleaAdjustment Comparison');
-        subplot(1,2,1)
-        plotLandmarks(W_P_hom_init(1:3,:),'z','up');
-        hold on
-        plotCam(T_WC1,2,'black');
-        plotCam(T_WC2,2,'red');
-        title('Before BA');
-
-        fprintf('  bundle adjust points...\n')
+        if params.init.show_BA_comp
+            figure('name','BundleaAdjustment Comparison');
+            subplot(1,2,1)
+            plotLandmarks(W_P_hom_init(1:3,:),'z','up');
+            hold on
+            plotCam(T_WC1,2,'black');
+            plotCam(T_WC2,2,'red');
+            title('Before BA');
+        end
+        
         [W_P_init, T_refined] = bundleAdjust(W_P_hom_init(1:3,:), [p_hom_i1(1:2,:); p_hom_i2(1:2,:)], cat(3, T_WC1, T_WC2), K, 1);   
         W_P_hom_init(1:3,:) = W_P_init;
         
@@ -95,13 +96,15 @@ else
 
         % remove corresponding keypoints
         p_i2(:,outFOV_idx) = [];
-
-        subplot(1,2,2)
-        plotLandmarks(W_P_hom_init(1:3,:),'z','up');
-        hold on
-        plotCam(T_WC1,2,'black');
-        plotCam(T_WC2,2,'red');
-        title('After BA');
+       
+        if params.init.show_BA_comp
+            subplot(1,2,2)
+            plotLandmarks(W_P_hom_init(1:3,:),'z','up');
+            hold on
+            plotCam(T_WC1,2,'black');
+            plotCam(T_WC2,2,'red');
+            title('After BA');
+        end
     end
     
     % assign initialization entities
