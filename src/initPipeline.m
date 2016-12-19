@@ -38,7 +38,7 @@ else
 
     % estimate the essential matrix E using normalized 8-point algorithm
     % and RANSAC for outlier rejection
-    E = eightPointRansac(params,p_hom_i1,p_hom_i2,K,K);
+    [E, ~] = eightPointRansac(params,p_hom_i1,p_hom_i2,K,K);
 
     % extract the relative camera pose (R,t) from the essential matrix
     [Rots,u3] = decomposeEssentialMatrix(E);
@@ -53,7 +53,7 @@ else
     T_C1C1 = eye(4,4);
     T_WC2 = T_WC1*T_C1C2;
     
-    % triangulate a point cloud using the final transformation (R,T)
+    % triangulate a point cloud using the final transformation (R,t)
     M1 = K*T_C1C1(1:3,:);
     M2 = K*T_C2C1(1:3,:);
     C1_P_hom_init = linearTriangulation(p_hom_i1, p_hom_i2, M1, M2);
