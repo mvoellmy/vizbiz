@@ -33,7 +33,7 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
 % display fraction of matched keypoints
-fprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f %%)\n',...
+fprintf('  Number of new keypoints matched with prev keypoints by descriptor: %i (%0.2f %%)\n',...
         nnz(matches),100*nnz(matches)/size(database_keypoints,2));
 
 

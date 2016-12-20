@@ -160,6 +160,9 @@ if params.keypoint_tracker.show_matches
     title('Candidate Keypoints: Old (red), updated (yellow), Matches');
 end
 
+fprintf('  Number of matched keypoint candidates: %i (%0.2f %%)\n'...
+         ,nnz(matches_untriang),100*nnz(matches_untriang)/size(kp_tracks_prev.candidate_kp,2)); 
+
 %% Triangulate new landmarks
 
 % calculate bearing angle
@@ -172,33 +175,37 @@ bearing_angle_d = atan2d(twoNormMatrix(cross(vector_act,vector_first)),dot(vecto
 idx_good_triangable = (bearing_angle_d > 20); % to be tuned
 
 p_candidates_first = updated_kp_tracks.first_obs_kp(:,idx_good_triangable);
+p_candidates_first_pose = updated_kp_tracks.first_obs_pose(:,idx_good_triangable);
 p_candidates_j = updated_kp_tracks.candidate_kp(:,idx_good_triangable);
 
-% here a for loop is required??
-% Calculate M's
-T_WCfirst = reshape(updated_kp_tracks.first_obs_pose, [4,4]);
-M_first = K * T_WCfirst(1:3,:);  %eye(3,4);
-
-% Calculate delta pose between Cfirst and Cj
-R_WCfirst = T_WCfirst(1:3,1:3);
-W_t_WCfirst = T_WCfirst(1:3,4);
-
-T_CfirstW = [R_WCfirst', -R_WCfirst'*W_t_WCfirst;
-             zeros(1,3),             1           ];
-
-T_WCj = T_WCi * T_CiCj; % current pose against world
-
-T_Cfirst_Cj = T_CfirstW*T_WCj;
-M_j = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
-
-% for loop end
-
-% Triangulate landmark
 p_hom_candidates_first = [p_candidates_first; ones(1,size(p_candidates_first,2))];
 p_hom_candidates_j = [p_candidates_j; ones(1,size(p_candidates_j,2))];
-Ci_hom_landmarks_new = linearTriangulation(p_hom_candidates_first,p_hom_candidates_j,M_first,M_j);
+Ci_P_hom_new = zeros(4,size(p_candidates_first,2));
 
+fprintf('  Number of trianguable keypoint candidates: %i\n'...
+         ,nnz(idx_good_triangable)); 
 
+% Calculate M's
+for i=1:size(p_candidates_first,2)
+    T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
+    M_first = K * T_WCfirst(1:3,:);  %eye(3,4);
+
+    % Calculate delta pose between Cfirst and Cj
+    R_WCfirst = T_WCfirst(1:3,1:3);
+    W_t_WCfirst = T_WCfirst(1:3,4);
+
+    T_CfirstW = [R_WCfirst', -R_WCfirst'*W_t_WCfirst;
+                 zeros(1,3),             1           ];
+
+    T_WCj = T_WCi * T_CiCj; % current pose against world
+
+    T_Cfirst_Cj = T_CfirstW*T_WCj;
+    M_j = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
+    
+    % Triangulate landmark
+    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_first,M_j);
+    
+end % for loop end
 
 %% Update keypoint tracks, Cj_landmarks and p_new_matched_triang
 
@@ -217,15 +224,16 @@ updated_kp_tracks.first_obs_pose = updated_kp_tracks.first_obs_pose(:,~idx_good_
 p_new_matched_triang = [p_new_matched_triang, p_candidates_j];
 
 % Append landmarks in Cj-Frame at index corresponding to p_new_matched_triang  
-Cj_P_hom_new = T_CjCi*Ci_hom_landmarks_new;
+Cj_P_hom_new = T_CjCi*Ci_P_hom_new;
 Cj_P_hom_inliers = T_CjCi*[Ci_corresponding_inlier_landmarks(1:3,:); ones(1,size(Ci_corresponding_inlier_landmarks,2))];
 
-Cj_hom_new_landmarks = [Cj_P_hom_inliers, Cj_P_hom_new];
-Cj_new_landmarks = Cj_hom_new_landmarks(1:3,:);
+Cj_P_hom = [Cj_P_hom_inliers, Cj_P_hom_new];
+Cj_new_landmarks = Cj_P_hom(1:3,:);
 
 %% display statistics
-fprintf('Number of matched keypoint candidates: %i (%f Percent)'...
-         ,nnz(matches_untriang),100*nnz(matches_untriang)/size(kp_tracks_prev.candidate_kp,2)); 
+    
+fprintf('  Number of landmarks (total/new): %i / %i\n'...
+         ,size(Cj_new_landmarks,2), size(Cj_P_hom_new,2)); 
 
 % fprintf(['  Number of new landmarks triangulated: %i\n',...
 %          '  Number of updated landmarks: %i\n'],...
