@@ -1,4 +1,4 @@
-function updateImage(img, img_handle)
+function gui_updateImage(img, img_handle)
 % todo: add description
 % 
 % Input:

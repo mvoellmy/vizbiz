@@ -1,4 +1,4 @@
-function updateTrajectory(W_trajectory, axes_handle, plot_handle)
+function gui_updateTrajectory(W_trajectory, axes_handle, plot_handle)
 % todo: add description
 % 
 % Input:
@@ -18,6 +18,6 @@ w = 100; % window size
 x_last = W_trajectory(1,end);
 y_last = W_trajectory(2,end);
 
-axis([x_last-w/2 x_last+w/2 y_last-w/2 y_last+w/2]);
+axis([x_last-w/2 x_last+w/2 y_last-w*1/3 y_last+w*2/3]);
 axis equal;
 axis square;

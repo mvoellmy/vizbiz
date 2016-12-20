@@ -1,4 +1,4 @@
-function updateLocalCloud(W_local_cloud, axes_handle, plot_handle)
+function gui_updateLocalCloud(W_local_cloud, axes_handle, plot_handle)
 % todo: add description
 % 
 % Input:
