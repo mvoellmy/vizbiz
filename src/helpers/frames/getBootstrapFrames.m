@@ -1,4 +1,4 @@
-function [img0, img1, bootstrap_frame_1_idx, bootstrap_frame_2_idx] = autoBootstrap(params, K)
+function [img1, img2, bootstrap_frame_1_idx, bootstrap_frame_2_idx] = getBootstrapFrames(params, K)
 % Returns bootstrap image pair and corresponding frame indices.
 % 
 % Input:
@@ -6,8 +6,8 @@ function [img0, img1, bootstrap_frame_1_idx, bootstrap_frame_2_idx] = autoBootst
 %  - K(3x3) : camera calibration matrix
 %
 % Output:
-%  - img0(size) : first bootstrap image
-%  - img1(size) : second bootstrap image
+%  - img1(size) : first bootstrap image
+%  - img2(size) : second bootstrap image
 %  - bootstrap_frame_1_idx(1x1) : dataset image index of img0
 %  - bootstrap_frame_2_idx(1x1) : dataset image index of img1
 
@@ -21,24 +21,24 @@ if params.auto_bootstrap
     bootstrap_frame_1_idx = 1;
 
     if params.ds == 0
-        img0 = imread([params.kitti_path '/00/image_0/' ...
+        img1 = imread([params.kitti_path '/00/image_0/' ...
             sprintf('%06d.png',bootstrap_frame_1_idx)]);
     elseif params.ds == 1
         images = dir([params.malaga_path ...
             '/malaga-urban-dataset-extract-07_rectified_800x600_Images']);
         left_images = images(3:2:end);
-        img0 = rgb2gray(imread([params.malaga_path ...
+        img1 = rgb2gray(imread([params.malaga_path ...
             '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
             left_images(bootstrap_frame_1_idx).name]));
     elseif params.ds == 2
-        img0 = rgb2gray(imread([params.parking_path ...
+        img1 = rgb2gray(imread([params.parking_path ...
             sprintf('/images/img_%05d.png',bootstrap_frame_1_idx)]));
     else
         assert(false);
     end
     
     % compute harris scores for database image
-    database_harris = harris(img0, params.corr.harris_patch_size, params.corr.harris_kappa);
+    database_harris = harris(img1, params.corr.harris_patch_size, params.corr.harris_kappa);
     % compute keypoints for database image
     database_keypoints = selectKeypoints(database_harris, params.boot.num_keypoints, params.corr.nonmaximum_supression_radius);
 
@@ -50,10 +50,10 @@ if params.auto_bootstrap
         candidate_frame_idx = candidate_frame_idx + 1;
         
         % read in candidate image
-        img_candidate = currentFrame(params, candidate_frame_idx);
+        img_candidate = getFrame(params, candidate_frame_idx);
 
         % find 2D correspondences (sorted)
-        [p_i1, p_i2] = findCorrespondeces_boot(params, img0, database_keypoints, img_candidate);
+        [p_i1, p_i2] = findCorrespondeces_boot(params, img1, database_keypoints, img_candidate);
 
         % homogenize points
         p_hom_i1 = [p_i1; ones(1,length(p_i1))];
@@ -102,12 +102,12 @@ if params.auto_bootstrap
             % decide wether candidate is suited as bootstrap image
             if (C1_baseline/C1_avg_depth >= params.boot.min_b2dratio)
                bootstrap_frame_2_idx = candidate_frame_idx;
-               img1 = img_candidate;
+               img2 = img_candidate;
                bootstrap_pair_found = true;
             end
         else
             bootstrap_frame_2_idx = candidate_frame_idx - 1;
-            img1 = currentFrame(params, bootstrap_frame_2_idx);
+            img2 = getFrame(params, bootstrap_frame_2_idx);
             bootstrap_pair_found = true;
         end
         fprintf('\n');
@@ -118,24 +118,24 @@ else
     bootstrap_frame_2_idx = bootstrapFrames(params.ds,'second');
     
     if params.ds == 0
-        img0 = imread([params.kitti_path '/00/image_0/' ...
-            sprintf('%06d.png',bootstrap_frame_1_idx)]);
         img1 = imread([params.kitti_path '/00/image_0/' ...
+            sprintf('%06d.png',bootstrap_frame_1_idx)]);
+        img2 = imread([params.kitti_path '/00/image_0/' ...
             sprintf('%06d.png',bootstrap_frame_2_idx)]);
     elseif params.ds == 1
         images = dir([params.malaga_path ...
             '/malaga-urban-dataset-extract-07_rectified_800x600_Images']);
         left_images = images(3:2:end);
-        img0 = rgb2gray(imread([params.malaga_path ...
+        img1 = rgb2gray(imread([params.malaga_path ...
             '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
             left_images(bootstrap_frame_1_idx).name]));
-        img1 = rgb2gray(imread([params.malaga_path ...
+        img2 = rgb2gray(imread([params.malaga_path ...
             '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
             left_images(bootstrap_frame_2_idx).name]));
     elseif params.ds == 2
-        img0 = rgb2gray(imread([params.parking_path ...
-            sprintf('/images/img_%05d.png',bootstrap_frame_1_idx)]));
         img1 = rgb2gray(imread([params.parking_path ...
+            sprintf('/images/img_%05d.png',bootstrap_frame_1_idx)]));
+        img2 = rgb2gray(imread([params.parking_path ...
             sprintf('/images/img_%05d.png',bootstrap_frame_2_idx)]));
     else
         assert(false);
@@ -143,12 +143,12 @@ else
         
     figure(fig_boot);
     subplot(2,1,1);
-    imshow(img0);
+    imshow(img1);
     axis equal;
     title('Bootstrap frame 1');
     
     subplot(2,1,2);
-    imshow(img1);
+    imshow(img2);
     axis equal;
     title('Bootstrap frame 2');
 end

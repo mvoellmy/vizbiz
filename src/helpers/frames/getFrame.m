@@ -1,4 +1,4 @@
-function [img] = currentFrame(params, idx)
+function [img] = getFrame(params, idx)
 % Returns current image.
 % 
 % Input:
