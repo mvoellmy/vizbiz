@@ -199,11 +199,11 @@ for i=1:size(p_candidates_first,2)
     M_CjW = K * T_CjW(1:3,:); %T_WCj(1:3,:);
 
     % Calculate delta pose between Cfirst and Cj  
-    %T_Cfirst_Cj = T_CfirstW*T_WCj;
-    %M_CjCfirst = K * %T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
+    T_Cfirst_Cj = T_CfirstW*T_WCj;
+    M_CjCfirst = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
     
     % Triangulate landmark
-    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjW);
+    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjCfirst);
 
 end % for loop end
 
@@ -216,18 +216,26 @@ updated_kp_tracks.first_obs_pose = updated_kp_tracks.first_obs_pose(:,~idx_good_
 
 % Filter landmarks with cylindrical filter (still wrong frame??)
 % [Cj_hom_landmarks_new, outFOV_idx] = applyCylindricalFilter(Cj_hom_landmarks_new, params.cont.landmarks_cutoff);
+idx_Ci_P_hom_new_realistic = find(Ci_P_hom_new(3,:)>0);
 
-% TODO: Delete keypoints of landmarks deleted by cylindrical filter
-%p_i2(:,outFOV_idx) = [];
+Cj_P_hom_new = [];
+% Remove unrealistic landmarks and corresponding keypoints
+if (nnz(idx_Ci_P_hom_new_realistic)>0)
+    Ci_P_hom_new = Ci_P_hom_new(:,idx_Ci_P_hom_new_realistic);
+    p_candidates_j = p_candidates_j(:,idx_Ci_P_hom_new_realistic);
+    
+    % calculate new landmarks in Cj-Frame
+    Cj_P_hom_new = T_CjCi*Ci_P_hom_new;
+else
+    fprintf('None of the triangulated landmarks was realistic!\n')
+    p_candidates_j = [];
+end
 
 % Append used candidate keypoints to p_new_matched_triang
 p_new_matched_triang = [p_new_matched_triang, p_candidates_j];
 
-% Append landmarks in Cj-Frame at index corresponding to p_new_matched_triang  
-Cj_P_hom_new = T_CjCi*Ci_P_hom_new;
-
 Cj_P_hom_inliers = [];
-if localized
+if localized %otherwise index error since Ci_corresponding_inlier_landmarks = []
     Cj_P_hom_inliers = T_CjCi*[Ci_corresponding_inlier_landmarks; ones(1,size(Ci_corresponding_inlier_landmarks,2))];
 end
     
