@@ -189,7 +189,7 @@ if (max_num_inliers > 0 && params.localization_ransac.show_inlier_matches)
 end
 
 % update gui inlier keypoints
-if params.gui.show_inlier_features
+if params.through_gui && params.gui.show_inlier_features
     gui_updateKeypoints(matched_query_keypoints, gui_handles.ax_current_frame, 'g.');
 end
 

@@ -74,8 +74,6 @@ handles = guidata(hObject);  % Care for the newest version explicitly!
 push_reset_Callback(hObject, eventdata, handles);
 handles = guidata(hObject);  % Get the version updated!
 
-fprintf('starting VO pipeline...\n');
-
 handles.output = hObject;
 guidata(hObject, handles);
 
@@ -164,7 +162,6 @@ function push_reset_Callback(hObject, eventdata, handles)
 clearvars -except handles hObject eventdata;
 
 % reset parameters
-fprintf('load default parameters...\n');
 handles = guidata(hObject);  % Care for the newest version explicitly!
 reset_parameters(hObject, eventdata, handles);
 handles = guidata(hObject);  % Get the version updated!
@@ -177,6 +174,9 @@ set(handles.radio_use_BA,'Value',0);
 set(handles.radio_run_continuous,'Value',0);
 set(handles.radio_all_features,'Value',0);
 set(handles.radio_inlier_features,'Value',0);
+
+% clear console
+set(handles.listbox_console,'String','');
 
 guidata(hObject,handles);
 
@@ -212,11 +212,13 @@ end
 
 rng(1); % fix random seed
 
+% prepare console output
+handles.console_string = ' ';
+
 handles.params = loadParameters();
 guidata(hObject, handles);
 
 function update_parameters(hObject, eventdata, handles)
-fprintf('update parameters...\n');
 
 handles = guidata(hObject);  % Care for the newest version explicitly!
 reset_parameters(hObject, eventdata, handles);
@@ -232,6 +234,5 @@ handles.params.init.use_BA = get(handles.radio_use_BA,'Value');
 handles.params.run_continous = get(handles.radio_run_continuous,'Value');
 handles.params.gui.show_all_features = get(handles.radio_all_features,'Value');
 handles.params.gui.show_inlier_features = get(handles.radio_inlier_features,'Value');
-
 
 guidata(hObject, handles);

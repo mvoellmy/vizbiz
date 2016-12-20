@@ -61,10 +61,12 @@ if params.cont.show_new_keypoints
 end
 
 % update gui image
-gui_updateImage(query_image, gui_handles.ax_current_frame);
+if params.through_gui
+    gui_updateImage(query_image, gui_handles.ax_current_frame);
+end
 
 % update gui keypoints
-if params.gui.show_all_features
+if params.through_gui && params.gui.show_all_features
     gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
 end
 

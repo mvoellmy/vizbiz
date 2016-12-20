@@ -54,8 +54,10 @@ if params.auto_bootstrap
         img_candidate = currentFrame(params, candidate_frame_idx);
         
         % update gui image
-        gui_updateImage(img_candidate, gui_handles.ax_current_frame);
-
+        if params.through_gui
+            gui_updateImage(img_candidate, gui_handles.ax_current_frame);
+        end
+        
         % find 2D correspondences (sorted)
         [p_i1, p_i2] = findCorrespondeces_boot(params, img0, database_keypoints, img_candidate);
 
@@ -159,7 +161,9 @@ else
     end
     
     % update gui image
-    gui_updateImage(img1, gui_handles.ax_current_frame);
+    if params.through_gui
+        gui_updateImage(img1, gui_handles.ax_current_frame);
+    end
 end
 
 % display frames chosen

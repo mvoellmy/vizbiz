@@ -7,10 +7,18 @@ function runVOPipeline(params, handles)
 %
 % Output: none
 
+if nargin < 2
+    params.through_gui = false;
+end
+
 global gui_handles;
-gui_handles = handles;
+if params.through_gui
+    gui_handles = handles;
+end
 
 %% Setup datasets
+gui_updateConsole(params, 'loading parameters...\n');
+
 if params.ds == 0
     params.kitti_path = '../datasets/kitti';
     assert(isfield(params, 'kitti_path') ~= 0);    
@@ -41,14 +49,15 @@ else
     assert(false);
 end
 
+pause(1);
+
 %% Bootstraping
-fprintf('setup boostrapping...\n');
-tic;
+gui_updateConsole(params, 'setup boostrapping...\n');
+
 % set bootstrap frames
 [img0, img1, ~, bootstrap_frame_idx_2] = autoBootstrap(params, K);
-toc;
 
-fprintf('...boostrapping done.\n\n');
+gui_updateConsole(params, '...boostrapping done.\n');
 
 %% Setup logging variables
 % set range of images to run on
@@ -68,7 +77,7 @@ if params.perf.profiling
 end
 
 %% Initialize VO pipeline
-fprintf('initialize VO pipeline...\n');
+gui_updateConsole(params, 'initialize VO pipeline...\n');
 
 % transformation C1 to W (90deg x-axis rotation)
 T_WC1 = [1      0           0       0;
@@ -76,10 +85,8 @@ T_WC1 = [1      0           0       0;
          0     -1           0       0;
                  zeros(1,3)         1];
 
-tic;
 % initialize pipeline with bootstrap images
 [img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K, T_WC1);
-toc;
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to C1
@@ -94,15 +101,18 @@ W_traj = T_WCj_vo(1:2,4,1);
 W_traj(:,2) = T_WCj_vo(1:2,4,2);
 
 % update gui trajetcory
-gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
+if params.through_gui
+    gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
+end
 
 % transform init point cloud to world frame
 W_P_hom_init = T_WC1*[C2_landmarks_init; zeros(1,size(C2_landmarks_init,2))];
 W_landmarks_init = W_P_hom_init(1:3,:);
 
 % update gui local cloud
-gui_updateLocalCloud(W_landmarks_init, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
-
+if params.through_gui
+    gui_updateLocalCloud(W_landmarks_init, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+end
 % full 3D map point cloud in frame W
 W_landmarks_map = W_landmarks_init;
 
@@ -115,14 +125,14 @@ if params.init.show_landmarks
     plotCam(T_WCj_vo(:,:,2),1,'red');
 end
 
-fprintf('...initialization done.\n\n');
+gui_updateConsole(params, '...initialization done.\n');
 
 %% Continuous operation VO pipeline
 global fig_cont fig_RANSAC_debug;
 
 if params.run_continous
-    fprintf('start continuous VO operation...\n');
-
+    gui_updateConsole(params, 'start continuous VO operation...\n');
+    
 	% setup figure handles
 	%fig_cont = figure('name','Contiunous VO estimation');
 	%fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
@@ -134,17 +144,16 @@ if params.run_continous
 	match_indices_prev = 1:size(keypoints_prev,2);
 
     for j = range_cont
-		fprintf('Processing frame %d\n=====================\n', j);
+        gui_updateConsole(params, ['Processing frame ',num2str(j),'\n']);
+        
         frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
         
         % pick current frame
         img = currentFrame(params, j);
         
-        if (size(keypoints_prev,2) > 0) % todo: minimum number?        
-            tic;
+        if (size(keypoints_prev,2) > 0) % todo: minimum number?
             % process newest image
             [T_CiCj_vo_j(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,img_prev,keypoints_prev,Ci_landmarks_prev,K);
-            toc;
             
             % add super title with frame number
             if params.cont.show_current_image
@@ -163,14 +172,18 @@ if params.run_continous
         W_traj =[W_traj T_WCj_vo(1:2,4,frame_idx)];
         
         % update gui trajetcory
-        gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
+        if params.through_gui
+            gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
+        end
         
         % transform new landmarks
         W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
         W_landmarks_new = W_P_hom_new(1:3,:);
         
         % update gui local cloud
-        gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+        if params.through_gui
+            gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+        end
         
         % extend map with new landmarks
         W_landmarks_map = [W_landmarks_map W_landmarks_new];
@@ -183,9 +196,9 @@ if params.run_continous
 %         keypoints_prev = keypoints_new;
 %         Ci_landmarks_prev = Cj_landmarks_new;
 
-        fprintf('\n');
+        gui_updateConsole(params, ' \n');
     end
-    fprintf('...VO-pipeline terminated.\n');
+    gui_updateConsole(params, '...VO-pipeline terminated.\n');
 end
 
 %% Results summary

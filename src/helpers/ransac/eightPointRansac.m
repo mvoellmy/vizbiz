@@ -83,7 +83,7 @@ if params.eightPoint_ransac.show_inlier_matches
 end
 
 % update inlier gui keypoints
-if params.gui.show_inlier_features
+if params.through_gui && params.gui.show_inlier_features
     gui_updateKeypoints(flipud(p_hom_i2(1:2,best_guess_inliers)), gui_handles.ax_current_frame, 'g.');
 end
 

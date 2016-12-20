@@ -80,7 +80,7 @@ if params.init.show_init_keypoints
 end
 
 % update gui keypoints
-if params.gui.show_all_features
+if params.through_gui && params.gui.show_all_features
     gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
 end
 

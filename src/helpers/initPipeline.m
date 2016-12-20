@@ -21,7 +21,9 @@ global gui_handles;
 if params.init.use_KITTI_precalculated_init % todo: still needed?
     % assign second image as initialization image
     I_init = I_i2;
-    gui_updateImage(I_init, gui_handles.ax_current_frame);
+    if params.through_gui
+        gui_updateImage(I_init, gui_handles.ax_current_frame);
+    end
     
     % load precalculated keypoints and landmarks
     keypoints_init = load('../datasets/kitti/precalculated/keypoints.txt')';
@@ -31,8 +33,10 @@ if params.init.use_KITTI_precalculated_init % todo: still needed?
 else
     % assign second image as initialization image
     I_init = I_i2;
-    gui_updateImage(I_init, gui_handles.ax_current_frame);
-
+    if params.through_gui
+        gui_updateImage(I_init, gui_handles.ax_current_frame);
+    end
+    
     % find 2D correspondences (sorted)
     [p_i1,p_i2] = findCorrespondeces(params,I_i1,I_i2);
     

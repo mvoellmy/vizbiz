@@ -14,6 +14,7 @@ params.perf.profiling = false;
 params.compare_against_groundthruth = false;
 params.run_continous = false;
 params.show_map_and_cams = false;
+params.through_gui = true;
 
 % additional gui parameters
 params.gui.show_all_features = false;
