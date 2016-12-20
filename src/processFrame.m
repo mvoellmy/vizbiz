@@ -204,9 +204,10 @@ for i=1:size(p_candidates_first,2)
 
     T_Cfirst_Cj = T_CfirstW*T_WCj;
     M_j = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
+    M_WCj = K*T_WCj(1:3,:);
 
     % Triangulate landmark
-    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_first,M_j);
+    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_first,M_WCj);
 
 end % for loop end
 
