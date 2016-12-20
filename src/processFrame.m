@@ -175,7 +175,7 @@ vector_act = [updated_kp_tracks.candidate_kp;repmat(K(1,1),[1, size(updated_kp_t
 bearing_angle_d = atan2d(twoNormMatrix(cross(vector_act,vector_first)),dot(vector_act,vector_first));
 
 % Create idx vector of trianguable candidate points
-idx_good_triangable = (bearing_angle_d > 20); % to be tuned
+idx_good_triangable = (bearing_angle_d > 30); % to be tuned
 
 p_candidates_first = updated_kp_tracks.first_obs_kp(:,idx_good_triangable);
 p_candidates_first_pose = updated_kp_tracks.first_obs_pose(:,idx_good_triangable);
@@ -191,23 +191,19 @@ fprintf('  Number of trianguable keypoint candidates: %i\n'...
 % Calculate M's
 for i=1:size(p_candidates_first,2)
     T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
-    M_first = K * T_WCfirst(1:3,:);  %eye(3,4);
+    T_CfirstW = invTansformationMatrix(T_WCfirst);
+    M_CfirstW = K * T_CfirstW(1:3,:); %T_WCfirst(1:3,:);  %eye(3,4);
+           
+    T_WCj = T_WCi * T_CiCj; % current pose against world 
+    T_CjW = invTansformationMatrix(T_WCj);
+    M_CjW = K * T_CjW(1:3,:); %T_WCj(1:3,:);
 
-    % Calculate delta pose between Cfirst and Cj
-    R_WCfirst = T_WCfirst(1:3,1:3);
-    W_t_WCfirst = T_WCfirst(1:3,4);
-
-    T_CfirstW = [R_WCfirst', -R_WCfirst'*W_t_WCfirst;
-                 zeros(1,3),             1           ];
-
-    T_WCj = T_WCi * T_CiCj; % current pose against world
-
-    T_Cfirst_Cj = T_CfirstW*T_WCj;
-    M_j = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
-    M_WCj = K*T_WCj(1:3,:);
-
+    % Calculate delta pose between Cfirst and Cj  
+    %T_Cfirst_Cj = T_CfirstW*T_WCj;
+    %M_CjCfirst = K * %T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
+    
     % Triangulate landmark
-    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_first,M_WCj);
+    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjW);
 
 end % for loop end
 
