@@ -8,8 +8,7 @@ addpath(genpath('testing'));
 addpath(genpath('visualization'));
 
 %% Load parameter struct
-gui = false;
-params = loadParameters(gui);
+params = loadParameters();
 
 %% Code profiling
 if params.perf.profiling

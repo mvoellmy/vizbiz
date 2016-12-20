@@ -16,9 +16,12 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2] = initPipeline(para
 %  - C2_landmarks_init(3xN) : C2-referenced triangulated 3D points
 %  - T_C1C2(4x4) : homogeneous transformation matrix C2 to C1
 
+global gui_handles;
+
 if params.init.use_KITTI_precalculated_init % todo: still needed?
     % assign second image as initialization image
     I_init = I_i2;
+    gui_updateImage(I_init, gui_handles.ax_current_frame);
     
     % load precalculated keypoints and landmarks
     keypoints_init = load('../datasets/kitti/precalculated/keypoints.txt')';
@@ -28,6 +31,7 @@ if params.init.use_KITTI_precalculated_init % todo: still needed?
 else
     % assign second image as initialization image
     I_init = I_i2;
+    gui_updateImage(I_init, gui_handles.ax_current_frame);
 
     % find 2D correspondences (sorted)
     [p_i1,p_i2] = findCorrespondeces(params,I_i1,I_i2);
@@ -82,7 +86,6 @@ else
     C2_landmarks_init = C2_P_hom_init(1:3,:);
 
     % display statistics
-    % todo: extend with baseline length,...
     fprintf(['  Number of initialization keypoints: %i\n',...
              '  Number of initialization landmarks: %i\n'],...
              size(keypoints_init,2), size(C2_landmarks_init,2));

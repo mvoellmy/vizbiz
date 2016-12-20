@@ -61,22 +61,20 @@ clc;
 iptsetpref('ImshowInitialMagnification', 'fit')
 clearAxes(hObject, eventdata, handles);
 
-fprintf('starting VO pipeline...\n');
-
 % add search paths
 addpath(genpath('./helpers/'));
 addpath(genpath('./testing/'));
 addpath(genpath('./visualization/'));
 
-rng(1); % fix random seed
-
 % place gui
-movegui(hObject, 'center');
+movegui(hObject, 'north');
 
 % load parameter struct
 handles = guidata(hObject);  % Care for the newest version explicitly!
 push_reset_Callback(hObject, eventdata, handles);
 handles = guidata(hObject);  % Get the version updated!
+
+fprintf('starting VO pipeline...\n');
 
 handles.output = hObject;
 guidata(hObject, handles);
@@ -117,6 +115,16 @@ guidata(hObject, handles);
 function radio_run_continuous_Callback(hObject, eventdata, handles)
 
 handles.params.run_continous = get(hObject,'Value');
+guidata(hObject, handles);
+
+function radio_all_features_Callback(hObject, eventdata, handles)
+
+handles.params.gui.show_all_features = get(hObject,'Value');
+guidata(hObject, handles);
+
+function radio_inlier_features_Callback(hObject, eventdata, handles)
+
+handles.params.gui.show_inlier_features = get(hObject,'Value');
 guidata(hObject, handles);
 
 function popup_dataset_Callback(hObject, eventdata, handles)
@@ -167,6 +175,8 @@ handles = guidata(hObject);  % Get the version updated!
 set(handles.radio_use_bootstrapping,'Value',0);
 set(handles.radio_use_BA,'Value',0);
 set(handles.radio_run_continuous,'Value',0);
+set(handles.radio_all_features,'Value',0);
+set(handles.radio_inlier_features,'Value',0);
 
 guidata(hObject,handles);
 
@@ -200,10 +210,9 @@ if ~isempty(axesHandlesToChildObjects)
 	delete(axesHandlesToChildObjects);
 end
 
-% prepare console output
-handles.sTringToDisplay = '>>';
+rng(1); % fix random seed
 
-handles.params = loadParameters(true);
+handles.params = loadParameters();
 guidata(hObject, handles);
 
 function update_parameters(hObject, eventdata, handles)
@@ -221,5 +230,8 @@ handles = guidata(hObject);  % Get the version updated!
 handles.params.auto_bootstrap = get(handles.radio_use_bootstrapping,'Value');
 handles.params.init.use_BA = get(handles.radio_use_BA,'Value');
 handles.params.run_continous = get(handles.radio_run_continuous,'Value');
+handles.params.gui.show_all_features = get(handles.radio_all_features,'Value');
+handles.params.gui.show_inlier_features = get(handles.radio_inlier_features,'Value');
+
 
 guidata(hObject, handles);

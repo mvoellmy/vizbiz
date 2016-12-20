@@ -14,7 +14,7 @@ function [E, max_num_inliers] = eightPointRansac(params, p_hom_i1, p_hom_i2, K1,
 %  - E(3x3) : essential matrix
 %  - max_num_inliers(1x1) : maximal number of kp matches satisfying E
 
-global fig_boot fig_init;
+global fig_boot fig_init gui_handles;
 
 % sample size
 s = 8;
@@ -27,7 +27,6 @@ num_iterations = ceil(log(1-params.eightPoint_ransac.p_success)/...
 best_guess_inliers = NaN(1, size(p_hom_i2,2));
 max_num_inliers_history = NaN(1,num_iterations);
 max_num_inliers = 0;
-inliers = zeros(1,size(p_hom_i1,2));
 
 % run RANSAC for pose estimation
 for i=1:num_iterations
@@ -81,6 +80,11 @@ if params.eightPoint_ransac.show_inlier_matches
     plotPoints(flipud(p_hom_i2(1:2,best_guess_inliers)),'g.');
     plotMatches(1:nnz(best_guess_inliers),flipud(p_hom_i2(1:2,best_guess_inliers)),flipud(p_hom_i1(1:2,best_guess_inliers)),'y-');
     title('Inlier (yellow) matches found');
+end
+
+% update inlier gui keypoints
+if params.gui.show_inlier_features
+    gui_updateKeypoints(flipud(p_hom_i2(1:2,best_guess_inliers)), gui_handles.ax_current_frame, 'g.');
 end
 
 % compute the essential matrix from the fundamental matrix given K

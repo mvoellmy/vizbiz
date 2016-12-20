@@ -13,7 +13,7 @@ function [matched_database_keypoints, matched_query_keypoints, corr_ldk_matches]
 %  - matched_query_keypoints(2xN) : matched keypoints of second image, [v u]
 %  - corr_ldk_matches(1xN) : indices of landmarks corresponding to matched keypoints
 
-global fig_cont;
+global fig_cont gui_handles;
 
 % compute harris scores for query image
 query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
@@ -58,6 +58,14 @@ if params.cont.show_new_keypoints
     subplot(2,1,2);
     imshow(query_image);
     hold on;
+end
+
+% update gui image
+gui_updateImage(query_image, gui_handles.ax_current_frame);
+
+% update gui keypoints
+if params.gui.show_all_features
+    gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
 end
 
 end

@@ -22,7 +22,7 @@ if params.cont.show_current_image
     subplot(2,1,1);
     imshow(img_new);
     subplot(2,1,2);
-    imshow(img_new);
+    imshow(img_new);    
 end
 
 % TODO: keypoint tracks 

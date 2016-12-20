@@ -11,7 +11,7 @@ function [img0, img1, bootstrap_frame_1_idx, bootstrap_frame_2_idx] = autoBootst
 %  - bootstrap_frame_1_idx(1x1) : dataset image index of img0
 %  - bootstrap_frame_2_idx(1x1) : dataset image index of img1
 
-global fig_boot;
+global fig_boot gui_handles;
 
 if params.boot.show_bootstrap_images
     fig_boot = figure('name','Bootstrapping');
@@ -39,6 +39,7 @@ if params.auto_bootstrap
     
     % compute harris scores for database image
     database_harris = harris(img0, params.corr.harris_patch_size, params.corr.harris_kappa);
+    
     % compute keypoints for database image
     database_keypoints = selectKeypoints(database_harris, params.boot.num_keypoints, params.corr.nonmaximum_supression_radius);
 
@@ -51,6 +52,9 @@ if params.auto_bootstrap
         
         % read in candidate image
         img_candidate = currentFrame(params, candidate_frame_idx);
+        
+        % update gui image
+        gui_updateImage(img_candidate, gui_handles.ax_current_frame);
 
         % find 2D correspondences (sorted)
         [p_i1, p_i2] = findCorrespondeces_boot(params, img0, database_keypoints, img_candidate);
@@ -153,6 +157,9 @@ else
         axis equal;
         title('Bootstrap frame 2');
     end
+    
+    % update gui image
+    gui_updateImage(img1, gui_handles.ax_current_frame);
 end
 
 % display frames chosen

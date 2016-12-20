@@ -18,7 +18,7 @@ function [R_CiCj, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints
 %  - corr_ldk_matches : todo ??
 %  - max_num_inliers_history(1xnum_iterations) : number inlier history
 
-global fig_cont fig_RANSAC_debug;
+global fig_cont fig_RANSAC_debug gui_handles;
 
 % find 2D correspondences % todo: move out of ransacLocalization()??
 [matched_database_keypoints,matched_query_keypoints,corr_ldk_matches] = ...
@@ -186,6 +186,11 @@ if (max_num_inliers > 0 && params.localization_ransac.show_inlier_matches)
     subplot(2,1,2);
     plotMatches(1:nnz(best_guess_inliers),matched_query_keypoints,matched_database_keypoints,'y-');
     title('Inlier (yellow) matches found');
+end
+
+% update gui inlier keypoints
+if params.gui.show_inlier_features
+    gui_updateKeypoints(matched_query_keypoints, gui_handles.ax_current_frame, 'g.');
 end
 
 end

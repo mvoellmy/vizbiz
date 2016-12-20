@@ -12,7 +12,7 @@ function [matched_database_keypoints, matched_query_keypoints] = ...
 %  - matched_database_keypoints(2xN) : matched keypoints of first image, each [u v]
 %  - matched_query_keypoints(2xN) : matched keypoints of second image, each [u v]
 
-global fig_init;
+global fig_init gui_handles;
 
 % todo: move params into subroutines, expose only method string
 % compute harris scores for query image % todo: move int keypoint-selection
@@ -77,6 +77,11 @@ if params.init.show_init_keypoints
         plotMatches(matches,query_keypoints,database_keypoints,'m-');
         title('Initialization (2) image with matches');
     end
+end
+
+% update gui keypoints
+if params.gui.show_all_features
+    gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
 end
 
 end

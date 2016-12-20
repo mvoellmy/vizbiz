@@ -1,11 +1,14 @@
-function runVOPipeline(params, gui_handles)
+function runVOPipeline(params, handles)
 % Returns collection of parameters used throughout the VO pipeline.
 % 
 % Input: todo
 %  - params(struct) : parameter struct
-%  - gui_handles(handles) : GUI handles
+%  - handles(handles) : GUI handles
 %
 % Output: none
+
+global gui_handles;
+gui_handles = handles;
 
 %% Setup datasets
 if params.ds == 0
@@ -77,8 +80,6 @@ tic;
 % initialize pipeline with bootstrap images
 [img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K, T_WC1);
 toc;
-updateImage(img_init, gui_handles.ax_current_frame);
-pause(0.01);
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to C1
@@ -93,14 +94,14 @@ W_traj = T_WCj_vo(1:2,4,1);
 W_traj(:,2) = T_WCj_vo(1:2,4,2);
 
 % update gui trajetcory
-updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
+gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
 
 % transform init point cloud to world frame
 W_P_hom_init = T_WC1*[C2_landmarks_init; zeros(1,size(C2_landmarks_init,2))];
 W_landmarks_init = W_P_hom_init(1:3,:);
 
 % update gui local cloud
-updateLocalCloud(W_landmarks_init, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+gui_updateLocalCloud(W_landmarks_init, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
 
 % full 3D map point cloud in frame W
 W_landmarks_map = W_landmarks_init;
@@ -138,7 +139,6 @@ if params.run_continous
         
         % pick current frame
         img = currentFrame(params, j);
-        updateImage(img, gui_handles.ax_current_frame);
         
         if (size(keypoints_prev,2) > 0) % todo: minimum number?        
             tic;
@@ -163,14 +163,14 @@ if params.run_continous
         W_traj =[W_traj T_WCj_vo(1:2,4,frame_idx)];
         
         % update gui trajetcory
-        updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
+        gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
         
         % transform new landmarks
         W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
         W_landmarks_new = W_P_hom_new(1:3,:);
         
         % update gui local cloud
-        updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+        gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
         
         % extend map with new landmarks
         W_landmarks_map = [W_landmarks_map W_landmarks_new];
