@@ -115,13 +115,25 @@ if params.localization_ransac.show_iterations
             max_num_inliers,100*max_num_inliers/size(matched_query_keypoints,2));
 end
 
-% check if there are any inliers
-% TODO: Handle exception - why do we need this - dont we handle it at Line 139?
-assert(nnz(best_guess_inliers) > 0);
+%% Final rotation matrix calculation
+Ci_corresponding_inlier_landmarks = [];
 
-% discard outliers
-matched_query_keypoints = matched_query_keypoints(:, best_guess_inliers);
-Ci_corresponding_inlier_landmarks = Ci_corresponding_landmarks(:, best_guess_inliers);
+if (max_num_inliers == 0)
+    matched_query_keypoints = [];
+       
+    R_CjCi = [];
+    Cj_t_CjCi = [];
+    fprintf('  No inlier matches found\n');
+else
+    % discard outliers
+    matched_query_keypoints = matched_query_keypoints(:, best_guess_inliers);
+    Ci_corresponding_inlier_landmarks = Ci_corresponding_landmarks(:, best_guess_inliers);
+
+    % calculate [R,T] with best inlier points and DLT
+    M_CjCi = estimatePoseDLT(matched_query_keypoints', Ci_corresponding_inlier_landmarks', K);
+    R_CjCi = M_CjCi(:,1:3);
+    Cj_t_CjCi = M_CjCi(:,end);       
+end
 
 % display projected keypoints given best pose and inlier correspondences
 if (max_num_inliers > 0 && params.localization_ransac.show_matched_keypoints)
@@ -133,18 +145,6 @@ if (max_num_inliers > 0 && params.localization_ransac.show_matched_keypoints)
     subplot(2,1,1);
     plotPoints(flipud(Cj_best_guess_projected_pts),'yx');
     title('Projected keypoints in Cj-Frame (yellow crosses)');
-end
-
-%% Final rotation matrix calculation
-if (max_num_inliers == 0)
-    R_CjCi = [];
-    Cj_t_CjCi = [];
-    fprintf('  No inlier matches found\n');
-else
-    % calculate [R,T] with best inlier points and DLT
-    M_CjCi = estimatePoseDLT(matched_query_keypoints', Ci_corresponding_inlier_landmarks', K);
-    R_CjCi = M_CjCi(:,1:3);
-    Cj_t_CjCi = M_CjCi(:,end);       
 end
 
 %% end-processing

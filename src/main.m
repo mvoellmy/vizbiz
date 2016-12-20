@@ -205,11 +205,9 @@ if params.run_continous
         % append newest Cj to T transformation
         T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1)*T_CiCj_vo_j(:,:,frame_idx);
         
-        % TODO: Check it!
         % update map with new landmarks
         W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
-        W_landmarks_new = W_P_hom_new(1:3,:);
-        W_landmarks_map = [W_landmarks_map W_landmarks_new];
+        W_landmarks_map = W_P_hom_new(1:3,:);
 
         % allow plots to refresh
         pause(1.01);
