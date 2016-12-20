@@ -43,14 +43,8 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before gui_simple is made visible.
 function gui_simple_OpeningFcn(hObject, eventdata, handles, varargin)
-% This function has no output args, see OutputFcn.
-% hObject    handle to figure
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to gui_simple (see VARARGIN)
 
 % close figures except gui
 set(handles.main_figure, 'HandleVisibility', 'off');
@@ -63,28 +57,21 @@ clearvars -except handles hObject eventdata;
 % clear command line
 clc;
 
-% prepare console output
-handles.sTringToDisplay = '>>';
-
 % prepare axes
 iptsetpref('ImshowInitialMagnification', 'fit')
-axes(handles.ax_current_frame);
-hold off;
-axis off;
-axes(handles.ax_trajectory);
-handles.plot_trajectory = plot(0,0,'.-');
-axis off;
-guidata(hObject, handles);
+clearAxes(hObject, eventdata, handles);
 
 fprintf('starting VO pipeline...\n');
 
+% add search paths
 addpath(genpath('./helpers/'));
 addpath(genpath('./testing/'));
 addpath(genpath('./visualization/'));
+
 rng(1); % fix random seed
 
 % place gui
-movegui(hObject, 'north');
+movegui(hObject, 'center');
 
 % load parameter struct
 handles = guidata(hObject);  % Care for the newest version explicitly!
@@ -97,8 +84,6 @@ guidata(hObject, handles);
 % UIWAIT makes gui_simple wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
-
-% --- Outputs from this function are returned to the command line.
 function varargout = gui_simple_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
@@ -108,13 +93,10 @@ function varargout = gui_simple_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-% --- Executes on button press in push_run.
 function push_run_Callback(hObject, eventdata, handles)
-% hObject    handle to push_run (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 clc;
+clearAxes(hObject, eventdata, handles);
 
 handles = guidata(hObject);  % Care for the newest version explicitly!
 update_parameters(hObject, eventdata, handles);
@@ -122,41 +104,22 @@ handles = guidata(hObject);  % Get the version updated!
 
 runVOPipeline(handles.params, handles);
 
-% --- Executes on button press in radio_use_bootstrapping.
 function radio_use_bootstrapping_Callback(hObject, eventdata, handles)
-% hObject    handle to radio_use_bootstrapping (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 handles.params.auto_bootstrap = get(hObject,'Value');
 guidata(hObject, handles);
 
-% --- Executes on button press in radio_use_BA.
 function radio_use_BA_Callback(hObject, eventdata, handles)
-% hObject    handle to radio_use_BA (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 handles.params.init.use_BA = get(hObject,'Value');
 guidata(hObject, handles);
 
-% --- Executes on button press in radio_run_continuous.
 function radio_run_continuous_Callback(hObject, eventdata, handles)
-% hObject    handle to radio_run_continuous (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 handles.params.run_continous = get(hObject,'Value');
 guidata(hObject, handles);
 
-% --- Executes on selection change in popup_dataset.
 function popup_dataset_Callback(hObject, eventdata, handles)
-% hObject    handle to popup_dataset (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popup_dataset contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popup_dataset
 
 val = get(handles.popup_dataset,'Value');
 str = get(handles.popup_dataset,'String');
@@ -171,11 +134,7 @@ end
 
 guidata(hObject, handles);
 
-% --- Executes during object creation, after setting all properties.
 function popup_dataset_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popup_dataset (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
@@ -183,27 +142,12 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on button press in push_about.
 function push_about_Callback(hObject, eventdata, handles)
-% hObject    handle to push_about (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-msgbox({sprintf(['About\n',...
-                 '...',...
-                 'Authors: Pascal Buholzer, Fabio Dubois, Miro Voellmy, Milan Irokese\n'])});
+file = dir('gui_simple.m');
+msgbox({sprintf(['Authors: Pascal Buholzer, Fabio Dubois, Miro Voellmy, Milan Schilling\n\n',...
+                 'Last modified: ', file.date, '\n\n'])});
 
-
-% --- Executes on button press in push_about.
-function push_abort_Callback(hObject, eventdata, handles)
-% hObject    handle to push_about (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-error('User requested abortion.');
-
-
-% --- Executes on button press in push_clear.
 function push_reset_Callback(hObject, eventdata, handles)
 % hObject    handle to push_clear (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -225,6 +169,29 @@ set(handles.radio_use_BA,'Value',0);
 set(handles.radio_run_continuous,'Value',0);
 
 guidata(hObject,handles);
+
+function clearAxes(hObject, eventdata, handles)
+
+% clear image axes
+axes(handles.ax_current_frame);
+cla(handles.ax_current_frame);
+hold off;
+axis off;
+
+% clear trajectory axes
+axes(handles.ax_trajectory);
+cla(handles.ax_trajectory);
+
+handles.plot_trajectory = plot(0, 0, '.-');
+hold on;
+handles.plot_local_cloud = plot(0, 0, 'k.');
+hold off;
+
+axis equal;
+axis square;
+axis off;
+
+guidata(hObject, handles);
 
 function reset_parameters(hObject, eventdata, handles)
 
