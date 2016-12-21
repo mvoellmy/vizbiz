@@ -189,23 +189,25 @@ fprintf('  Number of trianguable keypoint candidates: %i\n'...
          ,nnz(idx_good_triangable)); 
 
 % Calculate M's
+Cfirst_P_hom_new = NaN(4,size(p_candidates_first,2));
 for i=1:size(p_candidates_first,2)
     T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
-    T_CfirstW = invTansformationMatrix(T_WCfirst);
-    M_CfirstW = K * T_CfirstW(1:3,:); %T_WCfirst(1:3,:);  %eye(3,4);
+    M_Cfirst = K * eye(3,4);
            
     T_WCj = T_WCi * T_CiCj; % current pose against world 
     T_CjW = invTansformationMatrix(T_WCj);
-    M_CjW = K * T_CjW(1:3,:); %T_WCj(1:3,:);
 
     % Calculate delta pose between Cfirst and Cj  
-    T_Cfirst_Cj = T_CfirstW*T_WCj;
-    M_CjCfirst = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
+    T_CjCfirst = T_CjW*T_WCfirst;
+    M_Cj = K * T_CjCfirst(1:3,:);
     
     % Triangulate landmark
-    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjCfirst);
+    Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_Cfirst,M_Cj);
+    Ci_P_hom_new = invTansformationMatrix(T_WCi)*T_WCfirst*Cfirst_P_hom_new;    
+end
 
-end % for loop end
+%figure
+%plotLandmarks(Ci_P_hom_new(1:3,:),'y','down');
 
 %% Update keypoint tracks, Cj_landmarks and p_new_matched_triang
 
