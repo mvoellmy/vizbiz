@@ -47,7 +47,7 @@ end
 fprintf('setup boostrapping...\n');
 tic;
 % set bootstrap frames
-[img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = autoBootstrap(params, K);
+[img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = getBootstrapFrames(params, K);
 toc;
 
 fprintf('...boostrapping done.\n\n');
@@ -130,7 +130,7 @@ if params.run_continous
         frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
         
         % pick current frame
-        img = currentFrame(params, j);
+        img = getFrame(params, j);
         
         if (size(keypoints_prev,2) > 0) % todo: minimum number?        
             tic;
