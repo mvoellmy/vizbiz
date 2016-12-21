@@ -53,7 +53,10 @@ cameraPoses.Orientation = orientations;
 cameraPoses.Location = locations;
 cameraParams = cameraParameters('IntrinsicMatrix', K');
 
-[W_P_refined, refinedPoses] = bundleAdjustment(W_P', point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', fixed_cams);
+[W_P_refined, refinedPoses, reprojectionErrors] = bundleAdjustment(W_P', point_tracks, cameraPoses, cameraParams,...
+    'FixedViewIDs', fixed_cams, 'Verbose', true, 'PointsUndistorted', true, 'AbsoluteTolerance', 0.5, 'MaxIterations', 100);
+
+nnz(reprojectionErrors > 5)
 
 W_P_refined = W_P_refined';
 T_WC_refined = zeros(size(T_WC));
