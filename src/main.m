@@ -26,6 +26,8 @@ if params.ds == 0
 elseif params.ds == 1
     params.malaga_path = '../datasets/malaga-urban-dataset-extract-07';
     assert(isfield(params, 'malaga_path') ~= 0);
+    ground_truth = load([params.malaga_path '/poses.txt']);
+    ground_truth = ground_truth(:, [end-8 end]);
     last_frame = 2121;
     K = [621.18428 0 404.0076
         0 621.18428 309.05989
@@ -47,7 +49,7 @@ end
 fprintf('setup boostrapping...\n');
 tic;
 % set bootstrap frames
-[img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = autoBootstrap(params, K);
+[img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = getBootstrapFrames(params, K);
 toc;
 
 fprintf('...boostrapping done.\n\n');
@@ -82,6 +84,11 @@ tic;
 % initialize pipeline with bootstrap images
 [img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K, T_WC1);
 toc;
+
+% normalize scale with ground truth
+if params.init.normalize_scale
+    [C2_landmarks_init, T_C1C2] = normalizeScale(C2_landmarks_init, T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+end
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to C1
@@ -130,7 +137,7 @@ if params.run_continous
         frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
         
         % pick current frame
-        img = currentFrame(params, j);
+        img = getFrame(params, j);
         
         if (size(keypoints_prev,2) > 0) % todo: minimum number?        
             tic;
