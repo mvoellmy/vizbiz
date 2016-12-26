@@ -155,10 +155,11 @@ end
 
 % append all new found keypoints and their pose
 new_kp = query_keypoints(:,matches_untriang==0); % kp which could not be matched
-T_WCi_col = T_WCi(:); % convert to col vector for storage
+T_WCj = T_WCi * T_CiCj;
+T_WCj_col = T_WCj(:); % convert to col vector for storage
 updated_kp_tracks.candidate_kp = [updated_kp_tracks.candidate_kp, new_kp];
 updated_kp_tracks.first_obs_kp = [updated_kp_tracks.first_obs_kp, new_kp]; % is equal to candidate when adding
-updated_kp_tracks.first_obs_pose = [updated_kp_tracks.first_obs_pose, repmat(T_WCi_col,[1, size(new_kp, 2)])]; %TODO: verify if first pose in i or in j  
+updated_kp_tracks.first_obs_pose = [updated_kp_tracks.first_obs_pose, repmat(T_WCj_col,[1, size(new_kp, 2)])];
 
 % display matched keypoint tracks
 if params.keypoint_tracker.show_matches
