@@ -114,6 +114,10 @@ T_CiCj = [R_CiCj   Ci_t_CiCj;
 
 T_CjCi = [R_CiCj'   -R_CiCj'*Ci_t_CiCj;
           zeros(1,3)                 1];
+      
+
+R_CjCi = R_CiCj';
+Cj_t_CjCi = -R_CiCj'*Ci_t_CiCj;
 
 %% Candiate Keypoint tracker
 % variable init - assume no matches
@@ -154,7 +158,7 @@ new_kp = query_keypoints(:,matches_untriang==0); % kp which could not be matched
 T_WCi_col = T_WCi(:); % convert to col vector for storage
 updated_kp_tracks.candidate_kp = [updated_kp_tracks.candidate_kp, new_kp];
 updated_kp_tracks.first_obs_kp = [updated_kp_tracks.first_obs_kp, new_kp]; % is equal to candidate when adding
-updated_kp_tracks.first_obs_pose = [updated_kp_tracks.first_obs_pose, repmat(T_WCi_col,[1, size(new_kp, 2)])];   
+updated_kp_tracks.first_obs_pose = [updated_kp_tracks.first_obs_pose, repmat(T_WCi_col,[1, size(new_kp, 2)])]; %TODO: verify if first pose in i or in j  
 
 % display matched keypoint tracks
 if params.keypoint_tracker.show_matches
@@ -205,25 +209,27 @@ fprintf('  Number of trianguable keypoint candidates: %i\n'...
 for i=1:size(p_candidates_first,2)
     T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
     T_CfirstW = invTansformationMatrix(T_WCfirst);
+    M_WCfirst = K * T_WCfirst(1:3,:);
     M_CfirstW = K * T_CfirstW(1:3,:); %T_WCfirst(1:3,:);  %eye(3,4);
            
     T_WCj = T_WCi * T_CiCj; % current pose against world 
     T_CjW = invTansformationMatrix(T_WCj);
     M_CjW = K * T_CjW(1:3,:); %T_WCj(1:3,:);
+    M_WCj = K * T_WCj(1:3,:);
 
     % Calculate delta pose between Cfirst and Cj  
     T_Cfirst_Cj = T_CfirstW*T_WCj;
-    M_CjCfirst = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
+    M_CfirstCj = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
     
     % Triangulate landmark
-    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjCfirst);
+    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_WCfirst,M_WCj);
 
 end % for loop end
 
-% reproject found landmarks
+% reproject found landmarkss
 Ci_P_new = Ci_P_hom_new(1:3,:);
-projected_points = projectPoints((R_CiCj'*Ci_P_new) +...
-                                     repmat(-R_CiCj'*Ci_t_CiCj,[1 size(Ci_P_new, 2)]),K);
+projected_points = projectPoints((R_CjCi'*Ci_P_new) +...
+                                     repmat(Cj_t_CjCi,[1 size(Ci_P_new, 2)]),K);
 
 % display triangulated backprojected keypoints
 if params.keypoint_tracker.show_triangulated
@@ -239,7 +245,7 @@ if params.keypoint_tracker.show_triangulated
     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         plotPoints(kp_tracks_prev.candidate_kp,'r.');
         plotMatches(matches_untriang,query_keypoints,kp_tracks_prev.candidate_kp,'m-');
-        plotPoints(projected_points,'g.');
+        plotPoints(flipud(projected_points),'g.');
     end
     plotPoints(updated_kp_tracks.candidate_kp,'y.');
 
