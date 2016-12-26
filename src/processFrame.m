@@ -50,10 +50,6 @@ end
 % show current frame
 if params.keypoint_tracker.show_triangulated
     figure(fig_kp_triangulate);
-    subplot(2,1,1);
-    hold on;
-    imshow(img_new);
-    subplot(2,1,2);
     hold on;
     imshow(img_new);
 end
@@ -209,21 +205,28 @@ fprintf('  Number of trianguable keypoint candidates: %i\n'...
 % Calculate M's
 for i=1:size(p_candidates_first,2)
     T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
-    T_CfirstW = invTansformationMatrix(T_WCfirst);
     M_WCfirst = K * T_WCfirst(1:3,:);
-    M_CfirstW = K * T_CfirstW(1:3,:); %T_WCfirst(1:3,:);  %eye(3,4);
+    
+    T_CfirstW = tform2invtform(T_WCfirst);
+    M_CfirstW = K * T_CfirstW(1:3,:);
+    % T_CfirstW = invTansformationMatrix(T_WCfirst);
+    % M_CfirstW = K * T_CfirstW(1:3,:); %T_WCfirst(1:3,:);  %eye(3,4);
            
     T_WCj = T_WCi * T_CiCj; % current pose against world 
-    T_CjW = invTansformationMatrix(T_WCj);
-    M_CjW = K * T_CjW(1:3,:); %T_WCj(1:3,:);
     M_WCj = K * T_WCj(1:3,:);
+    
+    T_CjW = tform2invtform(T_WCj);
+    M_CjW = K * T_CjW(1:3,:);
+    % T_CjW = invTansformationMatrix(T_WCj);
+    % M_CjW = K * T_CjW(1:3,:); %T_WCj(1:3,:);
+    
 
     % Calculate delta pose between Cfirst and Cj  
-    T_Cfirst_Cj = T_CfirstW*T_WCj;
-    M_CfirstCj = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
+    %T_Cfirst_Cj = T_CfirstW*T_WCj;
+    %M_CfirstCj = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
     
     % Triangulate landmark
-    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_WCfirst,M_WCj);
+    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjW);
 
 end % for loop end
 
@@ -235,18 +238,11 @@ projected_points = projectPoints((R_CjCi'*Ci_P_new) +...
 % display triangulated backprojected keypoints
 if params.keypoint_tracker.show_triangulated
     figure(fig_kp_triangulate);
-    subplot(2,1,1);
-    if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
-        plotPoints(kp_tracks_prev.candidate_kp,'r.');
-    end
-    % plotCircles(matched_query_keypoints,'y',params.localization_ransac.pixel_tolerance);
-    title('Candidate Keypoints: Old (red)');
-
-    subplot(2,1,2);
     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         plotPoints(kp_tracks_prev.candidate_kp,'r.');
         plotMatches(matches_untriang,query_keypoints,kp_tracks_prev.candidate_kp,'m-');
         plotPoints(flipud(projected_points),'g.');
+        % plotPoints(projected_points,'g.');
     end
     plotPoints(updated_kp_tracks.candidate_kp,'y.');
 
