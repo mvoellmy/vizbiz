@@ -25,7 +25,7 @@ function [T_CiCj, p_new_matched_triang, updated_kp_tracks, Cj_new_landmarks] =..
 %  - Cj_new_landmarks (3xN) : 3D points in frame Cj
 %    verified inliers by ransac + new triangulated landmarks
 
-global fig_cont fig_kp_tracks;
+global fig_cont fig_kp_tracks fig_kp_triangulate;
 
 % show current frame
 if params.cont.show_current_image
@@ -46,6 +46,19 @@ if params.keypoint_tracker.show_matches
     hold on;
     imshow(img_new);
 end
+
+% show current frame
+if params.keypoint_tracker.show_triangulated
+    figure(fig_kp_triangulate);
+    subplot(2,1,1);
+    hold on;
+    imshow(img_new);
+    subplot(2,1,2);
+    hold on;
+    imshow(img_new);
+end
+
+
 
 %% Estimate delta rotation from frame Cj to Ci
 [query_keypoints,matches] = ...
@@ -206,6 +219,32 @@ for i=1:size(p_candidates_first,2)
     Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjCfirst);
 
 end % for loop end
+
+% reproject found landmarks
+Ci_P_new = Ci_P_hom_new(1:3,:);
+projected_points = projectPoints((R_CiCj'*Ci_P_new) +...
+                                     repmat(-R_CiCj'*Ci_t_CiCj,[1 size(Ci_P_new, 2)]),K);
+
+% display triangulated backprojected keypoints
+if params.keypoint_tracker.show_triangulated
+    figure(fig_kp_triangulate);
+    subplot(2,1,1);
+    if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
+        plotPoints(kp_tracks_prev.candidate_kp,'r.');
+    end
+    % plotCircles(matched_query_keypoints,'y',params.localization_ransac.pixel_tolerance);
+    title('Candidate Keypoints: Old (red)');
+
+    subplot(2,1,2);
+    if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
+        plotPoints(kp_tracks_prev.candidate_kp,'r.');
+        plotMatches(matches_untriang,query_keypoints,kp_tracks_prev.candidate_kp,'m-');
+        plotPoints(projected_points,'g.');
+    end
+    plotPoints(updated_kp_tracks.candidate_kp,'y.');
+
+    title('Candidate Keypoints: Old (red), updated (yellow), Matches; projected points (green)');
+end
 
 %% Update keypoint tracks, Cj_landmarks and p_new_matched_triang
 

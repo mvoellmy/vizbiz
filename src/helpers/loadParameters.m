@@ -42,7 +42,7 @@ params.cont.show_new_keypoints = true;
 params.cont.show_matches = true;
 params.cont.landmarks_cutoff = 5;
 
-params.localization_ransac.show_matched_keypoints = false;
+params.localization_ransac.show_matched_keypoints = true;
 params.localization_ransac.show_inlier_matches = false;
 
 params.localization_ransac.use_p3p = true;
@@ -52,5 +52,6 @@ params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]
 params.localization_ransac.show_iterations = false;
 
 params.keypoint_tracker.show_matches = true;
+params.keypoint_tracker.show_triangulated = true;
 
 end
