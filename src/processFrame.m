@@ -222,11 +222,13 @@ for i=1:size(p_candidates_first,2)
     
 
     % Calculate delta pose between Cfirst and Cj  
+    T_CjCfirst = T_CjW * T_WCfirst;
+    M_CjCfirst = K * T_CjCfirst(1:3,:);
     %T_Cfirst_Cj = T_CfirstW*T_WCj;
     %M_CfirstCj = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
     
     % Triangulate landmark
-    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjW);
+    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjCfirst);
 
 end % for loop end
 
