@@ -94,9 +94,9 @@ function push_run_Callback(hObject, eventdata, handles)
 clc;
 clearAxes(hObject, eventdata, handles);
 
-handles = guidata(hObject);  % Care for the newest version explicitly!
+handles = guidata(hObject);
 update_parameters(hObject, eventdata, handles);
-handles = guidata(hObject);  % Get the version updated!
+handles = guidata(hObject);
 
 runVOPipeline(handles.params, handles);
 
@@ -166,7 +166,7 @@ handles = guidata(hObject);  % Care for the newest version explicitly!
 reset_parameters(hObject, eventdata, handles);
 handles = guidata(hObject);  % Get the version updated!
 
-% reset dataset dropdown
+% reset dropdown
 
 % reset buttons to false
 set(handles.radio_use_bootstrapping,'Value',0);
@@ -177,6 +177,9 @@ set(handles.radio_inlier_features,'Value',0);
 
 % clear console
 set(handles.listbox_console,'String','');
+
+% reset performance metrics
+set(handles.text_RT_value,'String','00.00');
 
 guidata(hObject,handles);
 

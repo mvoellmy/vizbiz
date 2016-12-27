@@ -1,8 +1,7 @@
 function params = loadParameters()
 % Returns collection of parameters used throughout the VO pipeline.
 % 
-% Input:
-%  - mode(bool) : wether launched through GUI or not
+% Input: none
 %
 % Output:
 %  - params(struct) : parameter struct

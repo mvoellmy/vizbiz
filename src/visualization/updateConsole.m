@@ -1,7 +1,8 @@
-function gui_updateConsole(params, string_new)
+function updateConsole(params, string_new)
 % todo: add description
 % 
 % Input:
+%  - params(struct) : parameter struct
 %  - string_new(string) : new message
 %
 % Output: none
@@ -27,4 +28,3 @@ if params.through_gui
 else
     fprintf(string_new);
 end
-
