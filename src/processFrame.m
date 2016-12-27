@@ -239,16 +239,17 @@ projected_points = projectPoints((R_CjCi'*Ci_P_new) +...
 
 % display triangulated backprojected keypoints
 if params.keypoint_tracker.show_triangulated
+    good_idx_match = 1:size(projected_points,2);
     figure(fig_kp_triangulate);
     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
-        plotPoints(kp_tracks_prev.candidate_kp,'r.');
-        plotMatches(matches_untriang,query_keypoints,kp_tracks_prev.candidate_kp,'m-');
+        plotPoints(p_candidates_j,'r.');
         plotPoints(flipud(projected_points),'g.');
+        plotMatches(good_idx_match,p_candidates_j,flipud(projected_points),'m-');
         % plotPoints(projected_points,'g.');
     end
-    plotPoints(updated_kp_tracks.candidate_kp,'y.');
+    % plotPoints(updated_kp_tracks.candidate_kp,'y.');
 
-    title('Candidate Keypoints: Old (red), updated (yellow), Matches; projected points (green)');
+    title('Triangable query KP (red), reprojected generated landmarks (green)');
 end
 
 %% Update keypoint tracks, Cj_landmarks and p_new_matched_triang
