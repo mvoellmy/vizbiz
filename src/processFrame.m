@@ -50,10 +50,10 @@ end
 % show current frame
 if params.keypoint_tracker.show_triangulated
     figure(fig_kp_triangulate);
-    hold on;
+    clf;
     imshow(img_new);
+    hold on;
 end
-
 
 
 %% Estimate delta rotation from frame Cj to Ci
@@ -208,7 +208,7 @@ for i=1:size(p_candidates_first,2)
     T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
        
     T_CfirstW = tform2invtform(T_WCfirst);
-    M_CfirstW = K * eye(3,4); %T_CfirstW(1:3,:);
+    M_Cfirst = K * eye(3,4); %T_CfirstW(1:3,:);
             
     M_WCj = K * T_WCj(1:3,:);
     
@@ -220,31 +220,11 @@ for i=1:size(p_candidates_first,2)
     M_CjCfirst = K * T_CjCfirst(1:3,:);
         
     % Triangulate landmark
-    Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjCfirst);
+    Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_Cfirst,M_CjCfirst);
     Cj_P_hom_new(:,i) = T_CjCfirst*Cfirst_P_hom_new(:,i);
 
 end % for loop end
 
-% reproject found landmarkss
-Cj_P_new = Cj_P_hom_new(1:3,:);
-Cj_projected_points = projectPoints(Cj_P_new, K);
-% Cj_projected_points = projectPoints((R_CjCi*Cj2_P_new) +...
-%                                      repmat(-Cj_t_CjCi,[1 size(Cj2_P_new, 2)]),K);
-
-% display triangulated backprojected keypoints
-if params.keypoint_tracker.show_triangulated
-    good_idx_match = 1:size(Cj_projected_points,2);
-    figure(fig_kp_triangulate);
-    if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
-        plotPoints(p_candidates_j,'r.');
-        plotPoints(flipud(Cj_projected_points),'gx');
-        plotMatches(good_idx_match,p_candidates_j,flipud(Cj_projected_points),'m-');
-        % plotPoints(projected_points,'g.');
-    end
-    % plotPoints(updated_kp_tracks.candidate_kp,'y.');
-
-    title('Triangable query KP (red), reprojected generated landmarks (green)');
-end
 
 %% Update keypoint tracks, Cj_landmarks and p_new_matched_triang
 
@@ -277,6 +257,27 @@ end
     
 Cj_P_hom = [Cj_P_hom_inliers, Cj_P_hom_new];
 Cj_new_landmarks = Cj_P_hom(1:3,:);
+
+
+% display triangulated backprojected keypoints
+Cj_projected_points = projectPoints(Cj_P_hom_new(1:3,:), K);
+% Cj_projected_points = projectPoints((R_CjCi*Cj2_P_new) +...
+%                                      repmat(-Cj_t_CjCi,[1 size(Cj2_P_new, 2)]),K);
+
+if params.keypoint_tracker.show_triangulated
+    good_idx_match = 1:size(Cj_projected_points,2);
+    figure(fig_kp_triangulate);
+    if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
+        plotPoints(p_candidates_j,'r.');
+        plotPoints(flipud(Cj_projected_points),'gx');
+        plotMatches(good_idx_match,p_candidates_j,flipud(Cj_projected_points),'m-');
+        % plotPoints(projected_points,'g.');
+    end
+    % plotPoints(updated_kp_tracks.candidate_kp,'y.');
+
+    title('Triangable query KP (red), reprojected generated landmarks (green)');
+    hold off;
+end
 
 %% display statistics
 
