@@ -108,12 +108,8 @@ end
 T_CiCj = [R_CiCj   Ci_t_CiCj;
           zeros(1,3)       1];
 
-T_CjCi = [R_CiCj'   -R_CiCj'*Ci_t_CiCj;
-          zeros(1,3)                 1];
-      
+T_CjCi = tform2invtform(T_CiCj);      
 
-R_CjCi = R_CiCj';
-Cj_t_CjCi = -R_CiCj'*Ci_t_CiCj;
 
 %% Candiate Keypoint tracker
 % variable init - assume no matches
@@ -121,7 +117,7 @@ matches_untriang = zeros(1,size(query_keypoints,2));
 updated_kp_tracks.candidate_kp = [];   % 2xN
 updated_kp_tracks.first_obs_kp = [];   % 2xN
 updated_kp_tracks.first_obs_pose = []; % 16xN
-
+updated_kp_tracks.nr_trackings = []; % 1xN
 
 % if there are candiate keypoints, try to match
 if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
@@ -142,11 +138,13 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
     updated_kp_tracks.candidate_kp(:,idx_matched_kp_tracks_cand) = query_keypoints(:,idx_matched_kp_tracks_cand); %new v,u coord
     updated_kp_tracks.first_obs_kp(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_kp(:,idx_matched_kp_tracks_cand);
     updated_kp_tracks.first_obs_pose(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_pose(:,idx_matched_kp_tracks_cand);
+    updated_kp_tracks.nr_trackings(idx_matched_kp_tracks_cand) = kp_tracks_prev.nr_trackings(idx_matched_kp_tracks_cand)+1;
 
     % discard kp that could not be tracked --> new sorting (unkown)
     updated_kp_tracks.candidate_kp = updated_kp_tracks.candidate_kp(:,idx_matched_kp_tracks_cand);
     updated_kp_tracks.first_obs_kp = updated_kp_tracks.first_obs_kp(:,idx_matched_kp_tracks_cand);
     updated_kp_tracks.first_obs_pose = updated_kp_tracks.first_obs_pose(:,idx_matched_kp_tracks_cand);
+    updated_kp_tracks.nr_trackings = updated_kp_tracks.nr_trackings(idx_matched_kp_tracks_cand);
 end
 
 % append all new found keypoints and their pose
@@ -156,6 +154,7 @@ T_WCj_col = T_WCj(:); % convert to col vector for storage
 updated_kp_tracks.candidate_kp = [updated_kp_tracks.candidate_kp, new_kp];
 updated_kp_tracks.first_obs_kp = [updated_kp_tracks.first_obs_kp, new_kp]; % is equal to candidate when adding
 updated_kp_tracks.first_obs_pose = [updated_kp_tracks.first_obs_pose, repmat(T_WCj_col,[1, size(new_kp, 2)])];
+updated_kp_tracks.nr_trackings = [updated_kp_tracks.nr_trackings, zeros(1, size(new_kp, 2))];
 
 % display matched keypoint tracks
 if params.keypoint_tracker.show_matches
@@ -164,7 +163,6 @@ if params.keypoint_tracker.show_matches
     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         plotPoints(kp_tracks_prev.candidate_kp,'r.');
     end
-    % plotCircles(matched_query_keypoints,'y',params.localization_ransac.pixel_tolerance);
     title('Candidate Keypoints: Old (red)');
 
     subplot(2,1,2);
@@ -189,33 +187,32 @@ vector_act = [updated_kp_tracks.candidate_kp;repmat(K(1,1),[1, size(updated_kp_t
 bearing_angle_d = atan2d(twoNormMatrix(cross(vector_act,vector_first)),dot(vector_act,vector_first));
 
 % Create idx vector of trianguable candidate points
-idx_good_triangable = (bearing_angle_d > params.keypoint_tracker.bearing_low_thr);
+idx_good_trianguable = ((bearing_angle_d > params.keypoint_tracker.bearing_low_thr)...
+    & (updated_kp_tracks.nr_trackings >= params.keypoint_tracker.min_nr_trackings));
 
-p_candidates_first = updated_kp_tracks.first_obs_kp(:,idx_good_triangable);
-p_candidates_first_pose = updated_kp_tracks.first_obs_pose(:,idx_good_triangable);
-p_candidates_j = updated_kp_tracks.candidate_kp(:,idx_good_triangable);
+p_candidates_first = updated_kp_tracks.first_obs_kp(:,idx_good_trianguable);
+p_candidates_first_pose = updated_kp_tracks.first_obs_pose(:,idx_good_trianguable);
+p_candidates_j = updated_kp_tracks.candidate_kp(:,idx_good_trianguable);
 
 p_hom_candidates_first = [p_candidates_first; ones(1,size(p_candidates_first,2))];
 p_hom_candidates_j = [p_candidates_j; ones(1,size(p_candidates_j,2))];
+
+% Variable init
 Cfirst_P_hom_new = zeros(4,size(p_candidates_first,2));
 Cj_P_hom_new = zeros(4,size(p_candidates_first,2));
 
 fprintf('  Number of trianguable keypoint candidates: %i\n'...
-         ,nnz(idx_good_triangable)); 
+         ,nnz(idx_good_trianguable)); 
 
-% Calculate M's
+% Linear triangulation
 for i=1:size(p_candidates_first,2)
     T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
-       
-    T_CfirstW = tform2invtform(T_WCfirst);
-    M_Cfirst = K * eye(3,4); %T_CfirstW(1:3,:);
-            
-    M_WCj = K * T_WCj(1:3,:);
     
-    T_CjW = tform2invtform(T_WCj);
-    M_CjW = K * T_CjW(1:3,:);
+    % Calculate M's
+    M_Cfirst = K * eye(3,4); %T_CfirstW(1:3,:);
 
     % Calculate delta pose between Cfirst and Cj  
+    T_CjW = tform2invtform(T_WCj);
     T_CjCfirst = T_CjW * T_WCfirst;
     M_CjCfirst = K * T_CjCfirst(1:3,:);
         
@@ -229,9 +226,10 @@ end % for loop end
 %% Update keypoint tracks, Cj_landmarks and p_new_matched_triang
 
 % Delete candidate keypoint used for triangulation from updated_kp_tracks
-updated_kp_tracks.candidate_kp = updated_kp_tracks.candidate_kp(:,~idx_good_triangable);
-updated_kp_tracks.first_obs_kp = updated_kp_tracks.first_obs_kp(:,~idx_good_triangable);
-updated_kp_tracks.first_obs_pose = updated_kp_tracks.first_obs_pose(:,~idx_good_triangable);
+updated_kp_tracks.candidate_kp = updated_kp_tracks.candidate_kp(:,~idx_good_trianguable);
+updated_kp_tracks.first_obs_kp = updated_kp_tracks.first_obs_kp(:,~idx_good_trianguable);
+updated_kp_tracks.first_obs_pose = updated_kp_tracks.first_obs_pose(:,~idx_good_trianguable);
+updated_kp_tracks.nr_trackings = updated_kp_tracks.nr_trackings(~idx_good_trianguable);
 
 % Filter landmarks with cylindrical filter (still wrong frame??)
 % [Cj_hom_landmarks_new, outFOV_idx] = applyCylindricalFilter(Cj_hom_landmarks_new, params.cont.landmarks_cutoff);
@@ -259,7 +257,7 @@ Cj_P_hom = [Cj_P_hom_inliers, Cj_P_hom_new];
 Cj_new_landmarks = Cj_P_hom(1:3,:);
 
 
-% display triangulated backprojected keypoints
+%% display triangulated backprojected keypoints
 Cj_projected_points = projectPoints(Cj_P_hom_new(1:3,:), K);
 % Cj_projected_points = projectPoints((R_CjCi*Cj2_P_new) +...
 %                                      repmat(-Cj_t_CjCi,[1 size(Cj2_P_new, 2)]),K);
@@ -267,7 +265,7 @@ Cj_projected_points = projectPoints(Cj_P_hom_new(1:3,:), K);
 if params.keypoint_tracker.show_triangulated
     good_idx_match = 1:size(Cj_projected_points,2);
     figure(fig_kp_triangulate);
-    if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
+    if (size(p_candidates_j,2) > 0) % 0 in first frame
         plotPoints(p_candidates_j,'r.');
         plotPoints(flipud(Cj_projected_points),'gx');
         plotMatches(good_idx_match,p_candidates_j,flipud(Cj_projected_points),'m-');

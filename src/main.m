@@ -160,13 +160,11 @@ if params.run_continous
     kp_tracks.first_obs_kp = [];  % 2xN
     % keypoint pose of every candiate in its first observed frame
     kp_tracks.first_obs_pose = []; % 16xN
+    kp_tracks.nr_trackings = []; % 1xN
     
     % landmarks in last camera frame
 	Ci_landmarks_prev = C2_landmarks_init;
     
-    % unused?
-	%match_indices_prev = 1:size(keypoints_prev_triang,2); 
-
     for j = range_cont
 		fprintf('Processing frame %d\n=====================\n', j);
         frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
