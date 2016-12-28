@@ -197,7 +197,8 @@ p_candidates_j = updated_kp_tracks.candidate_kp(:,idx_good_triangable);
 
 p_hom_candidates_first = [p_candidates_first; ones(1,size(p_candidates_first,2))];
 p_hom_candidates_j = [p_candidates_j; ones(1,size(p_candidates_j,2))];
-Ci_P_hom_new = zeros(4,size(p_candidates_first,2));
+Cfirst_P_hom_new = zeros(4,size(p_candidates_first,2));
+Cj_P_hom_new = zeros(4,size(p_candidates_first,2));
 
 fprintf('  Number of trianguable keypoint candidates: %i\n'...
          ,nnz(idx_good_triangable)); 
@@ -219,14 +220,16 @@ for i=1:size(p_candidates_first,2)
     M_CjCfirst = K * T_CjCfirst(1:3,:);
         
     % Triangulate landmark
-    Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjCfirst);
+    Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjCfirst);
+    Cj_P_hom_new(:,i) = T_CjCfirst*Cfirst_P_hom_new(:,i);
 
 end % for loop end
 
 % reproject found landmarkss
-Ci_P_new = Ci_P_hom_new(1:3,:);
-Cj_projected_points = projectPoints((R_CjCi*Ci_P_new) +...
-                                     repmat(-Cj_t_CjCi,[1 size(Ci_P_new, 2)]),K);
+Cj_P_new = Cj_P_hom_new(1:3,:);
+Cj_projected_points = projectPoints(Cj_P_new, K);
+% Cj_projected_points = projectPoints((R_CjCi*Cj2_P_new) +...
+%                                      repmat(-Cj_t_CjCi,[1 size(Cj2_P_new, 2)]),K);
 
 % display triangulated backprojected keypoints
 if params.keypoint_tracker.show_triangulated
@@ -252,16 +255,13 @@ updated_kp_tracks.first_obs_pose = updated_kp_tracks.first_obs_pose(:,~idx_good_
 
 % Filter landmarks with cylindrical filter (still wrong frame??)
 % [Cj_hom_landmarks_new, outFOV_idx] = applyCylindricalFilter(Cj_hom_landmarks_new, params.cont.landmarks_cutoff);
-idx_Ci_P_hom_new_realistic = find(Ci_P_hom_new(3,:)>0);
+idx_Ci_P_hom_new_realistic = find(Cj_P_hom_new(3,:)>0);
 
-Cj_P_hom_new = [];
 % Remove unrealistic landmarks and corresponding keypoints
 if (nnz(idx_Ci_P_hom_new_realistic)>0)
-    Ci_P_hom_new = Ci_P_hom_new(:,idx_Ci_P_hom_new_realistic);
+    Cj_P_hom_new = Cj_P_hom_new(:,idx_Ci_P_hom_new_realistic);
     p_candidates_j = p_candidates_j(:,idx_Ci_P_hom_new_realistic);
-    
-    % calculate new landmarks in Cj-Frame
-    Cj_P_hom_new = T_CjCi*Ci_P_hom_new;
+
 else
     fprintf('None of the triangulated landmarks was realistic!\n')
     p_candidates_j = [];
