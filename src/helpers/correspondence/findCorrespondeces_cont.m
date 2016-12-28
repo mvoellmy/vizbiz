@@ -36,8 +36,6 @@ matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.ma
 fprintf('  Number of new keypoints matched with prev keypoints by descriptor: %i (%0.2f %%)\n',...
         nnz(matches),100*nnz(matches)/size(database_keypoints,2));
 
-
-
 % display valid correspondences
 if params.cont.show_new_keypoints
     figure(fig_cont);
