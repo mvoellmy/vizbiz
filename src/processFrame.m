@@ -1,6 +1,6 @@
 function [T_CiCj, p_new_matched_triang, updated_kp_tracks, Cj_new_landmarks] =...
     processFrame(params,img_new,img_prev, keypoints_prev_triang, kp_tracks_prev,Ci_landmarks_prev,T_WCi,K)
-% Estimates pose transformation T_CiCj between to images.
+% Estimates pose transformation T_CiCj between two images.
 % Tracks potential new keypoints and triangulates new landmarks if
 % trianguability is good.
 % 
@@ -189,7 +189,7 @@ vector_act = [updated_kp_tracks.candidate_kp;repmat(K(1,1),[1, size(updated_kp_t
 bearing_angle_d = atan2d(twoNormMatrix(cross(vector_act,vector_first)),dot(vector_act,vector_first));
 
 % Create idx vector of trianguable candidate points
-idx_good_triangable = (bearing_angle_d > 30); % to be tuned
+idx_good_triangable = (bearing_angle_d > params.keypoint_tracker.bearing_low_thr);
 
 p_candidates_first = updated_kp_tracks.first_obs_kp(:,idx_good_triangable);
 p_candidates_first_pose = updated_kp_tracks.first_obs_pose(:,idx_good_triangable);
@@ -205,28 +205,19 @@ fprintf('  Number of trianguable keypoint candidates: %i\n'...
 % Calculate M's
 for i=1:size(p_candidates_first,2)
     T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
-    M_WCfirst = K * T_WCfirst(1:3,:);
-    
+       
     T_CfirstW = tform2invtform(T_WCfirst);
-    M_CfirstW = K * T_CfirstW(1:3,:);
-    % T_CfirstW = invTansformationMatrix(T_WCfirst);
-    % M_CfirstW = K * T_CfirstW(1:3,:); %T_WCfirst(1:3,:);  %eye(3,4);
-           
-    T_WCj = T_WCi * T_CiCj; % current pose against world 
+    M_CfirstW = K * eye(3,4); %T_CfirstW(1:3,:);
+            
     M_WCj = K * T_WCj(1:3,:);
     
     T_CjW = tform2invtform(T_WCj);
     M_CjW = K * T_CjW(1:3,:);
-    % T_CjW = invTansformationMatrix(T_WCj);
-    % M_CjW = K * T_CjW(1:3,:); %T_WCj(1:3,:);
-    
 
     % Calculate delta pose between Cfirst and Cj  
     T_CjCfirst = T_CjW * T_WCfirst;
     M_CjCfirst = K * T_CjCfirst(1:3,:);
-    %T_Cfirst_Cj = T_CfirstW*T_WCj;
-    %M_CfirstCj = K * T_Cfirst_Cj(1:3,:); %[R_CiCj, Ci_t_CiCj];
-    
+        
     % Triangulate landmark
     Ci_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_CfirstW,M_CjCfirst);
 
@@ -234,17 +225,17 @@ end % for loop end
 
 % reproject found landmarkss
 Ci_P_new = Ci_P_hom_new(1:3,:);
-projected_points = projectPoints((R_CjCi'*Ci_P_new) +...
-                                     repmat(Cj_t_CjCi,[1 size(Ci_P_new, 2)]),K);
+Cj_projected_points = projectPoints((R_CjCi*Ci_P_new) +...
+                                     repmat(-Cj_t_CjCi,[1 size(Ci_P_new, 2)]),K);
 
 % display triangulated backprojected keypoints
 if params.keypoint_tracker.show_triangulated
-    good_idx_match = 1:size(projected_points,2);
+    good_idx_match = 1:size(Cj_projected_points,2);
     figure(fig_kp_triangulate);
     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         plotPoints(p_candidates_j,'r.');
-        plotPoints(flipud(projected_points),'g.');
-        plotMatches(good_idx_match,p_candidates_j,flipud(projected_points),'m-');
+        plotPoints(flipud(Cj_projected_points),'gx');
+        plotMatches(good_idx_match,p_candidates_j,flipud(Cj_projected_points),'m-');
         % plotPoints(projected_points,'g.');
     end
     % plotPoints(updated_kp_tracks.candidate_kp,'y.');
@@ -291,11 +282,6 @@ Cj_new_landmarks = Cj_P_hom(1:3,:);
 
 fprintf('  Number of landmarks (total/new): %i / %i\n'...
          ,size(Cj_new_landmarks,2), size(Cj_P_hom_new,2)); 
-
-% fprintf(['  Number of new landmarks triangulated: %i\n',...
-%          '  Number of updated landmarks: %i\n'],...
-%          size(Ci_landmarks_new,2), size(Cj_landmarks_updated,2));
-
 
 end
 

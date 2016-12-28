@@ -6,7 +6,7 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 params.run_continous = true;
@@ -30,7 +30,7 @@ params.corr.descriptor_radius = 9; % [pixels]
 params.corr.match_lambda = 6; % 5
 
 params.eightPoint_ransac.show_iterations = false;
-params.eightPoint_ransac.show_inlier_matches = true;
+params.eightPoint_ransac.show_inlier_matches = false;
 params.eightPoint_ransac.p_success = 0.999999;
 params.eightPoint_ransac.fract_inliers = 0.5;
 params.eightPoint_ransac.max_error = 1;
@@ -53,5 +53,7 @@ params.localization_ransac.show_iterations = false;
 
 params.keypoint_tracker.show_matches = true;
 params.keypoint_tracker.show_triangulated = true;
+params.keypoint_tracker.bearing_low_thr = 25;
+params.keypoint_tracker.bearing_up_thr = 45;
 
 end
