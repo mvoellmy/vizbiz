@@ -7,7 +7,7 @@ function [projected_points] = projectPoints(points_3d, K, D)
 % - K: calib matrix to camera frame of 3d points
 
 % Output 
-% - projected_points (2xN) [u v] (most probably)
+% - projected_points (2xN) [u v]
 
 % if distortion vector D is missing, assume zero distortion
 if nargin <= 2

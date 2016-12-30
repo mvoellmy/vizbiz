@@ -102,7 +102,7 @@ fprintf('initialize VO pipeline...\n');
 % transformation C1 to W (90deg x-axis rotation)
 T_WC1 = [1      0           0       0;
          0      0           1       0;
-         0     -1           0       0;
+         0      -1          0       0;
                  zeros(1,3)         1];
 
 tic;
@@ -210,7 +210,7 @@ if params.run_continous
         W_landmarks_map = [W_landmarks_map, W_landmarks_new];
 
         % allow plots to refresh
-        pause(1.01);
+        pause(.011);
 
         % update previous image, keypoints, landmarks and tracker
         img_prev = img;

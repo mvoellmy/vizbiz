@@ -233,7 +233,7 @@ updated_kp_tracks.nr_trackings = updated_kp_tracks.nr_trackings(~idx_good_triang
 
 % Filter landmarks with cylindrical filter (still wrong frame??)
 % [Cj_hom_landmarks_new, outFOV_idx] = applyCylindricalFilter(Cj_hom_landmarks_new, params.cont.landmarks_cutoff);
-idx_Ci_P_hom_new_realistic = find(Cj_P_hom_new(3,:)>0);
+idx_Ci_P_hom_new_realistic = 1:size(Cj_P_hom_new,2);%find(Cj_P_hom_new(3,:)>0);
 
 % Remove unrealistic landmarks and corresponding keypoints
 if (nnz(idx_Ci_P_hom_new_realistic)>0)
