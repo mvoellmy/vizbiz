@@ -219,6 +219,7 @@ rng(1); % fix random seed
 handles.console_string = ' ';
 
 handles.params = loadParameters();
+handles.params.through_gui = true;
 guidata(hObject, handles);
 
 function update_parameters(hObject, eventdata, handles)
