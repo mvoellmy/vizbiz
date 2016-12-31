@@ -99,7 +99,7 @@ T_WC1 = [1      0           0       0;
 [img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K, T_WC1);
 
 % assign first two poses
-T_CiCj_vo_j(:,:,1) = eye(4); % world frame init, C1 to C1
+T_CiCj_vo_j(:,:,1) = eye(4); % world frame, C1 to C1
 T_CiCj_vo_j(:,:,2) = T_C1C2; % first camera pose, C2 to C1
 
 % update stacked world-referenced pose
@@ -111,7 +111,7 @@ W_traj = T_WCj_vo(1:2,4,1);
 W_traj(:,2) = T_WCj_vo(1:2,4,2);
 
 % transform init point cloud to world frame
-W_P_hom_init = T_WC1*[C2_landmarks_init; zeros(1,size(C2_landmarks_init,2))];
+W_P_hom_init = T_WC1*T_C1C2*[C2_landmarks_init; ones(1,size(C2_landmarks_init,2))];
 W_landmarks_init = W_P_hom_init(1:3,:);
 
 % full 3D map point cloud in frame W
@@ -148,14 +148,14 @@ if params.run_continous
     updateConsole(params, 'start continuous VO operation...\n');
     
 	% setup figure handles
-	%fig_cont = figure('name','Contiunous VO estimation');
-	%fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
+	fig_cont = figure('name','Contiunous VO estimation');
+	fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
 
 	% hand-over initialization variables
 	img_prev = img_init;
 	keypoints_prev = keypoints_init;
 	Ci_landmarks_prev = C2_landmarks_init;
-	match_indices_prev = 1:size(keypoints_prev,2);
+	%match_indices_prev = 1:size(keypoints_prev,2);
 
     for j = range_cont
         updateConsole(params, ['Processing frame ',num2str(j),'\n']);
@@ -163,7 +163,7 @@ if params.run_continous
         tic;
         
         % pick current frame
-        frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
+        frame_idx = j-bootstrap_frame_idx_2 + 2; % due to init +2
         img = currentFrame(params, j);
         
         if (size(keypoints_prev,2) > 0) % todo: minimum number?
@@ -180,7 +180,7 @@ if params.run_continous
             break;
         end
 
-        % append newest Cj to T transformation
+        % append newest Cj to W transformation
         T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1)*T_CiCj_vo_j(:,:,frame_idx);
 
         % extend 2D trajectory
@@ -201,12 +201,12 @@ if params.run_continous
         end
 
         % allow plots to refresh
-        pause(0.01);       
+        pause(1.01);       
 
         % update previous image, keypoints and landmarks
-%         img_prev = img;
-%         keypoints_prev = keypoints_new;
-%         Ci_landmarks_prev = Cj_landmarks_new;
+        img_prev = img;
+        keypoints_prev = keypoints_new;
+        Ci_landmarks_prev = Cj_landmarks_new;
 
         updateConsole(params, ' \n');
         
@@ -233,11 +233,11 @@ end
 
 % display full map and cameras
 if params.show_map_and_cams
-    figure('name','Map landmarks');
-    plotLandmarks(W_landmarks_map,'z','up');
+    figure('name', 'Map landmarks');
+    plotLandmarks(W_landmarks_map, 'z', 'up');
     hold on;
-    plotCam(T_WCj_vo(:,:,1),2,'black');
-    plotCam(T_WCj_vo(:,:,2:end),2,'red');
+    plotCam(T_WCj_vo(:,:,1), 2, 'black');
+    plotCam(T_WCj_vo(:,:,2:end), 2, 'red');
 end
 
 end
