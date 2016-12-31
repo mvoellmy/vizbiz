@@ -1,4 +1,4 @@
-function [query_descriptors,database_descriptors, matches_untriang, best_guess_inliers] = eightPointRansac_cont(params, p_hom_i1, p_hom_i2, matches, K1, K2)
+function [query_descriptors,database_descriptors, matches_untriang, new_kp] = eightPointRansac_cont(params, p_hom_i1, p_hom_i2, matches, K1, K2)
 % Estimates the essential matrix from a set of image keypoints and
 % robustifies pose estimate with RANSAC rejecting outlier keypoint
 % correspondences.
@@ -81,8 +81,9 @@ if params.eightPoint_ransac.show_inlier_matches
     title('Inlier (yellow) matches found');
 end
 
-query_descriptors = flipud(p_hom_i2(1:2,best_guess_inliers));
-database_descriptors = flipud(p_hom_i1(1:2,best_guess_inliers));
+query_descriptors = flipud(p_hom_i1(1:2,best_guess_inliers));
+new_kp = flipud(p_hom_i1(1:2,best_guess_inliers==0));
+database_descriptors = flipud(p_hom_i2(1:2,best_guess_inliers));
 matches_untriang = 1:size(query_descriptors, 2);
 
 

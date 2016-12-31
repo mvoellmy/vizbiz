@@ -127,15 +127,15 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
     % describe database keypoints
     database_descriptors = describeKeypoints(img_prev,kp_tracks_prev.candidate_kp,params.corr.descriptor_radius);
     
-    database_keypoints = kp_tracks_prev.candidate_kp;
-    
     % match descriptors
     matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
     % OPTIONAL TODO: Lucas kanade?
-     
-%     fprintf('------------>Number of keypoints before RANSAC: %d\n', nnz(matches_untriang));
-%      [query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang] = ...
-%          eightPointRansac_cont(params, query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, K, K);
+    
+    new_kp_1 = query_keypoints(:,matches_untriang==0);
+    
+    fprintf('------------>Number of keypoints before RANSAC: %d\n', nnz(matches_untriang));
+     [query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, new_kp_2] = ...
+         eightPointRansac_cont(params, query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, K, K);
     fprintf('------------>Number of keypoints after  RANSAC: %d\n', nnz(matches_untriang));
  
     % update candidate_kp coordinates with matched current kp
@@ -153,10 +153,13 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
     updated_kp_tracks.first_obs_kp = updated_kp_tracks.first_obs_kp(:,idx_matched_kp_tracks_cand);
     updated_kp_tracks.first_obs_pose = updated_kp_tracks.first_obs_pose(:,idx_matched_kp_tracks_cand);
     updated_kp_tracks.nr_trackings = updated_kp_tracks.nr_trackings(idx_matched_kp_tracks_cand);
+
+    % append all new found keypoints and their pose
+    new_kp = [new_kp_1, new_kp_2]; % kp which could not be matched
+else
+    new_kp = query_keypoints(:,matches_untriang==0);
 end
 
-% append all new found keypoints and their pose
-new_kp = query_keypoints(:,matches_untriang==0); % kp which could not be matched
 T_WCj = T_WCi * T_CiCj;
 T_WCj_col = T_WCj(:); % convert to col vector for storage
 updated_kp_tracks.candidate_kp = [updated_kp_tracks.candidate_kp, new_kp];

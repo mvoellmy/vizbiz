@@ -34,7 +34,7 @@ params.eightPoint_ransac.show_inlier_matches = true;
 params.eightPoint_ransac.p_success = 0.999999;
 params.eightPoint_ransac.fract_inliers = 0.5;
 params.eightPoint_ransac.max_error = 1;
-params.eightPoint_ransac_cont.max_error = 2;
+params.eightPoint_ransac_cont.max_error = 1;
 
 % continuous operation parameters
 params.cont.run_on_first_x_images = 10;
