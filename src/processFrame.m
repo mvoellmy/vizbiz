@@ -126,19 +126,27 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
 
     % describe database keypoints
     database_descriptors = describeKeypoints(img_prev,kp_tracks_prev.candidate_kp,params.corr.descriptor_radius);
-
+    
+    database_keypoints = kp_tracks_prev.candidate_kp;
+    
     % match descriptors
     matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
     % OPTIONAL TODO: Lucas kanade?
-
+     
+%     fprintf('------------>Number of keypoints before RANSAC: %d\n', nnz(matches_untriang));
+%      [query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang] = ...
+%          eightPointRansac_cont(params, query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, K, K);
+    fprintf('------------>Number of keypoints after  RANSAC: %d\n', nnz(matches_untriang));
+ 
     % update candidate_kp coordinates with matched current kp
-    idx_matched_kp_tracks_cand = matches_untriang(matches_untriang>0); % z.B 17
+    idx_matched_kp_tracks_cand = find(matches_untriang); % z.B 17
+    idx_matched_kp_tracks_database = matches_untriang(matches_untriang>0);
 
     % update kp information that could be tracked
     updated_kp_tracks.candidate_kp(:,idx_matched_kp_tracks_cand) = query_keypoints(:,idx_matched_kp_tracks_cand); %new v,u coord
-    updated_kp_tracks.first_obs_kp(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_kp(:,idx_matched_kp_tracks_cand);
-    updated_kp_tracks.first_obs_pose(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_pose(:,idx_matched_kp_tracks_cand);
-    updated_kp_tracks.nr_trackings(idx_matched_kp_tracks_cand) = kp_tracks_prev.nr_trackings(idx_matched_kp_tracks_cand)+1;
+    updated_kp_tracks.first_obs_kp(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_kp(:,idx_matched_kp_tracks_database);
+    updated_kp_tracks.first_obs_pose(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_pose(:,idx_matched_kp_tracks_database);
+    updated_kp_tracks.nr_trackings(idx_matched_kp_tracks_cand) = kp_tracks_prev.nr_trackings(idx_matched_kp_tracks_database)+1;
 
     % discard kp that could not be tracked --> new sorting (unkown)
     updated_kp_tracks.candidate_kp = updated_kp_tracks.candidate_kp(:,idx_matched_kp_tracks_cand);

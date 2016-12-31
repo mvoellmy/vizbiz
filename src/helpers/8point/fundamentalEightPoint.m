@@ -22,6 +22,9 @@ function F = fundamentalEightPoint(p1,p2)
 % Sanity checks
 assert(dim==dim2 && NumPoints==NumPoints2,'Size mismatch of input points');
 assert(dim==3,'Input arguments are not 2D points');
+if NumPoints<8
+    disp('Error')
+end
 assert(NumPoints>=8,'Insufficient number of points to compute fundamental matrix (need >=8)');
 
 % Compute the measurement matrix A of the linear homogeneous system whose

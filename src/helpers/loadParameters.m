@@ -30,13 +30,14 @@ params.corr.descriptor_radius = 9; % [pixels]
 params.corr.match_lambda = 6; % 5
 
 params.eightPoint_ransac.show_iterations = false;
-params.eightPoint_ransac.show_inlier_matches = false;
+params.eightPoint_ransac.show_inlier_matches = true;
 params.eightPoint_ransac.p_success = 0.999999;
 params.eightPoint_ransac.fract_inliers = 0.5;
 params.eightPoint_ransac.max_error = 1;
+params.eightPoint_ransac_cont.max_error = 2;
 
 % continuous operation parameters
-params.cont.run_on_first_x_images = 3;
+params.cont.run_on_first_x_images = 10;
 params.cont.show_current_image = true;
 params.cont.show_new_keypoints = true;
 params.cont.show_matches = true;
@@ -53,7 +54,7 @@ params.localization_ransac.show_iterations = true;
 
 params.keypoint_tracker.show_matches = true;
 params.keypoint_tracker.show_triangulated = true;
-params.keypoint_tracker.bearing_low_thr = 15;
+params.keypoint_tracker.bearing_low_thr = 10;
 params.keypoint_tracker.min_nr_trackings = 2;
 
 end
