@@ -28,7 +28,8 @@ if params.ds == 0
     K = [7.188560000000e+02 0 6.071928000000e+02
         0 7.188560000000e+02 1.852157000000e+02
         0 0 1];
-    fprintf('load KITTI dataset...\n');
+    updateConsole(params, 'load KITTI dataset...\n');
+    %fprintf('load KITTI dataset...\n');
 elseif params.ds == 1
     params.malaga_path = '../datasets/malaga-urban-dataset-extract-07';
     assert(isfield(params, 'malaga_path') ~= 0);
@@ -36,7 +37,8 @@ elseif params.ds == 1
     K = [621.18428 0 404.0076
         0 621.18428 309.05989
         0 0 1];
-    fprintf('load MALAGA dataset...\n');
+    updateConsole(params, 'load MALAGA dataset...\n');
+    %fprintf('load MALAGA dataset...\n');
 elseif params.ds == 2
     params.parking_path = '../datasets/parking';
     assert(isfield(params, 'parking_path') ~= 0);
@@ -44,7 +46,8 @@ elseif params.ds == 2
     ground_truth = ground_truth(:, [end-8 end]);
     last_frame = 598;
     K = load([params.parking_path '/K.txt']);
-    fprintf('load PARKING dataset...\n');
+    updateConsole(params, 'load PARKING dataset...\n');
+    %fprintf('load PARKING dataset...\n');
 else
     assert(false);
 end
@@ -123,7 +126,7 @@ if params.through_gui
     % update gui metrics
     gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
     
-    % update gui trajetcory
+    % update gui trajectory
     gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
 
     % update gui local cloud
@@ -194,7 +197,7 @@ if params.run_continous
         W_landmarks_map = [W_landmarks_map W_landmarks_new];
         
         if params.through_gui
-            % update gui trajetcory
+            % update gui trajectory
             gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
             % update gui local cloud
             gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
@@ -221,7 +224,8 @@ if params.run_continous
 end
 
 %% Results summary
-fprintf('display results...\n');
+updateConsole(params, 'display results...\n');
+%fprintf('display results...\n');
 
 if (params.ds ~= 1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   

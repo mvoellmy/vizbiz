@@ -100,8 +100,11 @@ if params.auto_bootstrap
         
         % calculate average depth of triangulated points
         C1_avg_depth = mean(C1_P_hom_init(3,:));
-        fprintf('  Baseline-Depth ratio of frame pair (%i,%i): %0.1f %%\n',...
-                bootstrap_frame_1_idx, candidate_frame_idx, 100*C1_baseline/C1_avg_depth);
+        updateConsole(params,...
+            sprintf('  Baseline-Depth ratio of frame pair (%i,%i): %0.1f %%\n',...
+                    bootstrap_frame_1_idx, candidate_frame_idx, 100*C1_baseline/C1_avg_depth));
+%         fprintf('  Baseline-Depth ratio of frame pair (%i,%i): %0.1f %%\n',...
+%                 bootstrap_frame_1_idx, candidate_frame_idx, 100*C1_baseline/C1_avg_depth);
         
         % check for sufficient number of bootstrap inlier matches
         if (max_num_inliers > params.boot.min_num_inlier_kps)
@@ -116,7 +119,8 @@ if params.auto_bootstrap
             img1 = currentFrame(params, bootstrap_frame_2_idx);
             bootstrap_pair_found = true;
         end
-        fprintf('\n');
+        updateConsole(params, '\n');
+        %fprintf('\n');
     end
 
 else
@@ -167,8 +171,12 @@ else
 end
 
 % display frames chosen
-fprintf(['  Bootstrap image 1 index: %i\n',...
-         '  Bootstrap image 2 index: %i\n'],...
-         bootstrap_frame_1_idx, bootstrap_frame_2_idx);
+updateConsole(params,...
+    sprintf(['  Bootstrap image 1 index: %i\n',...
+             '  Bootstrap image 2 index: %i\n'],...
+             bootstrap_frame_1_idx, bootstrap_frame_2_idx));
+% fprintf(['  Bootstrap image 1 index: %i\n',...
+%          '  Bootstrap image 2 index: %i\n'],...
+%          bootstrap_frame_1_idx, bootstrap_frame_2_idx);
 
 end

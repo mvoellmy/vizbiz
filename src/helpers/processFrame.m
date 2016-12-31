@@ -31,11 +31,11 @@ end
 [R_CiCj,Ci_t_CiCj,p_new_matched,p_prev_matched,~,~] = ransacLocalization(params,img_new,img_prev,keypoints_prev,Ci_landmarks_prev,K);
 
 if (~isempty(R_CiCj) && ~isempty(Ci_t_CiCj))
-    fprintf('  >> Successfully localized\n');
+    updateConsole(params, '  >> Successfully localized\n');
 else
     R_CiCj = eye(3,3);
     Ci_t_CiCj = zeros(3,1);
-    fprintf('  No transformation found\n');
+    updateConsole(params, '  No transformation found\n');
 end
 
 % construct new camera pose
@@ -63,8 +63,9 @@ Cj_P_hom_new = T_CjCi*[Ci_landmarks_new(1:3,:); ones(1,size(Ci_landmarks_new,2))
 Cj_landmarks_updated = Cj_P_hom_new(1:3,:);
           
 % display statistics
-fprintf(['  Number of new landmarks triangulated: %i\n',...
-         '  Number of updated landmarks: %i\n'],...
-         size(Ci_landmarks_new,2), size(Cj_landmarks_updated,2));
+updateConsole(params,...
+    sprintf(['  Number of new landmarks triangulated: %i\n',...
+             '  Number of updated landmarks: %i\n'],...
+             size(Ci_landmarks_new,2), size(Cj_landmarks_updated,2)));
 
 end

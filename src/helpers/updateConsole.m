@@ -1,5 +1,6 @@
 function updateConsole(params, string_new)
-% todo: add description
+% Updates the pipeline string output either on the IDE built-in or in the
+% GUI console 
 % 
 % Input:
 %  - params(struct) : parameter struct
@@ -10,12 +11,11 @@ function updateConsole(params, string_new)
 global gui_handles;
 
 if params.through_gui
-    max_n_items = 50;
+    max_n_items = 200;
 
     string_prev = gui_handles.console_string;
-    % todo find '\n' and replace with ''
-    string_combined = [string_prev; {[' ',string_new]}];
-
+    
+    string_combined = [string_prev; strcat({'  '},split(string_new, '\n'))];
     string_updated = string_combined(max(1,end-max_n_items):end);
 
     gui_handles.console_string = string_updated;
