@@ -96,7 +96,7 @@ T_WC1 = [1      0           0       0;
                  zeros(1,3)         1];
 
 % initialize pipeline with bootstrap images
-[img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K, T_WC1);
+[img_init, keypoints_init, C2_landmarks_init, T_C1C2] = initPipeline(params,img0,img1,K, T_WC1);
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame, C1 to C1
@@ -134,9 +134,9 @@ end
 if params.init.show_landmarks
     figure('name','Landmarks and motion of bootstrap image pair');
     hold on;
-    plotLandmarks(W_landmarks_init,'z','up');
-    plotCam(T_WCj_vo(:,:,1),1,'black');
-    plotCam(T_WCj_vo(:,:,2),1,'red');
+    plotLandmarks(W_landmarks_init, 'z', 'up');
+    plotCam(T_WCj_vo(:,:,1), 1, 'black');
+    plotCam(T_WCj_vo(:,:,2), 1, 'red');
 end
 
 updateConsole(params, '...initialization done.\n');

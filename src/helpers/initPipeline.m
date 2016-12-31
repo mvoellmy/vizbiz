@@ -16,7 +16,7 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2] = initPipeline(para
 %  - C2_landmarks_init(3xN) : C2-referenced triangulated 3D points
 %  - T_C1C2(4x4) : homogeneous transformation matrix C2 to C1
 
-global gui_handles;
+global fig_init gui_handles;
 
 if params.init.use_KITTI_precalculated_init % todo: still needed?
     % assign second image as initialization image
@@ -38,7 +38,7 @@ else
     end
     
     % find 2D correspondences (sorted)
-    [p_i1,p_i2] = findCorrespondeces(params,I_i1,I_i2);
+    [p_i1, p_i2] = findCorrespondeces(params, I_i1, I_i2);
     
     % homogenize points
     p_hom_i1 = [p_i1; ones(1,length(p_i1))];
@@ -46,13 +46,32 @@ else
 
     % estimate the essential matrix E using normalized 8-point algorithm
     % and RANSAC for outlier rejection
-    [E, ~] = eightPointRansac(params,p_hom_i1,p_hom_i2,K,K);
+    [E, inliers] = eightPointRansac(params, p_hom_i1, p_hom_i2, K, K);
+    
+    % extract inlier keypoints
+    p_hom_inlier_i1 = p_hom_i1(:,inliers);
+    p_hom_inlier_i2 = p_hom_i2(:,inliers);
+    
+    % show inlier matches
+    if params.eightPoint_ransac.show_inlier_matches
+        figure(fig_init);
+        subplot(2,2,4);
+        showMatchedFeatures(I_i1, I_i2,...
+                            p_hom_inlier_i1(1:2,:)',...
+                            p_hom_inlier_i2(1:2,:)', 'blend', 'PlotOptions', {'rx','gx','y-'});
+        title('Inlier keypoint matches');
+    end
+    
+    % update inlier gui keypoints
+    if params.through_gui && params.gui.show_inlier_features
+        gui_updateKeypoints(flipud(p_hom_inlier_i2(1:2,:)), gui_handles.ax_current_frame, 'g.');
+    end
 
     % extract the relative camera pose (R,t) from the essential matrix
-    [Rots,u3] = decomposeEssentialMatrix(E);
+    [Rots, u3] = decomposeEssentialMatrix(E);
 
     % disambiguate among the four possible configurations
-    [R_C2C1,C2_t_C2C1] = disambiguateRelativePose(Rots,u3,p_hom_i1,p_hom_i2,K,K);
+    [R_C2C1, C2_t_C2C1] = disambiguateRelativePose(Rots, u3, p_hom_inlier_i1, p_hom_inlier_i2, K, K);
     
     % construct C2 to W transformation
     T_C2C1 = [R_C2C1,  C2_t_C2C1;
@@ -64,10 +83,10 @@ else
     % triangulate a point cloud using the final transformation (R,t)
     M1 = K*T_C1C1(1:3,:);
     M2 = K*T_C2C1(1:3,:);
-    C1_P_hom_init = linearTriangulation(p_hom_i1, p_hom_i2, M1, M2);
+    C1_P_hom_init = linearTriangulation(p_hom_inlier_i1, p_hom_inlier_i2, M1, M2);
     
     if params.init.use_BA
-        [P_init, T_refined] = bundleAdjust(C1_P_hom_init(1:3,:), [p_hom_i1(1:2,:); p_hom_i2(1:2,:)], [T_WC1; T_WC2], K, 1);
+        [P_init, T_refined] = bundleAdjust(params, C1_P_hom_init(1:3,:), [p_hom_inlier_i1(1:2,:); p_hom_inlier_i2(1:2,:)], [T_WC1; T_WC2], K, 1);
         C1_P_hom_init(1:3,:) = P_init;
         
         % update homogeneous transformations
@@ -79,21 +98,20 @@ else
     end
     
     % discard landmarks not contained in cylindrical neighborhood
-    [C1_P_hom_init, outFOV_idx] = applyCylindricalFilter(C1_P_hom_init, params.init.landmarks_cutoff);
-    
+    [C1_P_hom_init, outFOV_idx] = applySphericalFilter(params, C1_P_hom_init, params.init.landmarks_cutoff);
     % remove corresponding keypoints
-    p_i2(:,outFOV_idx) = [];
+    p_hom_inlier_i2(:,outFOV_idx) = [];
     
     % assign initialization entities
-    keypoints_init = flipud(p_i2);
+    keypoints_init = flipud(p_hom_inlier_i2(1:2,:));
     C2_P_hom_init = T_C2C1*C1_P_hom_init;
     C2_landmarks_init = C2_P_hom_init(1:3,:);
 
     % display statistics
     updateConsole(params,...
-        sprintf(['  Number of initialization keypoints: %i\n',...
-             '  Number of initialization landmarks: %i\n'],...
-             size(keypoints_init,2), size(C2_landmarks_init,2)));
+                  sprintf(['  Number of initialization keypoints: %i\n',...
+                  '  Number of initialization landmarks: %i\n'],...
+                  size(keypoints_init,2), size(C2_landmarks_init,2)));
     
 end
 

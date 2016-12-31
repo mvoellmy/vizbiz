@@ -37,11 +37,12 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
 % display fraction of matched keypoints
-fprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f %%)\n',...
-        nnz(matches),100*nnz(matches)/size(database_keypoints,2));
+updateConsole(params,...
+              sprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f perc.)\n',...
+              nnz(matches), 100*nnz(matches)/size(database_keypoints,2)));
 
 % filter invalid matches
-[~,matched_query_indices,matched_database_indices] = find(matches);
+[~, matched_query_indices, matched_database_indices] = find(matches);
 matched_query_keypoints = flipud(query_keypoints(:,matched_query_indices));
 matched_database_keypoints = flipud(database_keypoints(:,matched_database_indices));
 
@@ -65,17 +66,12 @@ if params.init.show_init_keypoints
     title('Initialization frame 2 keypoints');
     
     % display valid correspondences
-    if params.init.show_corr_matches        
+    if params.init.show_matches
         subplot(2,2,3);
-        showMatchedFeatures(database_image,query_image,matched_database_keypoints',matched_query_keypoints');
-        title('Initialization frame pair matches');
-        
-        subplot(2,2,4);
-        imshow(query_image);
-        hold on;
-        plotPoints(flipud(matched_query_keypoints),'r.');
-        plotMatches(matches,query_keypoints,database_keypoints,'m-');
-        title('Initialization (2) image with matches');
+        showMatchedFeatures(database_image, query_image,...
+                            matched_database_keypoints',...
+                            matched_query_keypoints', 'blend', 'PlotOptions', {'rx','rx','m-'});
+        title('Candidate keypoint matches');     
     end
 end
 

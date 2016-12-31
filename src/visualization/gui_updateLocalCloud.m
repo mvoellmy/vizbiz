@@ -16,5 +16,6 @@ hold on;
 % update data to plot
 plot_handle.XData = W_local_cloud(1,:);
 plot_handle.YData = W_local_cloud(2,:);
+axis equal;
 
 hold off;
