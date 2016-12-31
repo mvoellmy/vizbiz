@@ -1,5 +1,5 @@
 function [R_CiCj, Ci_t_CiCj, matched_query_keypoints, matched_database_keypoints, corr_ldk_matches, max_num_inliers_history] = ...
-    ransacLocalization(params, query_image, database_image, database_keypoints, Ci_landmarks, K)
+    p3pRansac(params, query_image, database_image, database_keypoints, Ci_landmarks, K)
 % TODO description
 %
 % Inputs:

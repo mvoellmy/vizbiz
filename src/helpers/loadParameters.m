@@ -11,7 +11,7 @@ params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.compare_against_groundthruth = false;
-params.run_continous = false;
+params.run_continous = true;
 params.show_map_and_cams = false;
 params.through_gui = true;
 

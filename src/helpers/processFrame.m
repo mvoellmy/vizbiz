@@ -25,10 +25,10 @@ if params.cont.show_current_image
     imshow(img_new);    
 end
 
-% TODO: keypoint tracks 
+% TODO: keypoint tracks
 
 % state propagation and pose estimation
-[R_CiCj,Ci_t_CiCj,p_new_matched,p_prev_matched,~,~] = ransacLocalization(params,img_new,img_prev,keypoints_prev,Ci_landmarks_prev,K);
+[R_CiCj,Ci_t_CiCj,p_new_matched,p_prev_matched,~,~] = p3pRansac(params,img_new,img_prev,keypoints_prev,Ci_landmarks_prev,K);
 
 if (~isempty(R_CiCj) && ~isempty(Ci_t_CiCj))
     updateConsole(params, '  >> Successfully localized\n');

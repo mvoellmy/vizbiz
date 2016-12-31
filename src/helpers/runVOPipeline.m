@@ -29,7 +29,6 @@ if params.ds == 0
         0 7.188560000000e+02 1.852157000000e+02
         0 0 1];
     updateConsole(params, 'load KITTI dataset...\n');
-    %fprintf('load KITTI dataset...\n');
 elseif params.ds == 1
     params.malaga_path = '../datasets/malaga-urban-dataset-extract-07';
     assert(isfield(params, 'malaga_path') ~= 0);
@@ -38,7 +37,6 @@ elseif params.ds == 1
         0 621.18428 309.05989
         0 0 1];
     updateConsole(params, 'load MALAGA dataset...\n');
-    %fprintf('load MALAGA dataset...\n');
 elseif params.ds == 2
     params.parking_path = '../datasets/parking';
     assert(isfield(params, 'parking_path') ~= 0);
@@ -47,7 +45,6 @@ elseif params.ds == 2
     last_frame = 598;
     K = load([params.parking_path '/K.txt']);
     updateConsole(params, 'load PARKING dataset...\n');
-    %fprintf('load PARKING dataset...\n');
 else
     assert(false);
 end
@@ -79,8 +76,8 @@ else
     range_cont = (bootstrap_frame_idx_2+1):last_frame;
 end
 
-T_CiCj_vo_j = NaN(4,4,numel(range_cont)+2); % transformation matrix between frame Cj to Ci, range +2 due to init
-T_WCj_vo = NaN(4,4,numel(range_cont)+2); % transformation matrix between frame Cj to W, range +2 due to init
+T_CiCj_vo_j = NaN(4,4,numel(range_cont)+2); % transformation matrix from frame Cj to Ci, range +2 due to init
+T_WCj_vo = NaN(4,4,numel(range_cont)+2); % transformation matrix from frame Cj to W, range +2 due to init
 
 %% Code profiling
 if params.perf.profiling
@@ -225,7 +222,6 @@ end
 
 %% Results summary
 updateConsole(params, 'display results...\n');
-%fprintf('display results...\n');
 
 if (params.ds ~= 1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
