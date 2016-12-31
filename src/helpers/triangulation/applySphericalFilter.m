@@ -1,4 +1,4 @@
-function [C_P_hom, outFOV_idx] = applyCylindricalFilter(C_P_hom, cutoff_radius)
+function [C_P_hom, outFOV_idx] = applySphericalFilter(C_P_hom, cutoff_radius)
 % Removes landmarks which are more than cutoff distance away in of z
 % direction and behind camera (negative z distances).
 %
@@ -18,7 +18,7 @@ function [C_P_hom, outFOV_idx] = applyCylindricalFilter(C_P_hom, cutoff_radius)
 % todo: change indices once newest best_rot is merged with this ???
 size_unfiltered_landmarks = size(C_P_hom, 2);
 
-outFOV_idx = find( ( (C_P_hom(3,:) <0) | (sqrt(C_P_hom(1,:).^2 + C_P_hom(3,:).^2) > cutoff_radius) ) );
+outFOV_idx = find( ( (C_P_hom(3,:) <0) | (sqrt(C_P_hom(1,:).^2 + C_P_hom(2,:).^2+ C_P_hom(3,:).^2) > cutoff_radius) ) );
 % Note: Single | is used to compare vectors. 
 
 C_P_hom(:,outFOV_idx) = [];

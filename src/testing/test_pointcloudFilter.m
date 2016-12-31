@@ -14,7 +14,7 @@ plotLandmarks(landmarks, 'y', 'down');
 
 % filter landmarks
 cut_radius = 30;
-[landmarks_hom_cut, ~] = applyCylindricalFilter(landmarks_hom, cut_radius);
+[landmarks_hom_cut, ~] = applySphericalFilter(landmarks_hom, cut_radius);
 
 subplot(1,2,2);
 plotLandmarks(landmarks_hom_cut(1:3,:), 'y', 'down');
