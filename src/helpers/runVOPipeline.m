@@ -143,7 +143,7 @@ end
 updateConsole(params, '...initialization done.\n');
 
 %% Continuous operation VO pipeline
-global fig_cont fig_RANSAC_debug;
+global fig_cont fig_RANSAC_debug fig_kp_tracks fig_kp_triangulate;
 
 if params.run_continous
     updateConsole(params, 'start continuous VO operation...\n');
@@ -153,12 +153,24 @@ if params.run_continous
     if params.localization_ransac.show_iterations
         fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
     end
+    fig_kp_tracks = figure('name','Keypoint tracking');
+    fig_kp_triangulate = figure('name', 'triangulate');
     
 	% hand-over initialization variables
 	img_prev = img_init;
     state_prev.keypoints = keypoints_init;          % keypoints found in prev state
     state_prev.Ci_landmarks = C2_landmarks_init;    % associated with landmarks
     state_prev.T_WCi = T_WC2;                       % frame pose in W
+    
+    % create container for keypoint tracker (new keypoints with no landmarks)
+    % set of candidate keypoints in last camera frame
+	kp_tracks_prev.candidate_kp = []; % 2xN
+	% keypoint coordinates of every candiate in its first observed frame
+	kp_tracks_prev.first_obs_kp = [];  % 2xN
+	% keypoint pose of every candiate in its first observed frame
+	kp_tracks_prev.first_obs_pose = []; % 16xN
+    % keypoint track length
+	kp_tracks_prev.nr_trackings = []; % 1xN
 
     for j = range_cont
         updateConsole(params, ['Processing frame ',num2str(j),'\n']);
@@ -170,7 +182,8 @@ if params.run_continous
         img = currentFrame(params, j);
         
         if (size(state_prev.keypoints,2) > 10) % todo: minimum number?          
-            [T_CiCj_vo_j(:,:,frame_idx), state] = processFrame(params, img, img_prev, state_prev, K);
+            [T_CiCj_vo_j(:,:,frame_idx), state, updated_kp_tracks] = ...
+                processFrame(params, img, img_prev, state_prev, kp_tracks_prev, K);
             
             % add super title with frame number
             if params.cont.show_current_image
@@ -189,7 +202,7 @@ if params.run_continous
         W_traj =[W_traj T_WCj_vo(1:2,4,frame_idx)];
         
         % update map with new landmarks
-        W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
+        W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[state.Cj_landmarks; ones(1, size(state.Cj_landmarks,2))];
         W_landmarks_new = W_P_hom_new(1:3,:);
         W_landmarks_map = [W_landmarks_map, W_landmarks_new];
         
@@ -208,6 +221,9 @@ if params.run_continous
         state_prev.keypoints = state.keypoints;
         state_prev.Ci_landmarks = state.Cj_landmarks;
         state_prev.T_WCi = state.T_WCj;
+        
+        % update keypoint tracks
+        kp_tracks_prev = updated_kp_tracks;
 
         updateConsole(params, ' \n');
         

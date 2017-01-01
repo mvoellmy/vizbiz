@@ -31,16 +31,15 @@ query_descriptors = describeKeypoints(query_image,query_keypoints,params.corr.de
 database_descriptors = describeKeypoints(database_image,database_keypoints,params.corr.descriptor_radius);
 
 if params.cont.use_KLT
-    % Create a point tracker and enable the bidirectional error constraint to
-    % make it more robust in the presence of noise and clutter.
-    kp_tracker = vision.PointTracker('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
+    % create a point tracker
+    klt_tracker = vision.PointTracker('NumPyramidLevels', 4, 'MaxBidirectionalError', 2); % todo: parametrize
     
     % initialize tracker with the query kp locations
-    initialize(kp_tracker, flipud(database_keypoints)', database_image);
+    initialize(klt_tracker, flipud(database_keypoints)', database_image);
     
     % track keypoints
-    [tracked_kp, matches, ~] = step(kp_tracker, query_image); % todo: use validity scores?
-    matched_query_keypoints = flipud(tracked_kp(matches,:)');
+    [klt_tracked_kp, matches, ~] = step(klt_tracker, query_image); % todo: use validity scores?
+    matched_query_keypoints = flipud(klt_tracked_kp(matches,:)');
     matched_database_keypoints = database_keypoints(:,matches);
 else
     % match descriptors
