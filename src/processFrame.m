@@ -208,16 +208,6 @@ p_candidates_first = kp_tracks_updated.first_obs_kp(:,idx_good_trianguable);
 p_candidates_first_pose = kp_tracks_updated.first_obs_pose(:,idx_good_trianguable);
 p_candidates_j = kp_tracks_updated.candidate_kp(:,idx_good_trianguable);
 
-p_hom_candidates_first = [p_candidates_first; ones(1,size(p_candidates_first,2))];
-p_hom_candidates_j = [p_candidates_j; ones(1,size(p_candidates_j,2))];
-
-% Variable init
-Cfirst_P_hom_new = zeros(4,size(p_candidates_first,2));
-Cj_P_hom_new = zeros(4,size(p_candidates_first,2));
-
-fprintf('  Number of trianguable keypoint candidates: %i\n'...
-         ,nnz(idx_good_trianguable)); 
-
 % Show matches from first and j image of keypoints
 if params.keypoint_tracker.show_matches
     figure(fig_kp_tracks);
@@ -228,13 +218,25 @@ if params.keypoint_tracker.show_matches
 %     title('Candidate Keypoints: Old (red)');
 
 %     subplot(2,1,2);
-    if (size(p_hom_candidates_first,2) > 0) % 0 in first frame
-        plotPoints(p_hom_candidates_first(1:2,:),'gx');
-        plotPoints(p_hom_candidates_j(1:2,:),'bx');
-        plotMatches(1:size(p_hom_candidates_j,2),p_hom_candidates_j,p_hom_candidates_first,'g-');     
+    if (size(p_candidates_first,2) > 0) % 0 in first frame
+        plotPoints(p_candidates_first(1:2,:),'gx');
+        plotPoints(p_candidates_j(1:2,:),'bx');
+        plotMatches(1:size(p_candidates_j,2),p_candidates_j,p_candidates_first,'g-');     
     end
     title('Candiate Keypoints: Prev image (red), j-Image (yellow), Trianguable First image (gx), Trianguable j-Image (bx)');
 end
+
+p_hom_candidates_first_uv = [flipud(p_candidates_first); ones(1,size(p_candidates_first,2))];
+p_hom_candidates_j_uv = [flipud(p_candidates_j); ones(1,size(p_candidates_j,2))];
+
+% Variable init
+Cfirst_P_hom_new = zeros(4,size(p_candidates_first,2));
+Cj_P_hom_new = zeros(4,size(p_candidates_first,2));
+
+fprintf('  Number of trianguable keypoint candidates: %i\n'...
+         ,nnz(idx_good_trianguable)); 
+
+
      
      
 % Linear triangulation
@@ -250,7 +252,9 @@ for i=1:size(p_candidates_first,2)
     M_CjCfirst = K * T_CjCfirst(1:3,:);
         
     % Triangulate landmark
-    Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_Cfirst,M_CjCfirst);
+    
+    
+    Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first_uv(:,i),p_hom_candidates_j_uv(:,i),M_Cfirst,M_CjCfirst);
     Cj_P_hom_new(:,i) = T_CjCfirst*Cfirst_P_hom_new(:,i);
 
 end % for loop end
