@@ -56,6 +56,7 @@ params.eightPoint_ransac_cont.max_error = 1.0; % [pixels]
 params.cont.run_on_first_x_images = 6; % 0: for all images
 params.cont.show_current_image = true;
 params.cont.show_keypoints = true;
+params.cont.use_KLT = true;
 params.cont.show_matches = true;
 params.cont.show_inlier_matches = true;
 params.cont.show_matches = true;

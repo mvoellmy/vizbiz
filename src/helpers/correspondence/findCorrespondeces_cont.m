@@ -1,4 +1,4 @@
-function [query_keypoints, matches] = ...
+function [query_keypoints, matches, matched_query_keypoints, matched_database_keypoints] = ...
     findCorrespondeces_cont(params, database_image, database_keypoints, query_image)
 % TODO description
 % 
@@ -13,6 +13,8 @@ function [query_keypoints, matches] = ...
 %  - query_keypoints(2xN) : matched keypoints of second image, [v u]
 %  - matches(2xN):  indices vector where the i-th coefficient is the index of
 %    database_keypoints which matches to the i-th entry of matched_query_keypoints.
+%  - matched_query_keypoints : todo
+%  - matched_database_keypoints : todo
 
 global gui_handles;
 
@@ -28,8 +30,27 @@ query_descriptors = describeKeypoints(query_image,query_keypoints,params.corr.de
 % describe database keypoints
 database_descriptors = describeKeypoints(database_image,database_keypoints,params.corr.descriptor_radius);
 
-% match descriptors
-matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+if params.cont.use_KLT
+    % Create a point tracker and enable the bidirectional error constraint to
+    % make it more robust in the presence of noise and clutter.
+    kp_tracker = vision.PointTracker('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
+    
+    % initialize tracker with the query kp locations
+    initialize(kp_tracker, flipud(database_keypoints)', database_image);
+    
+    % track keypoints
+    [tracked_kp, matches, ~] = step(kp_tracker, query_image); % todo: use validity scores?
+    matched_query_keypoints = flipud(tracked_kp(matches,:)');
+    matched_database_keypoints = database_keypoints(:,matches);
+else
+    % match descriptors
+    matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+    
+    % filter query keypoints and database keypoints
+    [~, matched_query_indices, matched_database_indices] = find(matches);
+    matched_query_keypoints = query_keypoints(:,matched_query_indices);
+    matched_database_keypoints = database_keypoints(:,matched_database_indices);
+end
 
 % display fraction of matched keypoints
 updateConsole(params,...

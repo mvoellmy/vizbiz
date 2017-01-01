@@ -150,7 +150,9 @@ if params.run_continous
     
 	% setup figure handles
 	fig_cont = figure('name','Contiunous VO estimation');
-	fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
+    if params.localization_ransac.show_iterations
+        fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
+    end
     
 	% hand-over initialization variables
 	img_prev = img_init;

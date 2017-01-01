@@ -26,7 +26,8 @@ if params.cont.show_current_image
 end
 
 %% Find correspondences
-[query_keypoints, matches] = findCorrespondeces_cont(params, img_prev, state_prev.keypoints, img_new);
+[query_keypoints, matches, matched_query_keypoints, matched_database_keypoints] = ...
+    findCorrespondeces_cont(params, img_prev, state_prev.keypoints, img_new);
 
 % display all correspondences
 if params.cont.show_keypoints
@@ -37,10 +38,10 @@ if params.cont.show_keypoints
     title('New keypoints');
 end
 
-% filter query keypoints and database keypoints
-[~, matched_query_indices, matched_database_indices] = find(matches);
-matched_query_keypoints = query_keypoints(:,matched_query_indices);
-matched_database_keypoints = state_prev.keypoints(:,matched_database_indices);
+% % filter query keypoints and database keypoints
+% [~, matched_query_indices, matched_database_indices] = find(matches);
+% matched_query_keypoints = query_keypoints(:,matched_query_indices);
+% matched_database_keypoints = state_prev.keypoints(:,matched_database_indices);
 
 % remove landmark where no matching keypoint was found
 corr_ldk_matches = matches(matches > 0);
@@ -107,7 +108,7 @@ Cj_P_hom_inlier = T_CjCi * [Ci_corresponding_inlier_landmarks; ones(1,size(Ci_co
 state.Cj_landmarks = Cj_P_hom_inlier(1:3,:);
 state.T_WCj = state_prev.T_WCi * T_CiCj;
 
-%% Feed keypoint tracker
+%% Feed keypoint tracker with KLT algorithm
 % variable init - assume no matches
 matches_untriang = zeros(1,size(query_keypoints,2));
 updated_kp_tracks.candidate_kp = [];   % 2xN
