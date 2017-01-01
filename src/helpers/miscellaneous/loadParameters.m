@@ -72,9 +72,9 @@ params.localization_ransac.show_iterations = false;
 
 params.keypoint_tracker.show_matches = true;
 params.keypoint_tracker.show_triangulated = true;
-params.keypoint_tracker.bearing_low_thr = 10;
-params.keypoint_tracker.bearing_up_thr = params.keypoint_tracker.bearing_low_thr+6;
+params.keypoint_tracker.bearing_low_thr = 2.0;
+params.keypoint_tracker.bearing_up_thr = params.keypoint_tracker.bearing_low_thr*2;
 params.keypoint_tracker.min_nr_trackings = 2;
-params.keypoint_tracker.max_reproj_error = 20; % [pixels]
+params.keypoint_tracker.max_reproj_error = 15; % [pixels]
 
 end

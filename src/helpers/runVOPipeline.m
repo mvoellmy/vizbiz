@@ -202,8 +202,11 @@ if params.run_continous
         W_traj =[W_traj T_WCj_vo(1:2,4,frame_idx)];
         
         % update map with new landmarks
-        W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[state.Cj_landmarks; ones(1, size(state.Cj_landmarks,2))];
-        W_landmarks_new = W_P_hom_new(1:3,:);
+        W_landmarks_new = [];
+        if size(state.Cj_landmarks,2)>0
+            W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[state.Cj_landmarks; ones(1, size(state.Cj_landmarks,2))];
+            W_landmarks_new = W_P_hom_new(1:3,:);
+        end
         W_landmarks_map = [W_landmarks_map, W_landmarks_new];
         
         if params.through_gui

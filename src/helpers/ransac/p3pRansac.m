@@ -125,7 +125,7 @@ else
     % calculate [R,t] with best inlier points and DLT
     M_CjCi = estimatePoseDLT(matched_query_keypoints_uv', Ci_corresponding_inlier_landmarks', K);
     R_CjCi = M_CjCi(:,1:3);
-    Cj_t_CjCi = M_CjCi(:,end);       
+    Cj_t_CjCi = M_CjCi(:,end);
 end
 
 % display projected keypoints given best pose and inlier correspondences

@@ -261,9 +261,6 @@ Cj_P_hom_new = zeros(4,size(p_candidates_first,2));
 
 fprintf('  Number of trianguable keypoint candidates: %i\n'...
          ,nnz(idx_good_trianguable)); 
-
-
-     
      
 % Linear triangulation
 for i=1:size(p_candidates_first,2)
@@ -316,6 +313,7 @@ if (nnz(idx_Ci_P_hom_new_realistic)>0)
 
 else
     fprintf('None of the triangulated landmarks was realistic!\n')
+    p_candidates_j = [];
 end
 
 % Append used candidate keypoints to p_new_matched_triang
@@ -325,9 +323,12 @@ Cj_P_hom_inliers = [];
 if localized %otherwise index error since Ci_corresponding_inlier_landmarks = []
     Cj_P_hom_inliers = T_CjCi*[Ci_corresponding_inlier_landmarks; ones(1,size(Ci_corresponding_inlier_landmarks,2))];
 end
-    
+
 Cj_P_hom = [Cj_P_hom_inliers, Cj_P_hom_new_inliers];
-Cj_new_landmarks = Cj_P_hom(1:3,:);
+Cj_new_landmarks = [];
+if (size(Cj_P_hom,2)>0)
+    Cj_new_landmarks = Cj_P_hom(1:3,:);
+end
 
 
 %% display triangulated backprojected keypoints
