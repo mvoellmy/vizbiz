@@ -104,7 +104,7 @@ T_WC1 = [1      0           0       0;
          0      0           1       0;
          0      -1          0       0;
                  zeros(1,3)         1];
-
+             
 tic;
 % initialize pipeline with bootstrap images
 [img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K, T_WC1);
@@ -205,8 +205,11 @@ if params.run_continous
         T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1)*T_CiCj_vo_j(:,:,frame_idx);
         
         % update map with new landmarks
+        W_landmarks_new = [];
+        if size(Cj_landmarks_new,2)>0
         W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
         W_landmarks_new = W_P_hom_new(1:3,:);
+        end
         W_landmarks_map = [W_landmarks_map, W_landmarks_new];
 
         % allow plots to refresh
