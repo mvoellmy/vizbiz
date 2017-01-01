@@ -39,12 +39,13 @@ end
 % show current frame
 if params.keypoint_tracker.show_matches
     figure(fig_kp_tracks);
-    subplot(2,1,1);
-    hold on;
+    % subplot(2,1,1);
+    % hold on;
+    % imshow(img_new);
+    % subplot(2,1,2);
+    
     imshow(img_new);
-    subplot(2,1,2);
     hold on;
-    imshow(img_new);
 end
 
 % show current frame
@@ -170,20 +171,20 @@ updated_kp_tracks.nr_trackings = [updated_kp_tracks.nr_trackings, zeros(1, size(
 % display matched keypoint tracks
 if params.keypoint_tracker.show_matches
     figure(fig_kp_tracks);
-    subplot(2,1,1);
-    if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
-        plotPoints(kp_tracks_prev.candidate_kp,'r.');
-    end
-    title('Candidate Keypoints: Old (red)');
+%     subplot(2,1,1);
+%     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
+%         plotPoints(kp_tracks_prev.candidate_kp,'r.');
+%     end
+%     title('Candidate Keypoints: Old (red)');
 
-    subplot(2,1,2);
+%     subplot(2,1,2);
     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         plotPoints(kp_tracks_prev.candidate_kp,'r.');
         plotMatches(matches_untriang,query_keypoints,kp_tracks_prev.candidate_kp,'m-');
     end
     plotPoints(updated_kp_tracks.candidate_kp,'y.');
 
-    title('Candidate Keypoints: Old (red), updated (yellow), Matches');
+    %title('Candidate Keypoints: Old (red), updated (yellow), Matches');
 end
 
 fprintf('  Number of matched keypoint candidates: %i (%0.2f %%)\n'...
@@ -215,6 +216,26 @@ Cj_P_hom_new = zeros(4,size(p_candidates_first,2));
 fprintf('  Number of trianguable keypoint candidates: %i\n'...
          ,nnz(idx_good_trianguable)); 
 
+% Show matches from first and j image of keypoints
+if params.keypoint_tracker.show_matches
+    figure(fig_kp_tracks);
+%     subplot(2,1,1);
+%     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
+%         plotPoints(kp_tracks_prev.candidate_kp,'r.');
+%     end
+%     title('Candidate Keypoints: Old (red)');
+
+%     subplot(2,1,2);
+    if (size(p_hom_candidates_first,2) > 0) % 0 in first frame
+        plotPoints(p_hom_candidates_first(1:2,:),'gx');
+        plotPoints(p_hom_candidates_j(1:2,:),'bx');
+        plotMatches(1:size(p_hom_candidates_j,2),p_hom_candidates_j,p_hom_candidates_first,'g-');     
+    end
+    title('Candidate Keypoints: Prev image (red), j-Image (yellow), First image(gx), j-Image(bx)');
+end
+     
+     
+     
 % Linear triangulation
 for i=1:size(p_candidates_first,2)
     T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
@@ -244,7 +265,7 @@ updated_kp_tracks.nr_trackings = updated_kp_tracks.nr_trackings(~idx_good_triang
 
 % Filter landmarks with cylindrical filter (still wrong frame??)
 % [Cj_hom_landmarks_new, outFOV_idx] = applyCylindricalFilter(Cj_hom_landmarks_new, params.cont.landmarks_cutoff);
-idx_Ci_P_hom_new_realistic = 1:size(Cj_P_hom_new,2);%find(Cj_P_hom_new(3,:)>0);
+idx_Ci_P_hom_new_realistic = find(Cj_P_hom_new(3,:)>0);
 
 % Remove unrealistic landmarks and corresponding keypoints
 if (nnz(idx_Ci_P_hom_new_realistic)>0)
