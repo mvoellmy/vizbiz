@@ -272,40 +272,50 @@ kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(~idx_good_triang
 % [Cj_hom_landmarks_new, outFOV_idx] = applyCylindricalFilter(Cj_hom_landmarks_new, params.cont.landmarks_cutoff);
 idx_Ci_P_hom_new_realistic = find(Cj_P_hom_new(3,:)>0);
 
+Cj_reprojected_points_uv = [];
+Cj_P_hom_new_inliers = [];
+p_candidates_j_inliers = [];
+
 % Remove unrealistic landmarks and corresponding keypoints
 if (nnz(idx_Ci_P_hom_new_realistic)>0)
     Cj_P_hom_new = Cj_P_hom_new(:,idx_Ci_P_hom_new_realistic);
     p_candidates_j = p_candidates_j(:,idx_Ci_P_hom_new_realistic);
+    
+    % Reproject realistic landmarks to remove outliers
+    Cj_reprojected_points_uv = projectPoints(Cj_P_hom_new(1:3,:), K);
+    difference = p_candidates_j - flipud(Cj_reprojected_points_uv);
+    errors = sum(difference.^2, 1);
+    reproj_inliers = errors < params.keypoint_tracker.max_reproj_error^2;
+
+    Cj_P_hom_new_inliers = Cj_P_hom_new(:, reproj_inliers);
+    p_candidates_j_inliers = p_candidates_j(:, reproj_inliers);
+    fprintf('  Removed %i of %i realistic landmarks due to too big reprojection error\n', nnz(~reproj_inliers), size(Cj_P_hom_new,2));
 
 else
     fprintf('None of the triangulated landmarks was realistic!\n')
-    p_candidates_j = [];
 end
 
 % Append used candidate keypoints to p_new_matched_triang
-p_new_matched_triang = [p_new_matched_triang, p_candidates_j];
+p_new_matched_triang = [p_new_matched_triang, p_candidates_j_inliers];
 
 Cj_P_hom_inliers = [];
 if localized %otherwise index error since Ci_corresponding_inlier_landmarks = []
     Cj_P_hom_inliers = T_CjCi*[Ci_corresponding_inlier_landmarks; ones(1,size(Ci_corresponding_inlier_landmarks,2))];
 end
     
-Cj_P_hom = [Cj_P_hom_inliers, Cj_P_hom_new];
+Cj_P_hom = [Cj_P_hom_inliers, Cj_P_hom_new_inliers];
 Cj_new_landmarks = Cj_P_hom(1:3,:);
 
 
 %% display triangulated backprojected keypoints
-Cj_projected_points = projectPoints(Cj_P_hom_new(1:3,:), K);
-% Cj_projected_points = projectPoints((R_CjCi*Cj2_P_new) +...
-%                                      repmat(-Cj_t_CjCi,[1 size(Cj2_P_new, 2)]),K);
 
 if params.keypoint_tracker.show_triangulated
-    good_idx_match = 1:size(Cj_projected_points,2);
+    good_idx_match = 1:size(Cj_reprojected_points_uv,2);
     figure(fig_kp_triangulate);
     if (size(p_candidates_j,2) > 0) % 0 in first frame
         plotPoints(p_candidates_j,'r.');
-        plotPoints(flipud(Cj_projected_points),'gx');
-        plotMatches(good_idx_match,p_candidates_j,flipud(Cj_projected_points),'m-');
+        plotPoints(flipud(Cj_reprojected_points_uv),'gx');
+        plotMatches(good_idx_match,p_candidates_j,flipud(Cj_reprojected_points_uv),'m-');
         % plotPoints(projected_points,'g.');
     end
     % plotPoints(updated_kp_tracks.candidate_kp,'y.');
@@ -317,7 +327,7 @@ end
 %% display statistics
 
 fprintf('  Number of landmarks (total/new): %i / %i\n'...
-         ,size(Cj_new_landmarks,2), size(Cj_P_hom_new,2)); 
+         ,size(Cj_new_landmarks,2), size(Cj_P_hom_new_inliers,2)); 
 
 end
 
