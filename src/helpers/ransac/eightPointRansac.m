@@ -25,6 +25,7 @@ num_iterations = ceil(log(1-params.eightPoint_ransac.p_success)/...
 best_guess_inliers = NaN(1,size(p_hom_i2,2));
 max_num_inliers_history = NaN(1,num_iterations);
 max_num_inliers = 0;
+inliers = zeros(1,size(p_hom_i1,2));
 
 % run RANSAC for pose estimation
 for i=1:num_iterations
@@ -50,9 +51,6 @@ for i=1:num_iterations
         max_num_inliers_history(i) = max_num_inliers;
     end
 end
-
-% check for consistent sizes
-assert(size(p_hom_i1,2) == size(best_guess_inliers,2));
 
 % display fraction of inlier matches
 updateConsole(params,...

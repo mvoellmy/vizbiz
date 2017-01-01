@@ -142,7 +142,7 @@ end
 updateConsole(params, '...initialization done.\n');
 
 %% Continuous operation VO pipeline
-global fig_cont fig_RANSAC_debug;
+global fig_cont fig_kp_tracks fig_RANSAC_debug fig_kp_triangulate;
 
 if params.run_continous
     updateConsole(params, 'start continuous VO operation...\n');
@@ -150,12 +150,26 @@ if params.run_continous
 	% setup figure handles
 	fig_cont = figure('name','Contiunous VO estimation');
 	fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
-
+    fig_kp_tracks = figure('name','Keypoint tracker');
+    fig_kp_triangulate = figure('name', 'triangulate');
+    
 	% hand-over initialization variables
 	img_prev = img_init;
-	keypoints_prev = keypoints_init;
+    % container for prev kp which have corresponding landmarks
+    keypoints_prev_triang = keypoints_init;
+    % container for matched keypoints which have yet no corresponding
+    % landmark, and the pose where they were seen the first time --> keypoint tracker
+    
+    % Create container for keypoint tracker (new keypoints with no landmarks)
+    % set of candidate keypoints in last camera frame
+    kp_tracks.candidate_kp = []; % 2xN
+    % keypoint coordinates of every candiate in its first observed frame
+    kp_tracks.first_obs_kp = [];  % 2xN
+    % keypoint pose of every candiate in its first observed frame
+    kp_tracks.first_obs_pose = []; % 16xN
+    kp_tracks.nr_trackings = []; % 1xN
+    
 	Ci_landmarks_prev = C2_landmarks_init;
-	%match_indices_prev = 1:size(keypoints_prev,2);
 
     for j = range_cont
         updateConsole(params, ['Processing frame ',num2str(j),'\n']);
@@ -166,9 +180,12 @@ if params.run_continous
         frame_idx = j-bootstrap_frame_idx_2 + 2; % due to init +2
         img = currentFrame(params, j);
         
-        if (size(keypoints_prev,2) > 0) % todo: minimum number?
-            % process newest image
-            [T_CiCj_vo_j(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,img_prev,keypoints_prev,Ci_landmarks_prev,K);
+        if (size(keypoints_prev,2) > 10) % todo: minimum number?
+            % extract current camera pose
+            T_WCi = T_WCj_vo(:,:,frame_idx-1); 
+            
+            [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new] =...
+                processFrame(params,img,img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev,T_WCi, K);            
             
             % add super title with frame number
             if params.cont.show_current_image
@@ -176,7 +193,7 @@ if params.run_continous
                 suptitle(sprintf('Frame #%i',j));
             end
         else
-            warning('No keypoints left!!');
+            warning('Too few keypoints left!! Break continuous operation loop - Terminating...');
             break;
         end
 
@@ -186,12 +203,10 @@ if params.run_continous
         % extend 2D trajectory
         W_traj =[W_traj T_WCj_vo(1:2,4,frame_idx)];
         
-        % transform new landmarks
+        % update map with new landmarks
         W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
         W_landmarks_new = W_P_hom_new(1:3,:);
-        
-        % extend map with new landmarks
-        W_landmarks_map = [W_landmarks_map W_landmarks_new];
+        W_landmarks_map = [W_landmarks_map, W_landmarks_new];
         
         if params.through_gui
             % update gui trajectory
@@ -203,10 +218,11 @@ if params.run_continous
         % allow plots to refresh
         pause(1.01);       
 
-        % update previous image, keypoints and landmarks
+        % update previous image, keypoints, landmarks and tracker
         img_prev = img;
-        keypoints_prev = keypoints_new;
+        keypoints_prev_triang = keypoints_new_triang;
         Ci_landmarks_prev = Cj_landmarks_new;
+        kp_tracks = updated_kp_tracks;
 
         updateConsole(params, ' \n');
         

@@ -50,6 +50,7 @@ params.eightPoint_ransac.show_inlier_matches = true;
 params.eightPoint_ransac.p_success = 0.999999;
 params.eightPoint_ransac.fract_inliers = 0.5;
 params.eightPoint_ransac.max_error = 1.0; % [pixels]
+params.eightPoint_ransac_cont.max_error = 1.0; % [pixels]
 
 % continuous operation parameters
 params.cont.run_on_first_x_images = 6; % 0: for all images
@@ -61,9 +62,15 @@ params.cont.landmarks_cutoff = 5;
 params.localization_ransac.show_matched_keypoints = true;
 params.localization_ransac.show_inlier_matches = true;
 params.localization_ransac.use_p3p = true;
-params.localization_ransac.num_iterations_pnp = 2000; % 2000 fix?
+params.localization_ransac.num_iterations_pnp = 3000; % 2000 fix?
 params.localization_ransac.num_iterations_DLT = 200;
+<<<<<<< HEAD:src/helpers/miscellaneous/loadParameters.m
 params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]
-params.localization_ransac.show_iterations = false;
+params.localization_ransac.show_iterations = true;
+
+params.keypoint_tracker.show_matches = true;
+params.keypoint_tracker.show_triangulated = true;
+params.keypoint_tracker.bearing_low_thr = 10;
+params.keypoint_tracker.min_nr_trackings = 2;
 
 end
