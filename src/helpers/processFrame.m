@@ -319,7 +319,7 @@ else
 end
 
 % Append used candidate keypoints to p_new_matched_triang
-p_new_matched_triang = [p_new_matched_triang, p_candidates_j_inliers];
+p_new_matched_triang = [state.keypoints, p_candidates_j_inliers];
 
 Cj_P_hom_inliers = [];
 if localized %otherwise index error since Ci_corresponding_inlier_landmarks = []
