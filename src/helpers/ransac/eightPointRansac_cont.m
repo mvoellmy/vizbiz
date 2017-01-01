@@ -5,7 +5,7 @@ function [query_descriptors,database_descriptors, matches_untriang, new_kp] = ei
 % 
 % Input:
 %  - params(struct) : parameter struct
-%  - p_hom_i1(3xN) : homogeneous 2D points of image 1, each [u v 1]
+%  - p_hom_i1(3xN) :  2D points of image 1, each [v u]
 %  - p_hom_i2(3xN) : homogeneous 2D points of image 2, each [u v 1]
 %  - K1(3x3) : intrinsics matrix of camera 1
 %  - K2(3x3) : intrinsics matrix of camera 2

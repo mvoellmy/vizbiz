@@ -108,13 +108,13 @@ Cj_P_hom_inlier = T_CjCi * [Ci_corresponding_inlier_landmarks; ones(1,size(Ci_co
 state.Cj_landmarks = Cj_P_hom_inlier(1:3,:);
 state.T_WCj = state_prev.T_WCi * T_CiCj;
 
-%% Feed keypoint tracker with KLT algorithm
+%% Candiate Keypoint tracker
 % variable init - assume no matches
 matches_untriang = zeros(1,size(query_keypoints,2));
-updated_kp_tracks.candidate_kp = [];   % 2xN
-updated_kp_tracks.first_obs_kp = [];   % 2xN
-updated_kp_tracks.first_obs_pose = []; % 16xN
-updated_kp_tracks.nr_trackings = []; % 1xN
+kp_tracks_updated.candidate_kp = [];   % 2xN
+kp_tracks_updated.first_obs_kp = [];   % 2xN
+kp_tracks_updated.first_obs_pose = []; % 16xN
+kp_tracks_updated.nr_trackings = []; % 1xN
 
 % if there are candiate keypoints, try to match
 if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
@@ -129,27 +129,28 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
     % OPTIONAL TODO: Lucas kanade?
     
     new_kp_1 = query_keypoints(:,matches_untriang==0);
+    new_kp_2 = [];
     
-    fprintf('------------>Number of keypoints before RANSAC: %d\n', nnz(matches_untriang));
-     [query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, new_kp_2] = ...
-         eightPointRansac_cont(params, query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, K, K);
-    fprintf('------------>Number of keypoints after  RANSAC: %d\n', nnz(matches_untriang));
- 
+%     fprintf('------------>Number of keypoints before RANSAC: %d\n', nnz(matches_untriang));
+%      [query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, new_kp_2] = ...
+%          eightPointRansac_cont(params, query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, K, K);
+%     fprintf('------------>Number of keypoints after  RANSAC: %d\n', nnz(matches_untriang));
+%  
     % update candidate_kp coordinates with matched current kp
     idx_matched_kp_tracks_cand = find(matches_untriang); % z.B 17
     idx_matched_kp_tracks_database = matches_untriang(matches_untriang>0);
 
-    % update kp information that could be tracked
-    updated_kp_tracks.candidate_kp(:,idx_matched_kp_tracks_cand) = query_keypoints(:,idx_matched_kp_tracks_cand); %new v,u coord
-    updated_kp_tracks.first_obs_kp(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_kp(:,idx_matched_kp_tracks_database);
-    updated_kp_tracks.first_obs_pose(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_pose(:,idx_matched_kp_tracks_database);
-    updated_kp_tracks.nr_trackings(idx_matched_kp_tracks_cand) = kp_tracks_prev.nr_trackings(idx_matched_kp_tracks_database)+1;
+    % update kp information that could be tracked (sorting like query keypoints)
+    kp_tracks_updated.candidate_kp(:,idx_matched_kp_tracks_cand) = query_keypoints(:,idx_matched_kp_tracks_cand); %new v,u coord
+    kp_tracks_updated.first_obs_kp(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_kp(:,idx_matched_kp_tracks_database);
+    kp_tracks_updated.first_obs_pose(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_pose(:,idx_matched_kp_tracks_database);
+    kp_tracks_updated.nr_trackings(idx_matched_kp_tracks_cand) = kp_tracks_prev.nr_trackings(idx_matched_kp_tracks_database)+1;
 
     % discard kp that could not be tracked --> new sorting (unkown)
-    updated_kp_tracks.candidate_kp = updated_kp_tracks.candidate_kp(:,idx_matched_kp_tracks_cand);
-    updated_kp_tracks.first_obs_kp = updated_kp_tracks.first_obs_kp(:,idx_matched_kp_tracks_cand);
-    updated_kp_tracks.first_obs_pose = updated_kp_tracks.first_obs_pose(:,idx_matched_kp_tracks_cand);
-    updated_kp_tracks.nr_trackings = updated_kp_tracks.nr_trackings(idx_matched_kp_tracks_cand);
+    kp_tracks_updated.candidate_kp = kp_tracks_updated.candidate_kp(:,idx_matched_kp_tracks_cand);
+    kp_tracks_updated.first_obs_kp = kp_tracks_updated.first_obs_kp(:,idx_matched_kp_tracks_cand);
+    kp_tracks_updated.first_obs_pose = kp_tracks_updated.first_obs_pose(:,idx_matched_kp_tracks_cand);
+    kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(idx_matched_kp_tracks_cand);
 
     % append all new found keypoints and their pose
     new_kp = [new_kp_1, new_kp_2]; % kp which could not be matched
@@ -159,28 +160,28 @@ end
 
 T_WCj = T_WCi * T_CiCj;
 T_WCj_col = T_WCj(:); % convert to col vector for storage
-updated_kp_tracks.candidate_kp = [updated_kp_tracks.candidate_kp, new_kp];
-updated_kp_tracks.first_obs_kp = [updated_kp_tracks.first_obs_kp, new_kp]; % is equal to candidate when adding
-updated_kp_tracks.first_obs_pose = [updated_kp_tracks.first_obs_pose, repmat(T_WCj_col,[1, size(new_kp, 2)])];
-updated_kp_tracks.nr_trackings = [updated_kp_tracks.nr_trackings, zeros(1, size(new_kp, 2))];
+kp_tracks_updated.candidate_kp = [kp_tracks_updated.candidate_kp, new_kp];
+kp_tracks_updated.first_obs_kp = [kp_tracks_updated.first_obs_kp, new_kp]; % is equal to candidate when adding
+kp_tracks_updated.first_obs_pose = [kp_tracks_updated.first_obs_pose, repmat(T_WCj_col,[1, size(new_kp, 2)])];
+kp_tracks_updated.nr_trackings = [kp_tracks_updated.nr_trackings, zeros(1, size(new_kp, 2))];
 
 % display matched keypoint tracks
 if params.keypoint_tracker.show_matches
     figure(fig_kp_tracks);
-    subplot(3,1,1);
-    if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
-        plotPoints(kp_tracks_prev.candidate_kp,'r.');
-    end
-    title('Candidate Keypoints: Old (red)');
+%     subplot(2,1,1);
+%     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
+%         plotPoints(kp_tracks_prev.candidate_kp,'r.');
+%     end
+%     title('Candidate Keypoints: Old (red)');
 
-    subplot(3,1,2);
+%     subplot(2,1,2);
     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         plotPoints(kp_tracks_prev.candidate_kp,'r.');
         plotMatches(matches_untriang,query_keypoints,kp_tracks_prev.candidate_kp,'m-');
     end
-    plotPoints(updated_kp_tracks.candidate_kp,'y.');
+    plotPoints(kp_tracks_updated.candidate_kp,'y.');
 
-    title('Candidate Keypoints: Old (red), updated (yellow), Matches');
+    %title('Candidate Keypoints: Old (red), updated (yellow), Matches');
 end
 
 fprintf('  Number of matched keypoint candidates: %i (%0.2f %%)\n'...
@@ -188,18 +189,18 @@ fprintf('  Number of matched keypoint candidates: %i (%0.2f %%)\n'...
 
 %% Triangulate new landmarks
 % calculate bearing angle
-vector_first = [(updated_kp_tracks.first_obs_kp);repmat(K(1,1),[1, size(updated_kp_tracks.first_obs_kp, 2)])];
-vector_act = [updated_kp_tracks.candidate_kp;repmat(K(1,1),[1, size(updated_kp_tracks.candidate_kp, 2)])];
+vector_first = [(kp_tracks_updated.first_obs_kp);repmat(K(1,1),[1, size(kp_tracks_updated.first_obs_kp, 2)])];
+vector_act = [kp_tracks_updated.candidate_kp;repmat(K(1,1),[1, size(kp_tracks_updated.candidate_kp, 2)])];
 
 bearing_angle_d = atan2d(twoNormMatrix(cross(vector_act,vector_first)),dot(vector_act,vector_first));
 
 % create idx vector of trianguable candidate points
 idx_good_trianguable = ((bearing_angle_d > params.keypoint_tracker.bearing_low_thr)...
-    & (updated_kp_tracks.nr_trackings >= params.keypoint_tracker.min_nr_trackings));
+    & (kp_tracks_updated.nr_trackings >= params.keypoint_tracker.min_nr_trackings));
 
-p_candidates_first = updated_kp_tracks.first_obs_kp(:,idx_good_trianguable);
-p_candidates_first_pose = updated_kp_tracks.first_obs_pose(:,idx_good_trianguable);
-p_candidates_j = updated_kp_tracks.candidate_kp(:,idx_good_trianguable);
+p_candidates_first = kp_tracks_updated.first_obs_kp(:,idx_good_trianguable);
+p_candidates_first_pose = kp_tracks_updated.first_obs_pose(:,idx_good_trianguable);
+p_candidates_j = kp_tracks_updated.candidate_kp(:,idx_good_trianguable);
 
 p_hom_candidates_first = [p_candidates_first; ones(1,size(p_candidates_first,2))];
 p_hom_candidates_j = [p_candidates_j; ones(1,size(p_candidates_j,2))];
@@ -211,6 +212,25 @@ Cj_P_hom_new = zeros(4,size(p_candidates_first,2));
 fprintf('  Number of trianguable keypoint candidates: %i\n'...
          ,nnz(idx_good_trianguable)); 
 
+% Show matches from first and j image of keypoints
+if params.keypoint_tracker.show_matches
+    figure(fig_kp_tracks);
+%     subplot(2,1,1);
+%     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
+%         plotPoints(kp_tracks_prev.candidate_kp,'r.');
+%     end
+%     title('Candidate Keypoints: Old (red)');
+
+%     subplot(2,1,2);
+    if (size(p_hom_candidates_first,2) > 0) % 0 in first frame
+        plotPoints(p_hom_candidates_first(1:2,:),'gx');
+        plotPoints(p_hom_candidates_j(1:2,:),'bx');
+        plotMatches(1:size(p_hom_candidates_j,2),p_hom_candidates_j,p_hom_candidates_first,'g-');     
+    end
+    title('Candiate Keypoints: Prev image (red), j-Image (yellow), Trianguable First image (gx), Trianguable j-Image (bx)');
+end
+     
+     
 % Linear triangulation
 for i=1:size(p_candidates_first,2)
     T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
@@ -230,15 +250,16 @@ end
 
 
 %% Update keypoint tracks, Cj_landmarks and p_new_matched_triang
-% delete candidate keypoint used for triangulation from updated_kp_tracks
-updated_kp_tracks.candidate_kp = updated_kp_tracks.candidate_kp(:,~idx_good_trianguable);
-updated_kp_tracks.first_obs_kp = updated_kp_tracks.first_obs_kp(:,~idx_good_trianguable);
-updated_kp_tracks.first_obs_pose = updated_kp_tracks.first_obs_pose(:,~idx_good_trianguable);
-updated_kp_tracks.nr_trackings = updated_kp_tracks.nr_trackings(~idx_good_trianguable);
+
+% Delete candidate keypoint used for triangulation from updated_kp_tracks
+kp_tracks_updated.candidate_kp = kp_tracks_updated.candidate_kp(:,~idx_good_trianguable);
+kp_tracks_updated.first_obs_kp = kp_tracks_updated.first_obs_kp(:,~idx_good_trianguable);
+kp_tracks_updated.first_obs_pose = kp_tracks_updated.first_obs_pose(:,~idx_good_trianguable);
+kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(~idx_good_trianguable);
 
 % Filter landmarks with cylindrical filter (still wrong frame??)
 % [Cj_hom_landmarks_new, outFOV_idx] = applyCylindricalFilter(Cj_hom_landmarks_new, params.cont.landmarks_cutoff);
-idx_Ci_P_hom_new_realistic = 1:size(Cj_P_hom_new,2);%find(Cj_P_hom_new(3,:)>0);
+idx_Ci_P_hom_new_realistic = find(Cj_P_hom_new(3,:)>0);
 
 % Remove unrealistic landmarks and corresponding keypoints
 if (nnz(idx_Ci_P_hom_new_realistic)>0)
