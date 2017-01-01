@@ -13,7 +13,7 @@ function [img0, img1, bootstrap_frame_1_idx, bootstrap_frame_2_idx] = autoBootst
 
 global fig_boot gui_handles;
 
-if params.boot.show_bootstrap_images
+if params.boot.show_boot_images
     fig_boot = figure('name','Bootstrapping');
 end
 
@@ -148,7 +148,7 @@ else
         assert(false);
     end
     
-    if params.boot.show_bootstrap_images
+    if params.boot.show_boot_images
         figure(fig_boot);
         subplot(2,1,1);
         imshow(img0);

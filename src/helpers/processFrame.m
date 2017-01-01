@@ -53,7 +53,7 @@ p_hom_new_matched = [p_new_matched; ones(1,size(p_new_matched,2))];
 Ci_landmarks_new = linearTriangulation(p_hom_prev_matched,p_hom_new_matched,Mi,Mj);
 
 % discard landmarks not contained in cylindrical neighborhood
-[Ci_landmarks_new, outFOV_idx] = applyCylindricalFilter(Ci_landmarks_new, params.cont.landmarks_cutoff);
+[Ci_landmarks_new, outFOV_idx] = applySphericalFilter(params, Ci_landmarks_new, params.cont.landmarks_cutoff);
 
 % todo: remove corresponding keypoints
 %p_i2(:,outFOV_idx) = [];
