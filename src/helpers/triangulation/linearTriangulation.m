@@ -1,8 +1,8 @@
 % LINEARTRIANGULATION  Linear Triangulation
 %
 % Input:
-%  - p1(3,N): homogeneous coordinates of points in image 1 [u v]??
-%  - p2(3,N): homogeneous coordinates of points in image 2 [u v]??
+%  - p1(3,N): homogeneous coordinates of points in image 1 [u v]
+%  - p2(3,N): homogeneous coordinates of points in image 2 [u v]
 %  - M1(3,4): projection matrix corresponding to first image
 %  - M2(3,4): projection matrix corresponding to second image
 %

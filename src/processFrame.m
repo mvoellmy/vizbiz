@@ -293,6 +293,7 @@ if (nnz(idx_Ci_P_hom_new_realistic)>0)
 
 else
     fprintf('None of the triangulated landmarks was realistic!\n')
+    p_candidates_j = [];
 end
 
 % Append used candidate keypoints to p_new_matched_triang
