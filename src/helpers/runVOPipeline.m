@@ -104,7 +104,8 @@ T_CiCj_vo_j(:,:,2) = T_C1C2; % first camera pose, C2 to C1
 
 % update stacked world-referenced pose
 T_WCj_vo(:,:,1) = T_WC1; % C1 to W
-T_WCj_vo(:,:,2) = T_WC1*T_C1C2; % C2 to W
+T_WC2 = T_WC1*T_C1C2;
+T_WCj_vo(:,:,2) = T_WC2; % C2 to W
 
 % 2D trajectory in world frame
 W_traj = T_WCj_vo(1:2,4,1);
@@ -142,7 +143,7 @@ end
 updateConsole(params, '...initialization done.\n');
 
 %% Continuous operation VO pipeline
-global fig_cont fig_kp_tracks fig_RANSAC_debug fig_kp_triangulate;
+global fig_cont fig_RANSAC_debug;
 
 if params.run_continous
     updateConsole(params, 'start continuous VO operation...\n');
@@ -150,26 +151,12 @@ if params.run_continous
 	% setup figure handles
 	fig_cont = figure('name','Contiunous VO estimation');
 	fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
-    fig_kp_tracks = figure('name','Keypoint tracker');
-    fig_kp_triangulate = figure('name', 'triangulate');
     
 	% hand-over initialization variables
 	img_prev = img_init;
-    % container for prev kp which have corresponding landmarks
-    keypoints_prev_triang = keypoints_init;
-    % container for matched keypoints which have yet no corresponding
-    % landmark, and the pose where they were seen the first time --> keypoint tracker
-    
-    % Create container for keypoint tracker (new keypoints with no landmarks)
-    % set of candidate keypoints in last camera frame
-    kp_tracks.candidate_kp = []; % 2xN
-    % keypoint coordinates of every candiate in its first observed frame
-    kp_tracks.first_obs_kp = [];  % 2xN
-    % keypoint pose of every candiate in its first observed frame
-    kp_tracks.first_obs_pose = []; % 16xN
-    kp_tracks.nr_trackings = []; % 1xN
-    
-	Ci_landmarks_prev = C2_landmarks_init;
+    state_prev.keypoints = keypoints_init;          % keypoints found in prev state
+    state_prev.Ci_landmarks = C2_landmarks_init;    % associated with landmarks
+    state_prev.T_WCi = T_WC2;                       % frame pose in W
 
     for j = range_cont
         updateConsole(params, ['Processing frame ',num2str(j),'\n']);
@@ -177,15 +164,11 @@ if params.run_continous
         tic;
         
         % pick current frame
-        frame_idx = j-bootstrap_frame_idx_2 + 2; % due to init +2
+        frame_idx = j - bootstrap_frame_idx_2 + 2; % due to init +2
         img = currentFrame(params, j);
         
-        if (size(keypoints_prev,2) > 10) % todo: minimum number?
-            % extract current camera pose
-            T_WCi = T_WCj_vo(:,:,frame_idx-1); 
-            
-            [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new] =...
-                processFrame(params,img,img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev,T_WCi, K);            
+        if (size(state_prev.keypoints,2) > 10) % todo: minimum number?          
+            [T_CiCj_vo_j(:,:,frame_idx), state] = processFrame(params, img, img_prev, state_prev, K);
             
             % add super title with frame number
             if params.cont.show_current_image
@@ -218,11 +201,11 @@ if params.run_continous
         % allow plots to refresh
         pause(1.01);       
 
-        % update previous image, keypoints, landmarks and tracker
+        % update previous image and state(keypoints, landmarks, pose)
         img_prev = img;
-        keypoints_prev_triang = keypoints_new_triang;
-        Ci_landmarks_prev = Cj_landmarks_new;
-        kp_tracks = updated_kp_tracks;
+        state_prev.keypoints = state.keypoints;
+        state_prev.Ci_landmarks = state.Cj_landmarks;
+        state_prev.T_WCi = state.T_WCj;
 
         updateConsole(params, ' \n');
         

@@ -94,7 +94,7 @@ else
     C2_landmarks_init = C2_P_hom_init(1:3,:);
 
     % show inlier and filtered matches
-    if params.eightPoint_ransac.show_inlier_matches % todo
+    if (params.init.show_keypoints && params.init.show_inlier_matches)
         figure(fig_init);
         subplot(2,2,4);
         showMatchedFeatures(I_i1, I_i2,...

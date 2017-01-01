@@ -11,7 +11,7 @@ params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.compare_against_groundthruth = false;
-params.run_continous = false;
+params.run_continous = true;
 params.show_map_and_cams = false;
 params.through_gui = false;
 
@@ -30,8 +30,9 @@ params.boot.min_num_inlier_kps = 100;
 params.boot.min_b2dratio = 0.1;
 
 % initialization parameters
-params.init.show_init_keypoints = true;
-params.init.show_landmarks = true;
+params.init.show_keypoints = true;
+params.init.show_inlier_matches = true;
+params.init.show_landmarks = false;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
 params.init.use_BA = false;
@@ -45,8 +46,7 @@ params.corr.num_keypoints = 400; % 200
 params.corr.descriptor_radius = 9; % [pixels]
 params.corr.match_lambda = 6; % 5
 
-params.eightPoint_ransac.show_iterations = true;
-params.eightPoint_ransac.show_inlier_matches = true;
+params.eightPoint_ransac.show_iterations = false;
 params.eightPoint_ransac.p_success = 0.999999;
 params.eightPoint_ransac.fract_inliers = 0.5;
 params.eightPoint_ransac.max_error = 1.0; % [pixels]
@@ -55,18 +55,19 @@ params.eightPoint_ransac_cont.max_error = 1.0; % [pixels]
 % continuous operation parameters
 params.cont.run_on_first_x_images = 6; % 0: for all images
 params.cont.show_current_image = true;
-params.cont.show_new_keypoints = true;
+params.cont.show_keypoints = true;
+params.cont.show_matches = true;
+params.cont.show_inlier_matches = true;
 params.cont.show_matches = true;
 params.cont.landmarks_cutoff = 5;
 
-params.localization_ransac.show_matched_keypoints = true;
-params.localization_ransac.show_inlier_matches = true;
+params.localization_ransac.show_inlier_matches = true; % rename to  p3pransac
 params.localization_ransac.use_p3p = true;
 params.localization_ransac.num_iterations_pnp = 3000; % 2000 fix?
 params.localization_ransac.num_iterations_DLT = 200;
-<<<<<<< HEAD:src/helpers/miscellaneous/loadParameters.m
+params.localization_ransac.show_projected_keypoints = true;
 params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]
-params.localization_ransac.show_iterations = true;
+params.localization_ransac.show_iterations = false;
 
 params.keypoint_tracker.show_matches = true;
 params.keypoint_tracker.show_triangulated = true;

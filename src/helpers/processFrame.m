@@ -1,5 +1,4 @@
-function [T_CiCj, p_new_matched_triang, updated_kp_tracks, Cj_new_landmarks] =...
-    processFrame(params,img_new,img_prev, keypoints_prev_triang, kp_tracks_prev,Ci_landmarks_prev,T_WCi,K)
+function [T_CiCj, state] = processFrame(params, img_new, img_prev, state_prev, K)
 % Estimates pose transformation T_CiCj between two images.
 % Tracks potential new keypoints and triangulates new landmarks if
 % trianguability is good.
@@ -8,110 +7,107 @@ function [T_CiCj, p_new_matched_triang, updated_kp_tracks, Cj_new_landmarks] =..
 %  - params(struct) : parameter struct
 %  - img_new(size) : current frame
 %  - img_prev(size) : previous frame
-%  - keypoints_prev_triang (2xN) : 2D points, [v u] which have
-%    corresponding Landmarks
-%  - kp_tracks_old : struct container for tracking keypoints (no associated
-%    landmarks)
-%  - Ci_landmarks_prev(3xN) : 3D points
-%  - T_WCi : (4x4) Current transformation world to Ci
+%  - state_prev(struct) : previous state
 %  - K(3x3) : camera intrinsics matrix
 %
 % Output:
 %  - T_CiCj(4x4) : transformation Cj to Ci
-%  - p_new_matched_triang(2xN) : newly matched keypoints with 
-%    corresponding landmarks, [v u] 
-%  - updated_kp_tracks : struct updated container for tracking keypoints (no associated
-%    landmarks)
-%  - Cj_new_landmarks (3xN) : 3D points in frame Cj
-%    verified inliers by ransac + new triangulated landmarks
+%  - state(struct) : new state
 
-global fig_cont fig_kp_tracks fig_kp_triangulate;
+global fig_cont;
 
 % show current frame
 if params.cont.show_current_image
     figure(fig_cont);
-    subplot(2,1,1);
+    subplot(3,1,1);
     imshow(img_new);
-    subplot(2,1,2);
-    imshow(img_new);
-end
-
-% show current frame
-if params.keypoint_tracker.show_matches
-    figure(fig_kp_tracks);
-    subplot(2,1,1);
-    hold on;
-    imshow(img_new);
-    subplot(2,1,2);
-    hold on;
+    subplot(3,1,2);
     imshow(img_new);
 end
 
-% show current frame
-if params.keypoint_tracker.show_triangulated
-    figure(fig_kp_triangulate);
-    clf;
-    imshow(img_new);
+%% Find correspondences
+[query_keypoints, matches] = findCorrespondeces_cont(params, img_prev, state_prev.keypoints, img_new);
+
+% display all correspondences
+if params.cont.show_keypoints
+    figure(fig_cont);
+    subplot(3,1,1);
     hold on;
+    plotPoints(query_keypoints,'r.');
+    title('New keypoints');
 end
 
-
-%% Estimate delta rotation from frame Cj to Ci
-[query_keypoints,matches] = ...
-    findCorrespondeces_cont(params,img_prev,keypoints_prev_triang,img_new);
-
-% delete landmark where no matching keypoint was found
-corr_ldk_matches = matches(matches > 0);
-Ci_corresponding_landmarks = Ci_landmarks_prev(:,corr_ldk_matches);
-
-[~,matched_query_indices,matched_database_indices] = find(matches);
-
-% filter query keypoints
+% filter query keypoints and database keypoints
+[~, matched_query_indices, matched_database_indices] = find(matches);
 matched_query_keypoints = query_keypoints(:,matched_query_indices);
+matched_database_keypoints = state_prev.keypoints(:,matched_database_indices);
 
-% filter database keypoints
-matched_database_keypoints = keypoints_prev_triang(:,matched_database_indices);
+% remove landmark where no matching keypoint was found
+corr_ldk_matches = matches(matches > 0);
+Ci_corresponding_landmarks = state_prev.Ci_landmarks(:,corr_ldk_matches);
 
 % check for consistent correspondences
 assert(size(matched_query_keypoints,2) == length(corr_ldk_matches) && ...
        size(matched_database_keypoints,2) == length(corr_ldk_matches));
 
 % display matched keypoints
-if params.localization_ransac.show_matched_keypoints
+if params.cont.show_keypoints
     figure(fig_cont);
-    subplot(2,1,1);
+    subplot(3,1,1);
     plotPoints(matched_query_keypoints,'g.');
     plotCircles(matched_query_keypoints,'y',params.localization_ransac.pixel_tolerance);
     title('Matched (green) keypoints with (yellow) confidence');
     
-    subplot(2,1,2);
-    plotPoints(matched_query_keypoints,'g.');
-    title('Matched (green) keypoints');
+    if params.cont.show_matches
+        subplot(3,1,2);
+        showMatchedFeatures(img_prev, img_new,...
+                            flipud(matched_query_keypoints)',...
+                            flipud(matched_database_keypoints)', 'blend', 'PlotOptions', {'rx','r.','m-'});
+        title('Candidate keypoint matches');
+    end
 end
 
-% estimate pose from Cj to Ci
-[R_CiCj,Ci_t_CiCj,p_new_matched_triang,Ci_corresponding_inlier_landmarks] = ...
-    ransacLocalization(params,matched_query_keypoints,Ci_corresponding_landmarks,K);
+%% Estimate transformation Cj to Ci
+[R_CiCj, Ci_t_CiCj, matched_query_inlier_keypoints, Ci_corresponding_inlier_landmarks, inliers] = ...
+    p3pRansac(params, matched_query_keypoints, Ci_corresponding_landmarks, K);
 
-localized = false;  % flag
+% extract inlier keypoints
+matched_database_inlier_keypoints = matched_database_keypoints(:,inliers);
+
+% show inlier and filtered matches
+if params.cont.show_inlier_matches
+    figure(fig_cont);
+    subplot(3,1,3);
+    showMatchedFeatures(img_prev, img_new,...
+                        flipud(matched_database_inlier_keypoints)',...
+                        flipud(matched_query_inlier_keypoints)', 'blend', 'PlotOptions', {'r.','g.','y-'});
+    title('Filtered inlier keypoint matches');
+end
+
+localized = false;
 
 if (isempty(R_CiCj) && isempty(Ci_t_CiCj))
     R_CiCj = eye(3,3);
     Ci_t_CiCj = zeros(3,1);
-    fprintf(' !! No transformation found !!\n');
+    updateConsole(params, ' !! No transformation found !!\n');
 else
-    fprintf('  >> Successfully localized\n');
+    updateConsole(params, '  >> Successfully localized\n');
     localized = true;
 end
 
 % construct new camera pose
 T_CiCj = [R_CiCj   Ci_t_CiCj;
           zeros(1,3)       1];
+T_CjCi = tf2invtf(T_CiCj);
 
-T_CjCi = tform2invtform(T_CiCj);      
 
+%% Propagate state (j)
+state.keypoints = matched_query_inlier_keypoints;
+Cj_P_hom_inlier = T_CjCi * [Ci_corresponding_inlier_landmarks; ones(1,size(Ci_corresponding_inlier_landmarks,2))];
+state.Cj_landmarks = Cj_P_hom_inlier(1:3,:);
+state.T_WCj = state_prev.T_WCi * T_CiCj;
 
-%% Candiate Keypoint tracker
+%% Feed keypoint tracker
 % variable init - assume no matches
 matches_untriang = zeros(1,size(query_keypoints,2));
 updated_kp_tracks.candidate_kp = [];   % 2xN
@@ -170,13 +166,13 @@ updated_kp_tracks.nr_trackings = [updated_kp_tracks.nr_trackings, zeros(1, size(
 % display matched keypoint tracks
 if params.keypoint_tracker.show_matches
     figure(fig_kp_tracks);
-    subplot(2,1,1);
+    subplot(3,1,1);
     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         plotPoints(kp_tracks_prev.candidate_kp,'r.');
     end
     title('Candidate Keypoints: Old (red)');
 
-    subplot(2,1,2);
+    subplot(3,1,2);
     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         plotPoints(kp_tracks_prev.candidate_kp,'r.');
         plotMatches(matches_untriang,query_keypoints,kp_tracks_prev.candidate_kp,'m-');
@@ -190,14 +186,13 @@ fprintf('  Number of matched keypoint candidates: %i (%0.2f %%)\n'...
          ,nnz(matches_untriang),100*nnz(matches_untriang)/size(kp_tracks_prev.candidate_kp,2)); 
 
 %% Triangulate new landmarks
-
 % calculate bearing angle
 vector_first = [(updated_kp_tracks.first_obs_kp);repmat(K(1,1),[1, size(updated_kp_tracks.first_obs_kp, 2)])];
 vector_act = [updated_kp_tracks.candidate_kp;repmat(K(1,1),[1, size(updated_kp_tracks.candidate_kp, 2)])];
 
 bearing_angle_d = atan2d(twoNormMatrix(cross(vector_act,vector_first)),dot(vector_act,vector_first));
 
-% Create idx vector of trianguable candidate points
+% create idx vector of trianguable candidate points
 idx_good_trianguable = ((bearing_angle_d > params.keypoint_tracker.bearing_low_thr)...
     & (updated_kp_tracks.nr_trackings >= params.keypoint_tracker.min_nr_trackings));
 
@@ -230,13 +225,11 @@ for i=1:size(p_candidates_first,2)
     % Triangulate landmark
     Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first(:,i),p_hom_candidates_j(:,i),M_Cfirst,M_CjCfirst);
     Cj_P_hom_new(:,i) = T_CjCfirst*Cfirst_P_hom_new(:,i);
-
-end % for loop end
+end
 
 
 %% Update keypoint tracks, Cj_landmarks and p_new_matched_triang
-
-% Delete candidate keypoint used for triangulation from updated_kp_tracks
+% delete candidate keypoint used for triangulation from updated_kp_tracks
 updated_kp_tracks.candidate_kp = updated_kp_tracks.candidate_kp(:,~idx_good_trianguable);
 updated_kp_tracks.first_obs_kp = updated_kp_tracks.first_obs_kp(:,~idx_good_trianguable);
 updated_kp_tracks.first_obs_pose = updated_kp_tracks.first_obs_pose(:,~idx_good_trianguable);
@@ -257,7 +250,7 @@ else
 end
 
 % Append used candidate keypoints to p_new_matched_triang
-p_new_matched_triang = [p_new_matched_triang, p_candidates_j];
+matched_query_inlier_keypoints = [matched_query_inlier_keypoints, p_candidates_j];
 
 Cj_P_hom_inliers = [];
 if localized %otherwise index error since Ci_corresponding_inlier_landmarks = []
@@ -288,10 +281,8 @@ if params.keypoint_tracker.show_triangulated
     hold off;
 end
 
-%% display statistics
-
-fprintf('  Number of landmarks (total/new): %i / %i\n'...
-         ,size(Cj_new_landmarks,2), size(Cj_P_hom_new,2)); 
+% display statistics
+fprintf('  Number of landmarks (total/new): %i / %i\n',...
+        size(Cj_new_landmarks,2), size(Cj_P_hom_new,2)); 
 
 end
-

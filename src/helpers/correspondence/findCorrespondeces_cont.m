@@ -11,11 +11,10 @@ function [query_keypoints, matches] = ...
 %
 % Output:
 %  - query_keypoints(2xN) : matched keypoints of second image, [v u]
-%  - matches (2xN):  indices vector where the i-th coefficient is the index of
+%  - matches(2xN):  indices vector where the i-th coefficient is the index of
 %    database_keypoints which matches to the i-th entry of matched_query_keypoints.
 
-
-global fig_cont gui_handles;
+global gui_handles;
 
 % compute harris scores for query image
 query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
@@ -33,33 +32,18 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
 % display fraction of matched keypoints
-fprintf('  Number of new keypoints matched with prev keypoints by descriptor: %i (%0.2f %%)\n',...
-        nnz(matches),100*nnz(matches)/size(database_keypoints,2));
-
-% display valid correspondences
-if params.cont.show_new_keypoints
-    figure(fig_cont);
-    subplot(2,1,1);
-    imshow(query_image);
-    hold on;
-    plotPoints(query_keypoints,'r.');
-    if params.cont.show_matches
-        plotMatches(matches,query_keypoints,database_keypoints,'m-');
-        title('Matches found');
-    end
-    subplot(2,1,2);
-    imshow(query_image);
-    hold on;
-end
+updateConsole(params,...
+              sprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f perc.)\n',...
+              nnz(matches), 100*nnz(matches)/size(database_keypoints,2)));
 
 % update gui image
 if params.through_gui
     gui_updateImage(query_image, gui_handles.ax_current_frame);
-end
-
-% update gui keypoints
-if params.through_gui && params.gui.show_all_features
-    gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
+    
+    % update gui keypoints
+    if params.gui.show_all_features
+        gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
+    end
 end
 
 end
