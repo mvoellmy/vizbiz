@@ -49,7 +49,7 @@ params.eightPoint_ransac.show_iterations = false;
 params.eightPoint_ransac.show_inlier_matches = true;
 params.eightPoint_ransac.p_success = 0.999999;
 params.eightPoint_ransac.fract_inliers = 0.5;
-params.eightPoint_ransac.max_error = 0.5; % [pixels]
+params.eightPoint_ransac.max_error = 1.0; % [pixels]
 
 % continuous operation parameters
 params.cont.run_on_first_x_images = 6; % 0: for all images

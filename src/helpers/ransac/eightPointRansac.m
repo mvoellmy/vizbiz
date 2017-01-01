@@ -34,8 +34,7 @@ for i=1:num_iterations
     % estimate fundamental matrix given data sample
     F_guess = fundamentalEightPoint_normalized(p_hom_i1_sample, p_hom_i2_sample);
     
-    % count inliers based on pixel difference
-    %errors = algError2EpipolarLine(p_hom_i1, p_hom_i2, F_guess);
+    % count inliers based on pixel errors
     errors = geomError2EpipolarLine(p_hom_i1, p_hom_i2, F_guess);
     inliers = errors <= params.eightPoint_ransac.max_error;
     num_inliers = nnz(inliers);
@@ -52,13 +51,13 @@ for i=1:num_iterations
     end
 end
 
+% check for consistent sizes
+assert(size(p_hom_i1,2) == size(best_guess_inliers,2));
+
 % display fraction of inlier matches
 updateConsole(params,...
               sprintf('  %0.2f perc. of inliers matches found\n',...
               100*max_num_inliers/size(p_hom_i1,2)));
-
-% rerun on inlier correspondences
-best_guess = fundamentalEightPoint_normalized(p_hom_i1(:,best_guess_inliers), p_hom_i2(:,best_guess_inliers));
 
 % display count of inliers evolution
 if params.eightPoint_ransac.show_iterations
@@ -68,11 +67,15 @@ if params.eightPoint_ransac.show_iterations
     title('Max num inliers over iterations');    
 end
 
+% rerun on inlier correspondences
+best_guess = fundamentalEightPoint_normalized(p_hom_i1(:,best_guess_inliers),...
+                                              p_hom_i2(:,best_guess_inliers));
+
 % compute the essential matrix from the fundamental matrix given K
 E = K2'*best_guess*K1;
 
 if isnan(E)
-    fprintf('  No inlier matches found\n');
+    updateConsole(params, '  No inlier matches found\n');
 end
 
 end

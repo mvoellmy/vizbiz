@@ -15,7 +15,7 @@ function [matched_database_keypoints, matched_query_keypoints] = ...
 global fig_init gui_handles;
 
 % todo: move params into subroutines, expose only method string
-% compute harris scores for query image % todo: move int keypoint-selection
+% compute harris scores for query image % todo: move into keypoint-selection
 query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
 
 % compute harris scores for query image
@@ -49,9 +49,9 @@ matched_database_keypoints = flipud(database_keypoints(:,matched_database_indice
 % check for consistent correspondences
 assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
 
-% display bootstrap pair keypoints
+% display bootstrap pair keypoints % todo: move to initPipeline()
 if params.init.show_init_keypoints
-    fig_init = figure('name','Initialization');
+    fig_init = figure('name', 'Initialization');
     
     subplot(2,2,1);
     imshow(database_image);
@@ -75,7 +75,7 @@ if params.init.show_init_keypoints
     end
 end
 
-% update gui keypoints
+% update gui keypoints % todo: move to initPipeline()
 if params.through_gui && params.gui.show_all_features
     gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
 end
