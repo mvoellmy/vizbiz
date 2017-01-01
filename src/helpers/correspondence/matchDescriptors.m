@@ -2,6 +2,10 @@ function matches = matchDescriptors(...
     query_descriptors, database_descriptors, lambda)
 % Returns a 1xQ matrix where the i-th coefficient is the index of the
 % database descriptor which matches to the i-th query descriptor.
+
+% --> The number/value describes the database index. The position of the number the query
+% index.
+
 % The descriptor vectors are MxQ and MxD where M is the descriptor
 % dimension and Q and D the amount of query and database descriptors
 % respectively. matches(i) will be zero if there is no database descriptor

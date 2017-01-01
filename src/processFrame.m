@@ -195,13 +195,14 @@ fprintf('  Number of matched keypoint candidates: %i (%0.2f %%)\n'...
 
 % calculate bearing angle
 vector_first = [(kp_tracks_updated.first_obs_kp);repmat(K(1,1),[1, size(kp_tracks_updated.first_obs_kp, 2)])];
-vector_act = [kp_tracks_updated.candidate_kp;repmat(K(1,1),[1, size(kp_tracks_updated.candidate_kp, 2)])];
+vector_j = [kp_tracks_updated.candidate_kp;repmat(K(1,1),[1, size(kp_tracks_updated.candidate_kp, 2)])];
 
-bearing_angle_d = atan2d(twoNormMatrix(cross(vector_act,vector_first)),dot(vector_act,vector_first));
+bearing_angle_d = atan2d(twoNormMatrix(cross(vector_j,vector_first)),dot(vector_j,vector_first));
 
 % Create idx vector of trianguable candidate points
 idx_good_trianguable = ((bearing_angle_d > params.keypoint_tracker.bearing_low_thr)...
-    & (kp_tracks_updated.nr_trackings >= params.keypoint_tracker.min_nr_trackings));
+    & (kp_tracks_updated.nr_trackings >= params.keypoint_tracker.min_nr_trackings)...
+    & (bearing_angle_d < params.keypoint_tracker.bearing_up_thr));
 
 p_candidates_first = kp_tracks_updated.first_obs_kp(:,idx_good_trianguable);
 p_candidates_first_pose = kp_tracks_updated.first_obs_pose(:,idx_good_trianguable);
