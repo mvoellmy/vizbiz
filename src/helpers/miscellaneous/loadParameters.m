@@ -32,7 +32,7 @@ params.boot.min_b2dratio = 0.1;
 % initialization parameters
 params.init.show_keypoints = true;
 params.init.show_inlier_matches = true;
-params.init.show_landmarks = false;
+params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
 params.init.use_BA = false;

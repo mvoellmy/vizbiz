@@ -127,15 +127,15 @@ else
     Ci_corresponding_inlier_landmarks = Ci_corresponding_landmarks(:,best_guess_inliers);
 
     % calculate [R,t] with best inlier points and DLT
-    M_CjCi = estimatePoseDLT(matched_query_keypoints_uv', Ci_corresponding_inlier_landmarks', K);
-    R_CjCi = M_CjCi(:,1:3);
-    Cj_t_CjCi = M_CjCi(:,end);
-	% R_CjCi = R_CjCi_best_guess;
-    % Cj_t_CjCi = Cj_t_CjCi_best_guess;
+%     M_CjCi = estimatePoseDLT(matched_query_keypoints_uv', Ci_corresponding_inlier_landmarks', K);
+%     R_CjCi = M_CjCi(:,1:3);
+%     Cj_t_CjCi = M_CjCi(:,end);
+	R_CjCi = R_CjCi_best_guess;
+    Cj_t_CjCi = Cj_t_CjCi_best_guess;
 end
 
 % display projected keypoints given best pose and inlier correspondences
-if (max_num_inliers > 0 && params.localization_ransac.show_projected_keypoints)
+if (max_num_inliers > 0 && params.localization_ransac.show_matched_keypoints)
     
     Cj_best_guess_projected_pts = projectPoints((R_CjCi_best_guess*Ci_corresponding_inlier_landmarks) + ...
                                                 repmat(-Cj_t_CjCi_best_guess,[1 size(Ci_corresponding_inlier_landmarks, 2)]), K);

@@ -62,7 +62,7 @@ for i=1:size(p_candidates_first,2)
     M_Cfirst = K * eye(3,4); %T_CfirstW(1:3,:);
 
     % Calculate delta pose between Cfirst and Cj  
-    T_CjW = tform2invtform(T_WCj);
+    T_CjW = tf2invtf(T_WCj);
     T_CjCfirst = T_CjW * T_WCfirst;
     M_CjCfirst = K * T_CjCfirst(1:3,:);
         
