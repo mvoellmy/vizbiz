@@ -32,6 +32,8 @@ if params.ds == 0
 elseif params.ds == 1
     params.malaga_path = '../datasets/malaga-urban-dataset-extract-07';
     assert(isfield(params, 'malaga_path') ~= 0);
+    ground_truth = load([params.malaga_path '/poses.txt']);
+    ground_truth = ground_truth(:, [end-8 end]);
     last_frame = 2121;
     K = [621.18428 0 404.0076
         0 621.18428 309.05989
@@ -87,9 +89,10 @@ end
 
 %% Initialize VO pipeline
 updateConsole(params, 'initialize VO pipeline...\n');
-
 global fig_kp_tracks;
-fig_kp_tracks = figure('name','Keypoint tracker');
+if params.keypoint_tracker.show_figure
+    fig_kp_tracks = figure('name','Keypoint tracker');
+end
 
 tic;
 
@@ -133,6 +136,10 @@ if params.through_gui
     % update gui metrics
     gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
     
+    % update tracking metric
+    gui_updateTracked(size(keypoints_init,2),...
+                      gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
+    
     % update gui trajectory
     gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
 
@@ -142,7 +149,7 @@ end
 
 % display initialization landmarks and bootstrap motion
 if params.init.show_landmarks
-    figure('name','Landmarks and motion of bootstrap image pair');
+    figure('name','Landmarks and motion of initialization image pair');
     hold on;
     plotLandmarks(W_landmarks_init, 'z', 'up');
     plotCam(T_WCj_vo(:,:,1), 1, 'black');
@@ -174,18 +181,17 @@ if params.run_continous
         
         tic;
         
-        % pick current frame
-        frame_idx = j - bootstrap_frame_idx_2 + 2; % due to init +2
+        % pick current frame, due to initialization +2
+        frame_idx = j - bootstrap_frame_idx_2 + 2;
         img = getFrame(params, j);
         
-        if (size(keypoints_prev_triang,2) > 6) % todo: minimum number?          
-            
+        if (size(keypoints_prev_triang,2) > 6) % todo: minimum number?            
             % extract current camera pose
             T_WCi = T_WCj_vo(:,:,frame_idx-1); 
             
             % process newest image
-            [T_CiCj_vo_j(:,:,frame_idx),keypoints_new_triang, updated_kp_tracks,Cj_landmarks_new] =...
-                processFrame(params,img,img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev,T_WCi, K);
+            [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new] =...
+                processFrame(params, img, img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
             
             % add super title with frame number
             if params.cont.show_current_image
@@ -198,15 +204,15 @@ if params.run_continous
         end
 
         % append newest Cj to W transformation
-        T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1)*T_CiCj_vo_j(:,:,frame_idx);
+        T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1) * T_CiCj_vo_j(:,:,frame_idx);
 
         % extend 2D trajectory
-        W_traj =[W_traj T_WCj_vo(1:2,4,frame_idx)];
+        W_traj =[W_traj, T_WCj_vo(1:2,4,frame_idx)];
         
         % update map with new landmarks
         W_landmarks_new = [];
         if size(Cj_landmarks_new,2)>0
-            W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
+            W_P_hom_new = T_WCj_vo(:,:,frame_idx) * [Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
             W_landmarks_new = W_P_hom_new(1:3,:);
         end
         W_landmarks_map = [W_landmarks_map, W_landmarks_new];
@@ -216,10 +222,14 @@ if params.run_continous
             gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
             % update gui local cloud
             gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+            
+            % update tracking metric
+            gui_updateTracked(size(keypoints_new_triang,2),...
+                              gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
         end
 
         % allow plots to refresh
-        pause(1.01);       
+        pause(0.01);       
 
         % update previous image, keypoints, landmarks and tracker
         img_prev = img;

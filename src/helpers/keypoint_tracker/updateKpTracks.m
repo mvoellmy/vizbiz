@@ -1,14 +1,12 @@
-function [ kp_tracks_updated ] = update_kp_tracks(params, kp_tracks_prev,img_prev, img_new, query_keypoints, T_WCj)
+function [ kp_tracks_updated ] = updateKpTracks(params, kp_tracks_prev,img_prev, img_new, query_keypoints, T_WCj)
 % Tries to match query keypoints with current image and keeps track of
 % tracked candiate keypoints and their first observations.
-
 % Inserts new candidate keypoints into the keypoint tracks and discard
 % candidate keypoints that could not be matched.
 
 % Inputs:
-
-% - query_keypoints (2xN) [v u]
-% - T_WCj: Trasnformation matrix (4x4)
+% - query_keypoints (2xN) : [v u]
+% - T_WCj(4x4) : Trasnformation matrix 
 
 global fig_kp_tracks;
 
@@ -38,7 +36,7 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
 %      [query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, new_kp_2] = ...
 %          eightPointRansac_cont(params, query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, K, K);
 %     fprintf('------------>Number of keypoints after  RANSAC: %d\n', nnz(matches_untriang));
-%  
+  
     % update candidate_kp coordinates with matched current kp
     idx_matched_kp_tracks_cand = find(matches_untriang); % z.B 17
     idx_matched_kp_tracks_database = matches_untriang(matches_untriang>0);
@@ -67,6 +65,10 @@ kp_tracks_updated.first_obs_kp = [kp_tracks_updated.first_obs_kp, new_kp]; % is 
 kp_tracks_updated.first_obs_pose = [kp_tracks_updated.first_obs_pose, repmat(T_WCj_col,[1, size(new_kp, 2)])];
 kp_tracks_updated.nr_trackings = [kp_tracks_updated.nr_trackings, zeros(1, size(new_kp, 2))];
 
+updateConsole(params,...
+              sprintf('  Number of matched keypoint candidates: %i (%0.2f perc.)\n',...
+              nnz(matches_untriang),100*nnz(matches_untriang)/size(kp_tracks_prev.candidate_kp,2))); 
+
 % display matched keypoint tracks
 if params.keypoint_tracker.show_matches
     figure(fig_kp_tracks);
@@ -75,11 +77,7 @@ if params.keypoint_tracker.show_matches
         plotMatches(matches_untriang,query_keypoints,kp_tracks_prev.candidate_kp,'m-');
     end
     plotPoints(kp_tracks_updated.candidate_kp,'y.');
-
-    %title('Candidate Keypoints: Old (red), updated (yellow), Matches');
+    title('Previous kp (red), Updated kp (yellow)');
 end
-
-fprintf('  Number of matched keypoint candidates: %i (%0.2f %%)\n'...
-         ,nnz(matches_untriang),100*nnz(matches_untriang)/size(kp_tracks_prev.candidate_kp,2)); 
 
 end

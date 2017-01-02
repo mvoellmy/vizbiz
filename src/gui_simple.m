@@ -180,10 +180,22 @@ set(handles.listbox_console,'String','');
 
 % reset performance metrics
 set(handles.text_RT_value,'String','00.00');
+set(handles.text_value_tracked,'String','0');
+
+% reset track bar
+handles = guidata(hObject);
+reset_bar(hObject, eventdata, handles);
+handles = guidata(hObject);
 
 guidata(hObject,handles);
 
 function clearAxes(hObject, eventdata, handles)
+
+% clear tracked axes
+axes(handles.ax_tracked);
+cla(handles.ax_tracked);
+handles.plot_bar = plot(0,0,'b-');
+reset_bar(hObject, eventdata, handles);
 
 % clear image axes
 axes(handles.ax_current_frame);
@@ -194,7 +206,6 @@ axis off;
 % clear trajectory axes
 axes(handles.ax_trajectory);
 cla(handles.ax_trajectory);
-
 handles.plot_trajectory = plot(0, 0, '.-');
 hold on;
 handles.plot_local_cloud = plot(0, 0, 'k.');
@@ -221,6 +232,17 @@ handles.console_string = ' ';
 handles.params = loadParameters();
 handles.params.through_gui = true;
 guidata(hObject, handles);
+
+function reset_bar(hObject, eventdata, handles)
+
+axes(handles.ax_tracked);
+handles.plot_bar.XData = 0;
+handles.plot_bar.YData = 0;
+handles.plot_bar.LineWidth = 2;
+
+xlim([0 200]);
+axis equal;
+axis off;
 
 function update_parameters(hObject, eventdata, handles)
 

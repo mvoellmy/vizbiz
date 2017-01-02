@@ -15,7 +15,7 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = i
 %  - keypoints_init(2xN) : matched keypoints from image pair, each [v,u]
 %  - C2_landmarks_init(3xN) : C2-referenced triangulated 3D points
 %  - T_C1C2(4x4) : homogeneous transformation matrix C2 to C1
-%  - kp_tracks_init : TODO
+%  - kp_tracks_init(struct) : TODO
 
 global fig_init gui_handles;
 
@@ -36,7 +36,7 @@ else
     I_init = I_i2;
     if params.through_gui
         gui_updateImage(I_init, gui_handles.ax_current_frame);
-    end
+    end    
     
     % find 2D correspondences (sorted)
     [p_i1, p_i2, query_keypoints] = findCorrespondeces(params,I_i1,I_i2);
@@ -115,8 +115,8 @@ else
                   '  Number of initialization landmarks: %i\n'],...
                   size(keypoints_init,2), size(C2_landmarks_init,2)));
     
-	% Initialise keypoint tracker
-    % Create container for keypoint tracker (new keypoints with no landmarks)
+	% initialise keypoint tracker
+    % create container for keypoint tracker (new keypoints with no landmarks)
     % set of candidate keypoints in last camera frame
     kp_tracks.candidate_kp = []; % 2xN
     % keypoint coordinates of every candiate in its first observed frame
@@ -125,8 +125,7 @@ else
     kp_tracks.first_obs_pose = []; % 16xN
     kp_tracks.nr_trackings = []; % 1xN
     
-    kp_tracks_init = update_kp_tracks(params, kp_tracks,I_i1, I_i2, query_keypoints, T_WC2);
-    
+    kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, query_keypoints, T_WC2);    
 end
 
 % check for same number of keypoints and landmarks

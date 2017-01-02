@@ -7,7 +7,7 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.compare_against_groundthruth = false;
@@ -30,9 +30,9 @@ params.boot.min_num_inlier_kps = 100;
 params.boot.min_b2dratio = 0.1;
 
 % initialization parameters
-params.init.show_keypoints = true;
+params.init.show_keypoints = false;
 params.init.show_inlier_matches = true;
-params.init.show_landmarks = true;
+params.init.show_landmarks = false;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
 params.init.use_BA = false;
@@ -52,7 +52,7 @@ params.eightPoint_ransac.show_inlier_matches = true;
 params.eightPoint_ransac.p_success = 0.999999;
 params.eightPoint_ransac.fract_inliers = 0.5;
 params.eightPoint_ransac.max_error = 1.0; % [pixels]
-params.eightPoint_ransac_cont.max_error = 1.0; % [pixels]
+%params.eightPoint_ransac_cont.max_error = 1.0; % [pixels]
 
 % continuous operation parameters
 params.cont.run_on_first_x_images = 40; % 0 for all images
@@ -73,11 +73,12 @@ params.localization_ransac.num_iterations_DLT = 200;
 params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]
 params.localization_ransac.show_iterations = false;
 
+params.keypoint_tracker.show_figure = true;
 params.keypoint_tracker.show_matches = true;
 params.keypoint_tracker.show_triangulated = true;
-params.keypoint_tracker.bearing_low_thr = 3.2;
-params.keypoint_tracker.bearing_up_thr = params.keypoint_tracker.bearing_low_thr*2.5;
-params.keypoint_tracker.min_nr_trackings = 3;
+params.keypoint_tracker.bearing_low_thr = 3.2; % [deg]
+params.keypoint_tracker.bearing_up_thr = params.keypoint_tracker.bearing_low_thr*2.5; % [deg]
+params.keypoint_tracker.min_nr_trackings = 2; % 3
 params.keypoint_tracker.max_reproj_error = 12; % [pixels]
 
 end
