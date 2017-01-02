@@ -181,7 +181,7 @@ if params.run_continous
         frame_idx = j - bootstrap_frame_idx_2 + 2; % due to init +2
         img = currentFrame(params, j);
         
-        if (size(state_prev.keypoints,2) > 10) % todo: minimum number?          
+        if (size(state_prev.keypoints,2) > 6) % todo: minimum number?          
             [T_CiCj_vo_j(:,:,frame_idx), state, updated_kp_tracks] = ...
                 processFrame(params, img, img_prev, state_prev, kp_tracks_prev, K);
             

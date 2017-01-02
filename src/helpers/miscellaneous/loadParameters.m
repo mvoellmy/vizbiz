@@ -37,6 +37,7 @@ params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
 params.init.use_BA = false;
 params.init.landmarks_cutoff = 100;
+params.init.normalize_scale = true;
 
 % correspondence parameters
 params.corr.harris_patch_size = 9; % 9 [pixels]
@@ -47,34 +48,36 @@ params.corr.descriptor_radius = 9; % [pixels]
 params.corr.match_lambda = 6; % 5
 
 params.eightPoint_ransac.show_iterations = false;
+params.eightPoint_ransac.show_inlier_matches = true;
 params.eightPoint_ransac.p_success = 0.999999;
 params.eightPoint_ransac.fract_inliers = 0.5;
 params.eightPoint_ransac.max_error = 1.0; % [pixels]
 params.eightPoint_ransac_cont.max_error = 1.0; % [pixels]
 
 % continuous operation parameters
-params.cont.run_on_first_x_images = 6; % 0: for all images
+params.cont.run_on_first_x_images = 40; % 0 for all images
 params.cont.show_current_image = true;
-params.cont.show_keypoints = true;
+params.cont.show_new_keypoints = true;
 params.cont.use_KLT = false;
 params.cont.show_matches = true;
 params.cont.show_inlier_matches = true;
 params.cont.show_matches = true;
 params.cont.landmarks_cutoff = 5;
 
-params.localization_ransac.show_inlier_matches = true; % rename to  p3pransac
+params.localization_ransac.show_matched_keypoints = true;
+params.localization_ransac.show_inlier_matches = false;
+
 params.localization_ransac.use_p3p = true;
 params.localization_ransac.num_iterations_pnp = 3000; % 2000 fix?
 params.localization_ransac.num_iterations_DLT = 200;
-params.localization_ransac.show_projected_keypoints = true;
 params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]
 params.localization_ransac.show_iterations = false;
 
 params.keypoint_tracker.show_matches = true;
 params.keypoint_tracker.show_triangulated = true;
-params.keypoint_tracker.bearing_low_thr = 2.0;
-params.keypoint_tracker.bearing_up_thr = params.keypoint_tracker.bearing_low_thr*2;
-params.keypoint_tracker.min_nr_trackings = 2;
-params.keypoint_tracker.max_reproj_error = 15; % [pixels]
+params.keypoint_tracker.bearing_low_thr = 3.2;
+params.keypoint_tracker.bearing_up_thr = params.keypoint_tracker.bearing_low_thr*2.5;
+params.keypoint_tracker.min_nr_trackings = 3;
+params.keypoint_tracker.max_reproj_error = 12; % [pixels]
 
 end

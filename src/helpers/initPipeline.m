@@ -1,4 +1,4 @@
-function [I_init, keypoints_init, C2_landmarks_init, T_C1C2] = initPipeline(params, I_i1, I_i2, K, T_WC1)
+function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = initPipeline(params, I_i1, I_i2, K, T_WC1)
 % Returns initialization image and corresponding sorted keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.
@@ -15,6 +15,7 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2] = initPipeline(para
 %  - keypoints_init(2xN) : matched keypoints from image pair, each [v,u]
 %  - C2_landmarks_init(3xN) : C2-referenced triangulated 3D points
 %  - T_C1C2(4x4) : homogeneous transformation matrix C2 to C1
+%  - kp_tracks_init : TODO
 
 global fig_init gui_handles;
 
@@ -38,7 +39,7 @@ else
     end
     
     % find 2D correspondences (sorted)
-    [p_i1, p_i2] = findCorrespondeces(params, I_i1, I_i2);
+    [p_i1, p_i2, query_keypoints] = findCorrespondeces(params,I_i1,I_i2);
     
     % homogenize keypoints
     p_hom_i1 = [p_i1; ones(1,length(p_i1))];
@@ -79,7 +80,7 @@ else
         T_WC2 = T_refined(5:8,1:4);
         T_C1W = tf2invtf(T_WC1);
         T_C1C2 = T_C1W*T_WC2;
-        T_C2C1 = tf2invtf(T_C2C1);
+        T_C2C1 = tf2invtf(T_C1C1);
     end
     
     % discard landmarks not contained in spherical neighborhood
@@ -113,6 +114,18 @@ else
                   sprintf(['  Number of initialization keypoints: %i\n',...
                   '  Number of initialization landmarks: %i\n'],...
                   size(keypoints_init,2), size(C2_landmarks_init,2)));
+    
+	% Initialise keypoint tracker
+    % Create container for keypoint tracker (new keypoints with no landmarks)
+    % set of candidate keypoints in last camera frame
+    kp_tracks.candidate_kp = []; % 2xN
+    % keypoint coordinates of every candiate in its first observed frame
+    kp_tracks.first_obs_kp = [];  % 2xN
+    % keypoint pose of every candiate in its first observed frame
+    kp_tracks.first_obs_pose = []; % 16xN
+    kp_tracks.nr_trackings = []; % 1xN
+    
+    kp_tracks_init = update_kp_tracks(params, kp_tracks,I_i1, I_i2, query_keypoints, T_WC2);
     
 end
 
