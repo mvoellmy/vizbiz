@@ -55,7 +55,7 @@ params.eightPoint_ransac.max_error = 1.0; % [pixels]
 %params.eightPoint_ransac_cont.max_error = 1.0; % [pixels]
 
 % continuous operation parameters
-params.cont.run_on_first_x_images = 40; % 0 for all images
+params.cont.run_on_first_x_images = 0; % 0 for all images
 params.cont.show_current_image = false;
 params.cont.show_new_keypoints = false;
 params.cont.use_KLT = false;

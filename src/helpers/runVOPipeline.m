@@ -199,7 +199,7 @@ if params.run_continous
                 suptitle(sprintf('Frame #%i',j));
             end
         else
-            warning('Too few keypoints left!! Break continuous operation loop - Terminating...');
+            updateConsole(params, 'Too few keypoints left!! Break continuous operation loop - Terminating...');
             break;
         end
 
@@ -250,8 +250,6 @@ if params.run_continous
 end
 
 %% Results summary
-updateConsole(params, 'display results...\n');
-
 if (params.ds ~= 1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
     plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth');

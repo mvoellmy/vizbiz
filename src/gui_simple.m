@@ -194,7 +194,7 @@ function clearAxes(hObject, eventdata, handles)
 % clear tracked axes
 axes(handles.ax_tracked);
 cla(handles.ax_tracked);
-handles.plot_bar = plot(0,0,'b-');
+handles.plot_bar = plot(0,0,'-','Color',[0.5 0.5 0.5]);
 reset_bar(hObject, eventdata, handles);
 
 % clear image axes
@@ -240,7 +240,7 @@ handles.plot_bar.XData = 0;
 handles.plot_bar.YData = 0;
 handles.plot_bar.LineWidth = 2;
 
-xlim([0 200]);
+xlim([0 200]); % todo: parametrize?
 axis equal;
 axis off;
 
