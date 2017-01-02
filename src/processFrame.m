@@ -115,10 +115,10 @@ T_CjCi = tform2invtform(T_CiCj);
 %% Candiate Keypoint tracker
 
 T_WCj = T_WCi*T_CiCj;
-kp_tracks_updated = update_kp_tracks(params, kp_tracks_prev,img_prev, img_new, query_keypoints, T_WCj, fig_kp_tracks);
+kp_tracks_updated = update_kp_tracks(params, kp_tracks_prev,img_prev, img_new, query_keypoints, T_WCj);
 
 
-%% Triangulate new landmarks
+%% Triangulate new landmarks & update landmarks and keypoint list
 
 [ Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated ] =...
     triangulate_new_landmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj);

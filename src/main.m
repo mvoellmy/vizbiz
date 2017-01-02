@@ -99,6 +99,9 @@ end
 %% Initialize VO pipeline
 fprintf('initialize VO pipeline...\n');
 
+global fig_kp_tracks;
+fig_kp_tracks = figure('name','Keypoint tracker');
+
 % transformation C1 to W (90deg x-axis rotation)
 T_WC1 = [1      0           0       0;
          0      0           1       0;
@@ -107,7 +110,7 @@ T_WC1 = [1      0           0       0;
              
 tic;
 % initialize pipeline with bootstrap images
-[img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K, T_WC1);
+[img_init,keypoints_init,C2_landmarks_init,T_C1C2, kp_tracks] = initPipeline(params,img0,img1,K, T_WC1);
 toc;
 
 % assign first two poses
@@ -135,7 +138,7 @@ end
 fprintf('...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
-global fig_cont fig_kp_tracks fig_RANSAC_debug fig_kp_triangulate;
+global fig_cont fig_RANSAC_debug fig_kp_triangulate;
 
 if params.run_continous
     fprintf('start continuous VO operation...\n');
@@ -143,7 +146,6 @@ if params.run_continous
 	% setup figure handles
 	fig_cont = figure('name','Contiunous VO estimation');
 	fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
-    fig_kp_tracks = figure('name','Keypoint tracker');
     fig_kp_triangulate = figure('name', 'triangulate');
 
 	% hand-over initialization variables
@@ -152,16 +154,7 @@ if params.run_continous
     keypoints_prev_triang = keypoints_init;
     % container for matched keypoints which have yet no corresponding
     % landmark, and the pose where they were seen the first time --> keypoint tracker
-    
-    % Create container for keypoint tracker (new keypoints with no landmarks)
-    % set of candidate keypoints in last camera frame
-    kp_tracks.candidate_kp = []; % 2xN
-    % keypoint coordinates of every candiate in its first observed frame
-    kp_tracks.first_obs_kp = [];  % 2xN
-    % keypoint pose of every candiate in its first observed frame
-    kp_tracks.first_obs_pose = []; % 16xN
-    kp_tracks.nr_trackings = []; % 1xN
-    
+        
     % landmarks in last camera frame
 	Ci_landmarks_prev = C2_landmarks_init;
     
@@ -182,7 +175,7 @@ if params.run_continous
             assert(false);
         end
 
-        if (size(keypoints_prev_triang,2) > 10) % todo: minimum number?        
+        if (size(keypoints_prev_triang,2) > 6) % todo: minimum number?        
             tic;
             % process newest image
             

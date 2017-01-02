@@ -1,9 +1,11 @@
-function [ kp_tracks_updated ] = update_kp_tracks(params, kp_tracks_prev,img_prev, img_new, query_keypoints, T_WCj, fig_kp_tracks)
+function [ kp_tracks_updated ] = update_kp_tracks(params, kp_tracks_prev,img_prev, img_new, query_keypoints, T_WCj)
 % Tries to match query keypoints with current image and keeps track of
 % tracked candiate keypoints and their first observations.
 
 % Inserts new candidate keypoints into the keypoint tracks and discard
 % candidate keypoints that could not be matched.
+
+global fig_kp_tracks;
 
 % variable init - assume no matches
 matches_untriang = zeros(1,size(query_keypoints,2));
