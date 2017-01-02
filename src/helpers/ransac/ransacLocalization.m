@@ -18,8 +18,6 @@ function [R_CiCj, Ci_t_CiCj, matched_query_inlier_keypoints, Ci_corresponding_in
 
 global fig_cont fig_RANSAC_debug;
 
-
-
 % choose RANSAC options
 if params.localization_ransac.use_p3p
     s = 3;

@@ -5,6 +5,11 @@ function [ kp_tracks_updated ] = update_kp_tracks(params, kp_tracks_prev,img_pre
 % Inserts new candidate keypoints into the keypoint tracks and discard
 % candidate keypoints that could not be matched.
 
+% Inputs:
+
+% - query_keypoints (2xN) [v u]
+% - T_WCj: Trasnformation matrix (4x4)
+
 global fig_kp_tracks;
 
 % variable init - assume no matches
@@ -24,12 +29,11 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
     
     % match descriptors
     matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
-    % OPTIONAL TODO: Lucas kanade?
     
     new_kp_1 = query_keypoints(:,matches_untriang==0);
     new_kp_2 = [];
     
-    % Remove match outliers
+    % Remove match outliers (requires a lot of time!! Maybe better make matchDescriptor only look in neighbour patches)
 %     fprintf('------------>Number of keypoints before RANSAC: %d\n', nnz(matches_untriang));
 %      [query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, new_kp_2] = ...
 %          eightPointRansac_cont(params, query_keypoints, kp_tracks_prev.candidate_kp, matches_untriang, K, K);
@@ -79,4 +83,3 @@ fprintf('  Number of matched keypoint candidates: %i (%0.2f %%)\n'...
          ,nnz(matches_untriang),100*nnz(matches_untriang)/size(kp_tracks_prev.candidate_kp,2)); 
 
 end
-

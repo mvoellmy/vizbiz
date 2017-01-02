@@ -56,7 +56,6 @@ if params.keypoint_tracker.show_triangulated
     hold on;
 end
 
-
 %% Estimate delta rotation from frame Cj to Ci
 [query_keypoints,matches] = ...
     findCorrespondeces_cont(params,img_prev,keypoints_prev_triang,img_new);
@@ -111,12 +110,10 @@ T_CiCj = [R_CiCj   Ci_t_CiCj;
 
 T_CjCi = tform2invtform(T_CiCj);      
 
-
 %% Candiate Keypoint tracker
 
 T_WCj = T_WCi*T_CiCj;
 kp_tracks_updated = update_kp_tracks(params, kp_tracks_prev,img_prev, img_new, query_keypoints, T_WCj);
-
 
 %% Triangulate new landmarks & update landmarks and keypoint list
 

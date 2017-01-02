@@ -7,9 +7,14 @@ function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated ] =..
 % The used candidate keypoints are removed from the keypoint tracks and the
 % cleaned up keypoints tracks is returned.
 
+% Inputs:
+% - K: Camera calibration matrix
+% - T_WCj (4x4): Transformation matrix
+% - fig_kp_triangulate: Figure handle
+
 % Outputs:
 
-% - Cj_P_hom_new_inliers [3xN]: New landmarks filtered
+% - Cj_P_hom_new_inliers [4xN]: New landmarks filtered homogenized
 % - p_candidates_j_inliers [2xN]: Keypoints corresponding to landmarks [v u]
 
 %% Triangulate new landmarks
