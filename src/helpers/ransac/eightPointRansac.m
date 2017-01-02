@@ -1,4 +1,5 @@
-function [E] = eightPointRansac(params, p_hom_i1, p_hom_i2, K1, K2)
+function [E, max_num_inliers] = eightPointRansac(params, p_hom_i1, p_hom_i2, K1, K2)
+
 % Estimates the essential matrix from a set of image keypoints and
 % robustifies pose estimate with RANSAC rejecting outlier keypoint
 % correspondences.
@@ -12,8 +13,9 @@ function [E] = eightPointRansac(params, p_hom_i1, p_hom_i2, K1, K2)
 %
 % Output:
 %  - E(3x3) : essential matrix
+%  - max_num_inliers(1x1) : maximal number of kp matches satisfying E
 
-global fig_init;
+global fig_boot fig_init;
 
 % sample size
 s = 8;
@@ -55,7 +57,7 @@ for i=1:num_iterations
 end
 
 % rerun on inlier correspondences
-best_guess = fundamentalEightPoint_normalized(p_hom_i1(:,inliers),p_hom_i2(:,inliers));
+best_guess = fundamentalEightPoint_normalized(p_hom_i1(:,best_guess_inliers),p_hom_i2(:,best_guess_inliers));
 
 % display count of inliers evolution
 if params.eightPoint_ransac.show_iterations
@@ -70,7 +72,12 @@ end
 
 % display best guess inlier matches
 if params.eightPoint_ransac.show_inlier_matches
-    figure(fig_init);
+    if ishandle(fig_init)
+        figure(fig_init);        
+    elseif ishandle(fig_boot)
+        figure(fig_boot);
+    end
+    
     subplot(2,2,4);
     plotPoints(flipud(p_hom_i2(1:2,best_guess_inliers)),'g.');
     plotMatches(1:nnz(best_guess_inliers),flipud(p_hom_i2(1:2,best_guess_inliers)),flipud(p_hom_i1(1:2,best_guess_inliers)),'y-');

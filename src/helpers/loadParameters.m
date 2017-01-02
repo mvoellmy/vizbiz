@@ -7,19 +7,31 @@ function params = loadParameters()
 
 % general parameters
 params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
+params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 params.run_continous = true;
 params.show_map_and_cams = true;
 
+
+% bootstrap parameters
+params.boot.show_bootstrap_images = true;
+params.boot.num_keypoints = 600;
+params.boot.show_boot_keypoints = true;
+params.boot.show_corr_matches = true;
+params.boot.landmarks_cutoff = 100;
+params.boot.show_boot_landmarks = false;
+params.boot.min_num_inlier_kps = 100;
+params.boot.min_b2dratio = 0.1;
+
 % initialization parameters
-params.init.show_bootstrap_images = false;
 params.init.show_init_keypoints = true;
 params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_corr_matches = true;
 params.init.use_BA = false;
-params.init.landmarks_cutoff = 5;
+params.init.landmarks_cutoff = 50;
+params.init.normalize_scale = true;
 
 % correspondence parameters
 params.corr.harris_patch_size = 9; % 9 [pixels]
@@ -37,7 +49,8 @@ params.eightPoint_ransac.max_error = 1;
 params.eightPoint_ransac_cont.max_error = 1;
 
 % continuous operation parameters
-params.cont.run_on_first_x_images = 40;
+
+params.cont.run_on_first_x_images = 40; % 0 for all images
 params.cont.show_current_image = true;
 params.cont.show_new_keypoints = true;
 params.cont.show_matches = true;

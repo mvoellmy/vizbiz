@@ -1,32 +1,27 @@
-function [matched_database_keypoints, matched_query_keypoints, query_keypoints] = ...
-    findCorrespondeces(params, database_image, query_image)
-% Detects N keypoint correspondeces given image pair
-% and returns the SORTED keypoints of both images.
+function [matched_database_keypoints, matched_query_keypoints] = ...
+    findCorrespondeces_boot(params, database_image, database_keypoints, query_image)
+% Returns matched keypoints given database keypoints, already sorted and
+% filtered.
 % 
 % Input:
 %  - params(struct) : parameter struct
 %  - database_image(size) : first image
+%  - database_keypoints(2xN) : previous image keypoints, [v u] which have a
+%    corresponding landmark
 %  - query_image(size) : second image
 %
 % Output:
-%  - matched_database_keypoints(2xN) : matched keypoints of first image,  each [u v]
-%  - matched_query_keypoints(2xN) : matched keypoints of second image, each  [u v]
-%  - query_keypoints(2xN): All query keypoints found [v u] !!!!
+%  - query_keypoints(2xN) : matched keypoints of second image, [v u]
+%  - matches (2xN):  indices vector where the i-th coefficient is the index of
+%    database_keypoints which matches to the i-th entry of matched_query_keypoints.
 
-global fig_init;
-
-% todo: move params into subroutines, expose only method string
-% compute harris scores for query image % todo: move int keypoint-selection
-query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+global fig_boot;
 
 % compute harris scores for query image
-database_harris = harris(database_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
 
 % compute keypoints for query image
-query_keypoints = selectKeypoints(query_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
-
-% compute keypoints for database image
-database_keypoints = selectKeypoints(database_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
+query_keypoints = selectKeypoints(query_harris,params.boot.num_keypoints,params.corr.nonmaximum_supression_radius);
 
 % descripe query keypoints
 query_descriptors = describeKeypoints(query_image,query_keypoints,params.corr.descriptor_radius);
@@ -50,33 +45,33 @@ matched_database_keypoints = flipud(database_keypoints(:,matched_database_indice
 assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
 
 % display bootstrap pair keypoints
-if params.init.show_init_keypoints
-    fig_init = figure('name','Initialization');
+if params.boot.show_boot_keypoints
+    figure(fig_boot);
     
     subplot(2,2,1);
     imshow(database_image);
     hold on;
     plotPoints(database_keypoints,'rx');
-    title('Initialization frame 1 keypoints');
+    title('Bootstrap frame 1 keypoints');
     
     subplot(2,2,2);
     imshow(query_image);
     hold on;
     plotPoints(query_keypoints,'rx');
-    title('Initialization frame 2 keypoints');
+    title('Bootstrap frame 2 keypoints');
     
     % display valid correspondences
-    if params.init.show_corr_matches        
+    if params.boot.show_corr_matches
         subplot(2,2,3);
         showMatchedFeatures(database_image,query_image,matched_database_keypoints',matched_query_keypoints');
-        title('Initialization frame pair matches');
+        title('Bootstrap frame pair matches');
         
         subplot(2,2,4);
         imshow(query_image);
         hold on;
         plotPoints(flipud(matched_query_keypoints),'r.');
         plotMatches(matches,query_keypoints,database_keypoints,'m-');
-        title('Initialization (2) image with matches');
+        title('Initialization image with matches');
     end
 end
 
