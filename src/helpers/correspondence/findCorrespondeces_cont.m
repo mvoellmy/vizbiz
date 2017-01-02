@@ -1,17 +1,19 @@
-function [matched_database_keypoints, matched_query_keypoints, corr_ldk_matches] = ...
+function [query_keypoints, matches] = ...
     findCorrespondeces_cont(params, database_image, database_keypoints, query_image)
 % TODO description
 % 
 % Input:
 %  - params(struct) : parameter struct
 %  - database_image(size) : first image
-%  - database_keypoints(2xN) : previous image keypoints, [v u]
+%  - database_keypoints(2xN) : previous image keypoints, [v u] which have a
+%    corresponding landmark
 %  - query_image(size) : second image
 %
 % Output:
-%  - matched_database_keypoints(2xN) : matched keypoints of first image, [v u]
-%  - matched_query_keypoints(2xN) : matched keypoints of second image, [v u]
-%  - corr_ldk_matches(1xN) : indices of landmarks corresponding to matched keypoints
+%  - query_keypoints(2xN) : matched keypoints of second image, [v u]
+%  - matches (2xN):  indices vector where the i-th coefficient is the index of
+%    database_keypoints which matches to the i-th entry of matched_query_keypoints.
+
 
 global fig_cont;
 
@@ -31,18 +33,8 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
 % display fraction of matched keypoints
-fprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f %%)\n',...
+fprintf('  Number of new keypoints matched with prev keypoints by descriptor: %i (%0.2f %%)\n',...
         nnz(matches),100*nnz(matches)/size(database_keypoints,2));
-
-% filter invalid matches
-[~,matched_query_indices,matched_database_indices] = find(matches);
-matched_query_keypoints = query_keypoints(:,matched_query_indices);
-matched_database_keypoints = database_keypoints(:,matched_database_indices);
-corr_ldk_matches = matches(matches > 0); % only for link to landmark !!!
-
-% check for consistent correspondences
-assert(size(matched_query_keypoints,2) == length(corr_ldk_matches) && ...
-       size(matched_database_keypoints,2) == length(corr_ldk_matches));
 
 % display valid correspondences
 if params.cont.show_new_keypoints

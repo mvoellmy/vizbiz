@@ -1,4 +1,4 @@
-function [matched_database_keypoints, matched_query_keypoints] = ...
+function [matched_database_keypoints, matched_query_keypoints, query_keypoints] = ...
     findCorrespondeces(params, database_image, query_image)
 % Detects N keypoint correspondeces given image pair
 % and returns the SORTED keypoints of both images.
@@ -9,8 +9,9 @@ function [matched_database_keypoints, matched_query_keypoints] = ...
 %  - query_image(size) : second image
 %
 % Output:
-%  - matched_database_keypoints(2xN) : matched keypoints of first image, each [u v]
-%  - matched_query_keypoints(2xN) : matched keypoints of second image, each [u v]
+%  - matched_database_keypoints(2xN) : matched keypoints of first image,  each [u v]
+%  - matched_query_keypoints(2xN) : matched keypoints of second image, each  [u v]
+%  - query_keypoints(2xN): All query keypoints found [v u] !!!!
 
 global fig_init;
 

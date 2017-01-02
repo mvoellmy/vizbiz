@@ -9,8 +9,7 @@ addpath(genpath('visualization'));
 
 %% Load parameter struct
 fprintf('load parameter struct...\n');
-mode = 1; % todo: needed?
-params = loadParameters(mode);
+params = loadParameters();
 
 %% Setup datasets
 if params.ds == 0
@@ -74,15 +73,18 @@ end
 %% Initialize VO pipeline
 fprintf('initialize VO pipeline...\n');
 
+global fig_kp_tracks;
+fig_kp_tracks = figure('name','Keypoint tracker');
+
 % transformation C1 to W (90deg x-axis rotation)
 T_WC1 = [1      0           0       0;
          0      0           1       0;
-         0     -1           0       0;
+         0      -1          0       0;
                  zeros(1,3)         1];
-
+             
 tic;
 % initialize pipeline with bootstrap images
-[img_init,keypoints_init,C2_landmarks_init,T_C1C2] = initPipeline(params,img0,img1,K, T_WC1);
+[img_init,keypoints_init,C2_landmarks_init,T_C1C2, kp_tracks] = initPipeline(params,img0,img1,K, T_WC1);
 toc;
 
 % normalize scale with ground truth
@@ -117,7 +119,7 @@ end
 fprintf('...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
-global fig_cont fig_RANSAC_debug;
+global fig_cont fig_RANSAC_debug fig_kp_triangulate;
 
 if params.run_continous
     fprintf('start continuous VO operation...\n');
@@ -125,49 +127,63 @@ if params.run_continous
 	% setup figure handles
 	fig_cont = figure('name','Contiunous VO estimation');
 	fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
+    fig_kp_triangulate = figure('name', 'triangulate');
 
 	% hand-over initialization variables
 	img_prev = img_init;
-	keypoints_prev = keypoints_init;
+    % container for prev kp which have corresponding landmarks
+    keypoints_prev_triang = keypoints_init;
+    % container for matched keypoints which have yet no corresponding
+    % landmark, and the pose where they were seen the first time --> keypoint tracker
+        
+    % landmarks in last camera frame
 	Ci_landmarks_prev = C2_landmarks_init;
-	match_indices_prev = 1:size(keypoints_prev,2);
-
+    
     for j = range_cont
 		fprintf('Processing frame %d\n=====================\n', j);
         frame_idx = j-bootstrap_frame_idx_2+2; % due to init +2
-        
+
         % pick current frame
         img = getFrame(params, j);
         
-        if (size(keypoints_prev,2) > 0) % todo: minimum number?        
+        if (size(keypoints_prev_triang,2) > 6) % todo: minimum number?        
             tic;
             % process newest image
-            [T_CiCj_vo_j(:,:,frame_idx),keypoints_new,Cj_landmarks_new] = processFrame(params,img,img_prev,keypoints_prev,Ci_landmarks_prev,K);
+            
+            % extract current camera pose
+            T_WCi = T_WCj_vo(:,:,frame_idx-1); 
+            
+            [T_CiCj_vo_j(:,:,frame_idx),keypoints_new_triang, updated_kp_tracks,Cj_landmarks_new] =...
+                processFrame(params,img,img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev,T_WCi, K);
             toc;
-
+            
             % add super title with frame number
             figure(fig_cont);
-            suptitle(sprintf('Frame #%i',j));
+%            suptitle(sprintf('Frame #%i',j));
         else
-            warning('No keypoints left!!');
+            warning('Too few keypoints left!! Break continuous operation loop - Terminating...');
             break;
         end
 
         % append newest Cj to T transformation
         T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1)*T_CiCj_vo_j(:,:,frame_idx);
-
+        
         % update map with new landmarks
+        W_landmarks_new = [];
+        if size(Cj_landmarks_new,2)>0
         W_P_hom_new = T_WCj_vo(:,:,frame_idx)*[Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
         W_landmarks_new = W_P_hom_new(1:3,:);
-        W_landmarks_map = [W_landmarks_map W_landmarks_new];
+        end
+        W_landmarks_map = [W_landmarks_map, W_landmarks_new];
 
         % allow plots to refresh
-        pause(1.01);
+        pause(.011);
 
-        % update previous image, keypoints and landmarks
-%         img_prev = img;
-%         keypoints_prev = keypoints_new;
-%         Ci_landmarks_prev = Cj_landmarks_new;
+        % update previous image, keypoints, landmarks and tracker
+        img_prev = img;
+        keypoints_prev_triang = keypoints_new_triang;
+        Ci_landmarks_prev = Cj_landmarks_new;
+        kp_tracks = updated_kp_tracks;
 
         fprintf('\n');
     end

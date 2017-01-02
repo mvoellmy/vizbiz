@@ -1,9 +1,7 @@
-function params = loadParameters(mode)
+function params = loadParameters()
 % Returns collection of parameters used throughout the VO pipeline.
 % 
-% Input:
-%  - mode(1x1) : parameter setting mode
-%
+
 % Output:
 %  - params(struct) : parameter struct
 
@@ -11,9 +9,10 @@ function params = loadParameters(mode)
 params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
-params.compare_against_groundthruth = false;
-params.run_continous = false;
-params.show_map_and_cams = false;
+params.compare_against_groundthruth = true;
+params.run_continous = true;
+params.show_map_and_cams = true;
+
 
 % bootstrap parameters
 params.boot.show_bootstrap_images = true;
@@ -47,29 +46,30 @@ params.eightPoint_ransac.show_inlier_matches = true;
 params.eightPoint_ransac.p_success = 0.999999;
 params.eightPoint_ransac.fract_inliers = 0.5;
 params.eightPoint_ransac.max_error = 1;
+params.eightPoint_ransac_cont.max_error = 1;
 
 % continuous operation parameters
-params.cont.run_on_first_x_images = 1; % 0: for all images
+
+params.cont.run_on_first_x_images = 40; % 0 for all images
 params.cont.show_current_image = true;
 params.cont.show_new_keypoints = true;
 params.cont.show_matches = true;
 params.cont.landmarks_cutoff = 5;
 
 params.localization_ransac.show_matched_keypoints = true;
-params.localization_ransac.show_inlier_matches = true;
+params.localization_ransac.show_inlier_matches = false;
 
 params.localization_ransac.use_p3p = true;
-params.localization_ransac.num_iterations_pnp = 2000; % 2000 fix?
+params.localization_ransac.num_iterations_pnp = 3000; % 2000 fix?
 params.localization_ransac.num_iterations_DLT = 200;
 params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]
 params.localization_ransac.show_iterations = true;
 
-
-% mode specific parameters
-if mode == 1
-
-else
-    error('invalid parameter mode');
-end
+params.keypoint_tracker.show_matches = true;
+params.keypoint_tracker.show_triangulated = true;
+params.keypoint_tracker.bearing_low_thr = 3.2;
+params.keypoint_tracker.bearing_up_thr = params.keypoint_tracker.bearing_low_thr*2.5;
+params.keypoint_tracker.min_nr_trackings = 3;
+params.keypoint_tracker.max_reproj_error = 12; % [pixels]
 
 end
