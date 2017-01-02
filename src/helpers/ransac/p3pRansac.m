@@ -16,7 +16,7 @@ function [R_CiCj, Ci_t_CiCj, matched_query_inlier_keypoints, Ci_corresponding_in
 %  - matched_query_inlier_keypoints(2xN) : inlier query keypoints, [v u]
 %  - Ci_corresponding_inlier_landmarks(3xN) : inlier landmarks
 
-global fig_cont fig_RANSAC_debug;
+global fig_cont fig_RANSAC_debug gui_handles;
 
 % choose RANSAC options
 if params.localization_ransac.use_p3p
@@ -160,5 +160,10 @@ Ci_t_CiCj = -R_CiCj*Cj_t_CjCi;
 
 % flip keypoints back to restore [v u] order
 matched_query_inlier_keypoints = flipud(matched_query_keypoints_uv);
+
+% update gui inlier keypoints
+if params.through_gui && params.gui.show_inlier_features
+    gui_updateKeypoints(matched_query_inlier_keypoints, gui_handles.ax_current_frame, 'g.');
+end
 
 end

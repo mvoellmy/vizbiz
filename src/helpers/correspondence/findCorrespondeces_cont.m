@@ -14,7 +14,7 @@ function [query_keypoints, matches] = ...
 %  - matches (2xN):  indices vector where the i-th coefficient is the index of
 %    database_keypoints which matches to the i-th entry of matched_query_keypoints.
 
-global fig_cont;
+global fig_cont gui_handles;
 
 % compute harris scores for query image
 query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
@@ -50,6 +50,16 @@ if params.cont.show_new_keypoints
     subplot(2,1,2);
     imshow(query_image);
     hold on;
+end
+
+% update gui image
+if params.through_gui
+    gui_updateImage(query_image, gui_handles.ax_current_frame);
+end
+
+% update gui keypoints
+if params.through_gui && params.gui.show_all_features
+    gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
 end
 
 end
