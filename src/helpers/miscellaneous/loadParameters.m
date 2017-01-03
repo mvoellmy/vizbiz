@@ -75,9 +75,9 @@ params.localization_ransac.show_iterations = false;
 
 params.kp_tracker.show_matches = true;
 params.kp_tracker.show_triangulated = true;
-params.kp_tracker.bearing_low_thr = 3.2; % [deg]
-params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*2.5; % [deg]
-params.kp_tracker.min_nr_trackings = 2; % 3
+params.kp_tracker.bearing_low_thr = 5; % [deg]
+params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*1.5; % [deg]
+params.kp_tracker.min_nr_trackings = 3; % 3
 params.kp_tracker.max_reproj_error = 10; % 12 [pixels]
 
 end
