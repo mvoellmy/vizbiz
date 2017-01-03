@@ -73,9 +73,8 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
     end   
     
     % append all new found keypoints and their pose
-    new_kp_1 = query_keypoints(:,matches_untriang==0); % todo: describe
-    new_kp_2 = []; % todo: use?
-    new_kp = [new_kp_1, new_kp_2]; % kp which could not be matched
+    new_kp = query_keypoints(:,matches_untriang==0); % todo: describe
+
 else
     new_kp = query_keypoints(:,matches_untriang==0);
 end
