@@ -26,7 +26,7 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks] =..
 %    verified inliers by ransac + new triangulated landmarks
 % todo
 
-global fig_cont fig_kp_tracks fig_kp_triangulate;
+global fig_cont fig_kp_tracks fig_kp_triangulate gui_handles;
 
 % show current frame
 if (params.cont.figures && params.cont.show_new_image)
@@ -123,6 +123,11 @@ Cj_P_hom = [Cj_P_hom_inliers, Cj_P_hom_new_inliers];
 Cj_new_landmarks = [];
 if (size(Cj_P_hom,2)>0)
     Cj_new_landmarks = Cj_P_hom(1:3,:);
+end
+
+% update gui triangulated keypoints
+if params.through_gui && params.gui.show_triang_features
+    gui_updateKeypoints(p_new_matched_triang, gui_handles.ax_current_frame, 'gx');
 end
 
 % display statistics
