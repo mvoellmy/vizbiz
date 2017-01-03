@@ -233,7 +233,7 @@ if params.run_continous
         end
 
         % allow plots to refresh
-        pause(0.01);       
+        pause(0.01);
 
         % update previous image, keypoints, landmarks and tracker
         img_prev = img;

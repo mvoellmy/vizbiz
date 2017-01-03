@@ -13,7 +13,7 @@ function [img1, img2, bootstrap_frame_1_idx, bootstrap_frame_2_idx] = getBootstr
 
 global fig_boot gui_handles;
 
-if (params.boot.figures && params.boot.show_boot_images)
+if params.boot.figures
     fig_boot = figure('name','Bootstrapping');
 end
 
@@ -35,10 +35,6 @@ if params.auto_bootstrap
             sprintf('/images/img_%05d.png',bootstrap_frame_1_idx)]));
     else
         assert(false);
-    end
-    
-    if params.through_gui
-        gui_updateImage(img1, gui_handles.ax_current_frame);
     end
     
     % compute harris scores for database image
@@ -75,6 +71,10 @@ if params.auto_bootstrap
             % and RANSAC for outlier rejection
             [E, inliers] = eightPointRansac(params, p_hom_i1, p_hom_i2, K, K);
     
+            % extract inlier keypoints
+            p_hom_inlier_i1 = p_hom_i1(:,inliers);
+            p_hom_inlier_i2 = p_hom_i2(:,inliers);
+            
             % extract the relative camera pose (R,t) from the essential matrix
             [Rots, u3] = decomposeEssentialMatrix(E);
 
@@ -93,13 +93,31 @@ if params.auto_bootstrap
             % triangulate a point cloud using the final transformation (R,t)
             M1 = K*T_C1C1(1:3,:);
             M2 = K*T_C2C1(1:3,:);
-            C1_P_hom_init = linearTriangulation(p_hom_i1, p_hom_i2, M1, M2);
+            C1_P_hom_init = linearTriangulation(p_hom_inlier_i1, p_hom_inlier_i2, M1, M2);
 
             % discard landmarks not contained in cylindrical neighborhood
-            [C1_P_hom_init, ~] = applySphericalFilter(params, C1_P_hom_init, params.boot.landmarks_cutoff);
-
+            [C1_P_hom_init, outFOV_idx] = applySphericalFilter(params, C1_P_hom_init, params.boot.landmarks_cutoff);
+            % filter corresponding keypoints
+            p_hom_inlier_i1(:,outFOV_idx) = [];
+            p_hom_inlier_i2(:,outFOV_idx) = [];
+            
+            % show inlier and filtered matches
+            if (params.boot.figures && params.boot.show_keypoints && params.boot.show_inlier_matches)
+                figure(fig_boot);
+                subplot(2,2,4);
+                showMatchedFeatures(img1, img_candidate,...
+                                    p_hom_inlier_i1(1:2,:)',...
+                                    p_hom_inlier_i2(1:2,:)', 'blend', 'PlotOptions', {'rx','gx','y-'});
+                title('Filtered inlier keypoint matches');
+            end
+            
+            % update filtered inlier gui keypoints
+            if params.through_gui && params.gui.show_inlier_features
+                gui_updateKeypoints(flipud(p_hom_inlier_i2(1:2,:)), gui_handles.ax_current_frame, 'g.');
+            end
+    
             % show bootstrap pair landmarks
-            if (params.boot.figures && params.boot.show_boot_landmarks)
+            if (params.boot.figures && params.boot.show_landmarks)
                 figure('name',sprintf('Landmarks frame pair (%i,%i)', bootstrap_frame_1_idx, candidate_frame_idx));
                 plotLandmarks(C1_P_hom_init(1:3,:),'y','down');
             end
@@ -123,6 +141,9 @@ if params.auto_bootstrap
                 img2 = getFrame(params, bootstrap_frame_2_idx);
                 bootstrap_pair_found = true;
             end
+            % allow plots to refresh
+            pause(0.01);
+            
             updateConsole(params, '\n');
         end
     elseif app == 2
@@ -157,7 +178,7 @@ else
         assert(false);
     end
     
-    if (params.boot.figures && params.boot.show_boot_images)
+    if (params.boot.figures && params.show_boot_images)
         figure(fig_boot);
         subplot(2,1,1);
         imshow(img1);

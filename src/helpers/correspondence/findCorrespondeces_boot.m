@@ -46,7 +46,7 @@ matched_database_keypoints = flipud(database_keypoints(:,matched_database_indice
 assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
 
 % display bootstrap pair keypoints
-if params.boot.show_boot_keypoints
+if (params.boot.figures && params.boot.show_keypoints)
     figure(fig_boot);
     
     subplot(2,2,1);
@@ -64,15 +64,10 @@ if params.boot.show_boot_keypoints
     % display valid correspondences
     if params.boot.show_matches
         subplot(2,2,3);
-        showMatchedFeatures(database_image,query_image,matched_database_keypoints',matched_query_keypoints');
-        title('Bootstrap frame pair matches');
-        
-        subplot(2,2,4);
-        imshow(query_image);
-        hold on;
-        plotPoints(flipud(matched_query_keypoints),'r.');
-        plotMatches(matches,query_keypoints,database_keypoints,'m-');
-        title('Initialization image with matches');
+        showMatchedFeatures(database_image, query_image,...
+                            matched_database_keypoints',...
+                            matched_query_keypoints', 'blend', 'PlotOptions', {'rx','rx','m-'});
+        title('Bootstrap all keypoint matches');     
     end
 end
 
