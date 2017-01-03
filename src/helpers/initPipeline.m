@@ -19,6 +19,15 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = i
 
 global fig_init gui_handles;
 
+% create container for keypoint tracker (new keypoints with no landmarks)
+% set of candidate keypoints in last camera frame
+kp_tracks.candidate_kp = []; % 2xN
+% keypoint coordinates of every candiate in its first observed frame
+kp_tracks.first_obs_kp = [];  % 2xN
+% keypoint pose of every candiate in its first observed frame
+kp_tracks.first_obs_pose = []; % 16xN
+kp_tracks.nr_trackings = []; % 1xN
+
 if params.init.use_KITTI_precalculated_init % todo: still needed?
     % assign second image as initialization image
     I_init = I_i2;
@@ -31,6 +40,7 @@ if params.init.use_KITTI_precalculated_init % todo: still needed?
     C2_landmarks_init = load('../datasets/kitti/precalculated/landmarks.txt')';
     
     T_C1C2 = eye(4);
+    kp_tracks_init = kp_tracks;
 else
     % assign second image as initialization image
     I_init = I_i2;
@@ -120,16 +130,7 @@ else
                   '  Number of initialization landmarks: %i\n'],...
                   size(keypoints_init,2), size(C2_landmarks_init,2)));
     
-	% initialise keypoint tracker
-    % create container for keypoint tracker (new keypoints with no landmarks)
-    % set of candidate keypoints in last camera frame
-    kp_tracks.candidate_kp = []; % 2xN
-    % keypoint coordinates of every candiate in its first observed frame
-    kp_tracks.first_obs_kp = [];  % 2xN
-    % keypoint pose of every candiate in its first observed frame
-    kp_tracks.first_obs_pose = []; % 16xN
-    kp_tracks.nr_trackings = []; % 1xN
-    
+	% initialise keypoint tracker   
     kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, query_keypoints, T_WC2);    
 end
 
