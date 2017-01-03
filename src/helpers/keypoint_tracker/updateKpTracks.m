@@ -16,6 +16,7 @@ kp_tracks_updated.candidate_kp = [];   % 2xN
 kp_tracks_updated.first_obs_kp = [];   % 2xN
 kp_tracks_updated.first_obs_pose = []; % 16xN
 kp_tracks_updated.nr_trackings = []; % 1xN
+new_kp = []; % 2xN
 
 % if there are candiate keypoints, try to match
 if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
@@ -45,6 +46,9 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         kp_tracks_updated.first_obs_kp = kp_tracks_updated.first_obs_kp(:,idx_matched_kp_tracks_cand);
         kp_tracks_updated.first_obs_pose = kp_tracks_updated.first_obs_pose(:,idx_matched_kp_tracks_cand);
         kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(idx_matched_kp_tracks_cand);
+        
+        matches_untriang = validIdx;
+        new_kp = query_keypoints; % TODO: Improve
     else
         % descripe query keypoints
         query_descriptors = describeKeypoints(img_new,query_keypoints,params.corr.descriptor_radius);
@@ -70,16 +74,14 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         kp_tracks_updated.first_obs_kp = kp_tracks_updated.first_obs_kp(:,idx_matched_kp_tracks_cand);
         kp_tracks_updated.first_obs_pose = kp_tracks_updated.first_obs_pose(:,idx_matched_kp_tracks_cand);
         kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(idx_matched_kp_tracks_cand);
-    end   
-    
-    % append all new found keypoints and their pose
-    new_kp_1 = query_keypoints(:,matches_untriang==0); % todo: describe
-    new_kp_2 = []; % todo: use?
-    new_kp = [new_kp_1, new_kp_2]; % kp which could not be matched
+        
+        new_kp = query_keypoints(:,matches_untriang==0); % kp which could not be matched
+    end     
 else
-    new_kp = query_keypoints(:,matches_untriang==0);
+    new_kp = query_keypoints;
 end
 
+% append all new found keypoints and their pose
 T_WCj_col = T_WCj(:); % convert to col vector for storage
 kp_tracks_updated.candidate_kp = [kp_tracks_updated.candidate_kp, new_kp];
 kp_tracks_updated.first_obs_kp = [kp_tracks_updated.first_obs_kp, new_kp]; % is equal to candidate when adding
