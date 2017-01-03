@@ -7,12 +7,12 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 params.run_continous = true;
-params.run_on_first_x_images = 50; % 0 for all images
+params.run_on_first_x_images = 20; % 0 for all images
 params.show_map_and_cams = true;
 params.through_gui = false;
 
@@ -41,7 +41,7 @@ params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
 params.init.use_BA = false;
 params.init.landmarks_cutoff = 100;
-params.init.normalize_scale = true;
+params.init.normalize_scale = false;
 
 % correspondence parameters
 params.corr.harris_patch_size = 9; % 9 [pixels]
@@ -64,7 +64,7 @@ params.cont.show_new_keypoints = true;
 params.cont.use_KLT = true;
 params.cont.show_matches = true;
 params.cont.show_inlier_matches = true;
-params.cont.landmarks_cutoff = 5;
+params.cont.landmarks_cutoff = 100;
 
 params.localization_ransac.show_matched_keypoints = true;
 params.localization_ransac.show_inlier_matches = true;
@@ -76,7 +76,7 @@ params.localization_ransac.show_iterations = false;
 
 params.kp_tracker.show_matches = true;
 params.kp_tracker.show_triangulated = true;
-params.kp_tracker.bearing_low_thr = 5; % [deg]
+params.kp_tracker.bearing_low_thr = 3; % [deg]
 params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*1.5; % [deg]
 params.kp_tracker.min_nr_trackings = 3; % 3
 params.kp_tracker.max_reproj_error = 10; % 12 [pixels]
