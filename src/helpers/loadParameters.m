@@ -38,7 +38,7 @@ params.init.show_inlier_matches = true;
 params.init.show_landmarks = false;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
-params.init.use_BA = false;
+params.init.use_BA = true;
 params.init.landmarks_cutoff = 100;
 params.init.normalize_scale = true;
 
