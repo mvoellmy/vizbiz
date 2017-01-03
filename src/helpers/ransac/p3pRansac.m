@@ -136,7 +136,7 @@ else
 end
 
 % display projected keypoints given best pose and inlier correspondences
-if (max_num_inliers > 0 && params.localization_ransac.show_matched_keypoints)
+if (params.cont.figures && max_num_inliers > 0 && params.localization_ransac.show_matched_keypoints)
     
     Cj_best_guess_projected_pts = projectPoints((R_CjCi_best_guess*Ci_corresponding_inlier_landmarks) + ...
         repmat(-Cj_t_CjCi_best_guess,[1 size(Ci_corresponding_inlier_landmarks, 2)]), K);
@@ -153,7 +153,7 @@ if (max_num_inliers > 0 && params.localization_ransac.show_matched_keypoints)
     
 end
 
-%% end-processing
+%% Post processing
 % calculate inverse rotation matrices
 R_CiCj = R_CjCi';
 Ci_t_CiCj = -R_CiCj*Cj_t_CjCi;

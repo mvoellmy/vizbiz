@@ -51,7 +51,7 @@ matched_database_keypoints = flipud(database_keypoints(:,matched_database_indice
 assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
 
 % display bootstrap pair keypoints % todo: move to initPipeline()
-if params.init.show_keypoints
+if (params.init.figures && params.init.show_keypoints)
     fig_init = figure('name', 'Initialization');
     
     subplot(2,2,1);

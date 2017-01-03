@@ -29,7 +29,7 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks] =..
 global fig_cont fig_kp_tracks fig_kp_triangulate;
 
 % show current frame
-if params.cont.show_current_image
+if (params.cont.figures && params.cont.show_new_image)
     figure(fig_cont);
     subplot(2,1,1);
     imshow(img_new);
@@ -38,14 +38,14 @@ if params.cont.show_current_image
 end
 
 % show current frame
-if params.keypoint_tracker.show_matches
+if params.cont.figures
     figure(fig_kp_tracks);
     imshow(img_new);
     hold on;
 end
 
 % show current frame
-if params.keypoint_tracker.show_triangulated
+if params.cont.figures
     figure(fig_kp_triangulate);
     clf;
     imshow(img_new);
@@ -69,7 +69,7 @@ assert(size(matched_query_keypoints,2) == length(corr_ldk_matches) && ...
        size(matched_database_keypoints,2) == length(corr_ldk_matches));
 
 % display matched keypoints
-if params.localization_ransac.show_matched_keypoints
+if (params.cont.figures && params.localization_ransac.show_matched_keypoints)
     figure(fig_cont);
     subplot(2,1,1);
     plotPoints(matched_query_keypoints,'g.');
@@ -81,7 +81,7 @@ if params.localization_ransac.show_matched_keypoints
     title('Matched kp (green)');
 end
 
-%% Estimate delta rotation from frame Cj to Ci
+%% Estimate transformation Cj to Ci
 [R_CiCj, Ci_t_CiCj, p_new_matched_triang, Ci_corresponding_inlier_landmarks] = ...
     p3pRansac(params, matched_query_keypoints, Ci_corresponding_landmarks, K);
 
@@ -91,7 +91,7 @@ localized = false;
 if (isempty(R_CiCj) && isempty(Ci_t_CiCj))
     R_CiCj = eye(3,3);
     Ci_t_CiCj = zeros(3,1);
-    updateConsole(params, ' !! No transformation found !!\n');
+    updateConsole(params, '  !! No transformation found !!\n');
 else
     updateConsole(params, '  >> Successfully localized\n');
     localized = true;
@@ -100,7 +100,7 @@ end
 % construct new camera pose
 T_CiCj = [R_CiCj   Ci_t_CiCj;
           zeros(1,3)       1];
-T_CjCi = tf2invtf(T_CiCj);      
+T_CjCi = tf2invtf(T_CiCj);
 
 %% Candiate Keypoint tracker
 T_WCj = T_WCi * T_CiCj;
@@ -111,7 +111,8 @@ kp_tracks_updated = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, qu
     triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj);
 
 % append used candidate keypoints to p_new_matched_triang
-p_new_matched_triang = [p_new_matched_triang, p_candidates_j_inliers];
+% rounding because of integer operations in describeKeypoints()
+p_new_matched_triang = [p_new_matched_triang, round(p_candidates_j_inliers)];
 
 Cj_P_hom_inliers = [];
 if localized % otherwise index error since Ci_corresponding_inlier_landmarks = []

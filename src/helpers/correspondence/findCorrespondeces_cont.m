@@ -37,7 +37,7 @@ updateConsole(params,...
               nnz(matches),100*nnz(matches)/size(database_keypoints,2)));
 
 % display all correspondences
-if params.cont.show_new_keypoints
+if (params.cont.figures && params.cont.show_new_keypoints)
     figure(fig_cont);
     subplot(2,1,1);
     imshow(query_image);

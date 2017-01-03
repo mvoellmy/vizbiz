@@ -72,9 +72,8 @@ updateConsole(params, '...boostrapping done.\n');
 
 %% Setup logging variables
 % set range of images to run on
-if (params.cont.run_on_first_x_images > 0)
-    range_cont = (bootstrap_frame_idx_2+1):(bootstrap_frame_idx_2+...
-             params.cont.run_on_first_x_images);
+if (params.run_on_first_x_images > 0)
+    range_cont = (bootstrap_frame_idx_2+1):(bootstrap_frame_idx_2 + params.run_on_first_x_images);
 else
     range_cont = (bootstrap_frame_idx_2+1):last_frame;
 end
@@ -89,8 +88,9 @@ end
 
 %% Initialize VO pipeline
 updateConsole(params, 'initialize VO pipeline...\n');
+
 global fig_kp_tracks;
-if params.keypoint_tracker.show_figure
+if params.cont.figures
     fig_kp_tracks = figure('name','Keypoint tracker');
 end
 
@@ -148,7 +148,7 @@ if params.through_gui
 end
 
 % display initialization landmarks and bootstrap motion
-if params.init.show_landmarks
+if (params.init.figures && params.init.show_landmarks)
     figure('name','Landmarks and motion of initialization image pair');
     hold on;
     plotLandmarks(W_landmarks_init, 'z', 'up');
@@ -156,7 +156,7 @@ if params.init.show_landmarks
     plotCam(T_WCj_vo(:,:,2), 1, 'red');
 end
 
-updateConsole(params, '...initialization done.\n');
+updateConsole(params, '...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
 global fig_cont fig_RANSAC_debug fig_kp_triangulate;
@@ -165,11 +165,15 @@ if params.run_continous
     updateConsole(params, 'start continuous VO operation...\n');
     
 	% setup figure handles
-	fig_cont = figure('name','Contiunous VO estimation');
-    if params.localization_ransac.show_iterations
-        fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
+    if params.cont.figures
+        fig_cont = figure('name','Contiunous VO estimation');
+        if params.localization_ransac.show_iterations
+            fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
+        end
     end
-    fig_kp_triangulate = figure('name', 'triangulate');
+    if params.cont.figures
+        fig_kp_triangulate = figure('name', 'triangulate');
+    end
     
 	% hand-over initialization variables
 	img_prev = img_init;
@@ -194,7 +198,7 @@ if params.run_continous
                 processFrame(params, img, img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
             
             % add super title with frame number
-            if params.cont.show_current_image
+            if params.cont.figures
                 figure(fig_cont);
                 suptitle(sprintf('Frame #%i',j));
             end

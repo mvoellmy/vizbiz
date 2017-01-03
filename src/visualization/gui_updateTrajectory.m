@@ -8,13 +8,12 @@ function gui_updateTrajectory(W_trajectory, axes_handle, plot_handle)
 %
 % Output: none
 
-axes(axes_handle);
-
 % update data to plot
+axes(axes_handle);
 plot_handle.XData = W_trajectory(1,:);
 plot_handle.YData = W_trajectory(2,:);
 
-w = 100; % window size
+w = 100; % window size, todo: parametrize?
 x_last = W_trajectory(1,end);
 y_last = W_trajectory(2,end);
 

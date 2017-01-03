@@ -15,7 +15,7 @@ function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated ] =..
 % Output:
 % - Cj_P_hom_new_inliers [4xN]: New landmarks filtered homogenized
 % - p_candidates_j_inliers [2xN]: Keypoints corresponding to landmarks [v u]
-% todo
+% todo: describe, use global figures
 
 %% Triangulate new landmarks
 % calculate bearing angle
@@ -25,16 +25,16 @@ vector_j = [kp_tracks_updated.candidate_kp;repmat(K(1,1),[1, size(kp_tracks_upda
 bearing_angle_deg = atan2d(twoNormMatrix(cross(vector_j,vector_first)),dot(vector_j,vector_first));
 
 % create idx vector of trianguable candidate points
-idx_good_trianguable = ((bearing_angle_deg > params.keypoint_tracker.bearing_low_thr)...
-    & (kp_tracks_updated.nr_trackings >= params.keypoint_tracker.min_nr_trackings)...
-    & (bearing_angle_deg < params.keypoint_tracker.bearing_up_thr));
+idx_good_trianguable = ((bearing_angle_deg > params.kp_tracker.bearing_low_thr)...
+    & (kp_tracks_updated.nr_trackings >= params.kp_tracker.min_nr_trackings)...
+    & (bearing_angle_deg < params.kp_tracker.bearing_up_thr));
 
 p_candidates_first = kp_tracks_updated.first_obs_kp(:,idx_good_trianguable);
 p_candidates_first_pose = kp_tracks_updated.first_obs_pose(:,idx_good_trianguable);
 p_candidates_j = kp_tracks_updated.candidate_kp(:,idx_good_trianguable);
 
 % show matches from first and j image of keypoints
-if params.keypoint_tracker.show_matches
+if (params.cont.figures && params.kp_tracker.show_matches)
     figure(fig_kp_tracks);
     if (size(p_candidates_first,2) > 0) % 0 in first frame
         plotPoints(p_candidates_first(1:2,:),'gx');
@@ -94,7 +94,7 @@ if (nnz(idx_Ci_P_hom_new_realistic)>0)
     Cj_reprojected_points_uv = projectPoints(Cj_P_hom_new(1:3,:), K);
     difference = p_candidates_j - flipud(Cj_reprojected_points_uv);
     errors = sum(difference.^2, 1);
-    reproj_inliers = errors < params.keypoint_tracker.max_reproj_error^2;
+    reproj_inliers = errors < params.kp_tracker.max_reproj_error^2;
 
     Cj_P_hom_new_inliers = Cj_P_hom_new(:, reproj_inliers);
     p_candidates_j_inliers = p_candidates_j(:, reproj_inliers);
@@ -103,12 +103,12 @@ if (nnz(idx_Ci_P_hom_new_realistic)>0)
                   nnz(~reproj_inliers), size(Cj_P_hom_new,2)));
     
 else
-    updateConsole(params, '  None of the triangulated landmarks was realistic!\n');
+    updateConsole(params, '  None of the triangulated landmarks were realistic!\n');
     p_candidates_j = [];
 end
 
-%% display triangulated backprojected keypoints
-if params.keypoint_tracker.show_triangulated
+% display triangulated backprojected keypoints
+if (params.cont.figures && params.kp_tracker.show_triangulated)
     good_idx_match = 1:size(Cj_reprojected_points_uv,2);
     figure(fig_kp_triangulate);
     if (size(p_candidates_j,2) > 0) % 0 in first frame
