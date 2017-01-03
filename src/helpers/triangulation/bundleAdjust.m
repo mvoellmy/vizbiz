@@ -1,10 +1,13 @@
 function [ W_P_refined, T_WC_refined ] = bundleAdjust(W_P, p, T_WC, K, fixed_cams )
+
 % Wraps our conventionally used parameters to be used with the Bundle
 % Adjust function of Matlab. See implementation in initPipeline.m
 % Attention! Inputs are NOT homogenized coordinates.
 % 
 % Input:
 %  - W_P(3xN)     : list of 3D Points in world-frame
+%  - params(struct) : parameter struct
+%  - P(3xN)     : list of 3D Points in world-frame
 %  - p(nC*2xN)  : matrix containing 2D Points sorted according to
 %  their correspondance with each other and the 3D points.
 
@@ -25,7 +28,7 @@ function [ W_P_refined, T_WC_refined ] = bundleAdjust(W_P, p, T_WC, K, fixed_cam
 %  Preallocate point_tracks
 %  Remove for loops where possible
 
-fprintf('  bundle adjust points...\n')
+updateConsole(params, '  bundle adjust points...\n');
 
 nr_of_cams = size(T_WC, 3);
 nr_of_keypoints = size(p,2);
