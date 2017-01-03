@@ -67,8 +67,18 @@ for i=1:size(p_candidates_first,2)
     % triangulate landmark    
     Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first_uv(:,i),p_hom_candidates_j_uv(:,i),M_Cfirst,M_CjCfirst);
     Cj_P_hom_new(:,i) = T_CjCfirst*Cfirst_P_hom_new(:,i);
-
 end
+
+if size(p_candidates_first,2) > 0
+    [Cfirst_P_hom_new, outFOV_idx] = applySphericalFilter(params, Cfirst_P_hom_new, params.cont.landmarks_cutoff);
+    Cj_P_hom_new = T_CjCfirst*Cfirst_P_hom_new;
+    figure
+    hold on
+    plotLandmarks(Cfirst_P_hom_new(1:3,:), 'y', 'down')
+    plotCam(eye(3,4), 5, 'black')
+    plotCam(T_CjCfirst, 5, 'red')
+end
+
 
 %% Update keypoint tracks, Cj_landmarks and p_new_matched_triang
 % delete candidate keypoint used for triangulation from updated_kp_tracks
@@ -78,7 +88,6 @@ kp_tracks_updated.first_obs_pose = kp_tracks_updated.first_obs_pose(:,~idx_good_
 kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(~idx_good_trianguable);
 
 %% Filter landmarks with 'cylindrical' and reprojection filter
-% [Cj_hom_landmarks_new, outFOV_idx] = applyCylindricalFilter(Cj_hom_landmarks_new, params.cont.landmarks_cutoff);
 idx_Ci_P_hom_new_realistic = find(Cj_P_hom_new(3,:)>0);
 
 Cj_reprojected_points_uv = [];
