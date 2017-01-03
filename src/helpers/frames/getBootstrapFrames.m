@@ -11,9 +11,9 @@ function [img1, img2, bootstrap_frame_1_idx, bootstrap_frame_2_idx] = getBootstr
 %  - bootstrap_frame_1_idx(1x1) : dataset image index of img0
 %  - bootstrap_frame_2_idx(1x1) : dataset image index of img1
 
-global fig_boot;
+global fig_boot gui_handles;
 
-if params.boot.show_bootstrap_images
+if (params.boot.figures && params.boot.show_boot_images)
     fig_boot = figure('name','Bootstrapping');
 end
 
@@ -51,7 +51,12 @@ if params.auto_bootstrap
         
         % read in candidate image
         img_candidate = getFrame(params, candidate_frame_idx);
-
+        
+        % update gui image
+        if params.through_gui
+            gui_updateImage(img_candidate, gui_handles.ax_current_frame);
+        end
+        
         % find 2D correspondences (sorted)
         [p_i1, p_i2] = findCorrespondeces_boot(params, img1, database_keypoints, img_candidate);
 
@@ -87,15 +92,16 @@ if params.auto_bootstrap
         [C1_P_hom_init, ~] = applyCylindricalFilter(C1_P_hom_init, params.boot.landmarks_cutoff);
         
         % show bootstrap pair landmarks
-        if params.boot.show_boot_landmarks
+        if (params.boot.figures && params.boot.show_boot_landmarks)
             figure('name',sprintf('Landmarks frame pair (%i,%i)', bootstrap_frame_1_idx, candidate_frame_idx));
             plotLandmarks(C1_P_hom_init(1:3,:),'y','down');
         end
         
         % calculate average depth of triangulated points
         C1_avg_depth = mean(C1_P_hom_init(3,:));
-        fprintf('  Baseline-Depth ratio of frame pair (%i,%i): %0.1f %%\n',...
-                bootstrap_frame_1_idx, candidate_frame_idx, 100*C1_baseline/C1_avg_depth);
+        updateConsole(params,...
+                      sprintf('  Baseline-Depth ratio of frame pair (%i,%i): %0.1f %%\n',...
+                      bootstrap_frame_1_idx, candidate_frame_idx, 100*C1_baseline/C1_avg_depth));
         
         % check for sufficient number of bootstrap inlier matches
         if (max_num_inliers > params.boot.min_num_inlier_kps)
@@ -110,7 +116,7 @@ if params.auto_bootstrap
             img2 = getFrame(params, bootstrap_frame_2_idx);
             bootstrap_pair_found = true;
         end
-        fprintf('\n');
+        updateConsole(params, '\n');
     end
 
 else
@@ -140,22 +146,30 @@ else
     else
         assert(false);
     end
-        
-    figure(fig_boot);
-    subplot(2,1,1);
-    imshow(img1);
-    axis equal;
-    title('Bootstrap frame 1');
     
-    subplot(2,1,2);
-    imshow(img2);
-    axis equal;
-    title('Bootstrap frame 2');
+    if (params.boot.figures && params.boot.show_boot_images)
+        figure(fig_boot);
+        subplot(2,1,1);
+        imshow(img1);
+        axis equal;
+        title('Bootstrap frame 1');
+
+        subplot(2,1,2);
+        imshow(img2);
+        axis equal;
+        title('Bootstrap frame 2');
+    end
+    
+    % update gui image
+    if params.through_gui
+        gui_updateImage(img1, gui_handles.ax_current_frame);
+    end
 end
 
 % display frames chosen
-fprintf(['  Bootstrap image 1 index: %i\n',...
-         '  Bootstrap image 2 index: %i\n'],...
-         bootstrap_frame_1_idx, bootstrap_frame_2_idx);
+updateConsole(params,...
+    sprintf(['  Bootstrap image 1 index: %i\n',...
+             '  Bootstrap image 2 index: %i\n'],...
+             bootstrap_frame_1_idx, bootstrap_frame_2_idx));
 
 end

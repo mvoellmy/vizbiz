@@ -13,10 +13,10 @@ function [matched_database_keypoints, matched_query_keypoints, query_keypoints] 
 %  - matched_query_keypoints(2xN) : matched keypoints of second image, each  [u v]
 %  - query_keypoints(2xN): All query keypoints found [v u] !!!!
 
-global fig_init;
+global fig_init gui_handles;
 
 % todo: move params into subroutines, expose only method string
-% compute harris scores for query image % todo: move int keypoint-selection
+% compute harris scores for query image % todo: move into keypoint-selection
 query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
 
 % compute harris scores for query image
@@ -38,20 +38,21 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
 % display fraction of matched keypoints
-fprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f %%)\n',...
-        nnz(matches),100*nnz(matches)/size(database_keypoints,2));
+updateConsole(params,...
+              sprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f perc.)\n',...
+              nnz(matches), 100*nnz(matches)/size(database_keypoints,2)));
 
 % filter invalid matches
-[~,matched_query_indices,matched_database_indices] = find(matches);
+[~, matched_query_indices, matched_database_indices] = find(matches);
 matched_query_keypoints = flipud(query_keypoints(:,matched_query_indices));
 matched_database_keypoints = flipud(database_keypoints(:,matched_database_indices));
 
 % check for consistent correspondences
 assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
 
-% display bootstrap pair keypoints
-if params.init.show_init_keypoints
-    fig_init = figure('name','Initialization');
+% display bootstrap pair keypoints % todo: move to initPipeline()
+if (params.init.figures && params.init.show_keypoints)
+    fig_init = figure('name', 'Initialization');
     
     subplot(2,2,1);
     imshow(database_image);
@@ -66,18 +67,18 @@ if params.init.show_init_keypoints
     title('Initialization frame 2 keypoints');
     
     % display valid correspondences
-    if params.init.show_corr_matches        
+    if params.init.show_matches
         subplot(2,2,3);
-        showMatchedFeatures(database_image,query_image,matched_database_keypoints',matched_query_keypoints');
-        title('Initialization frame pair matches');
-        
-        subplot(2,2,4);
-        imshow(query_image);
-        hold on;
-        plotPoints(flipud(matched_query_keypoints),'r.');
-        plotMatches(matches,query_keypoints,database_keypoints,'m-');
-        title('Initialization (2) image with matches');
+        showMatchedFeatures(database_image, query_image,...
+                            matched_database_keypoints',...
+                            matched_query_keypoints', 'blend', 'PlotOptions', {'rx','rx','m-'});
+        title('Candidate keypoint matches');     
     end
+end
+
+% update gui keypoints % todo: move to initPipeline()
+if params.through_gui && params.gui.show_all_features
+    gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
 end
 
 end

@@ -15,7 +15,7 @@ function [matched_database_keypoints, matched_query_keypoints] = ...
 %  - matches (2xN):  indices vector where the i-th coefficient is the index of
 %    database_keypoints which matches to the i-th entry of matched_query_keypoints.
 
-global fig_boot;
+global fig_boot gui_handles;
 
 % compute harris scores for query image
 query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
@@ -31,6 +31,11 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 
 % match descriptors
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+
+% update gui keypoints
+if params.gui.show_all_features
+    gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
+end
 
 % display fraction of matched keypoints
 fprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f %%)\n',...
