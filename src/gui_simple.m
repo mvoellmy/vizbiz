@@ -125,6 +125,11 @@ function radio_inlier_features_Callback(hObject, eventdata, handles)
 handles.params.gui.show_inlier_features = get(hObject,'Value');
 guidata(hObject, handles);
 
+function radio_triang_features_Callback(hObject, eventdata, handles)
+
+handles.params.gui.show_triang_features = get(hObject,'Value');
+guidata(hObject, handles);
+
 function popup_dataset_Callback(hObject, eventdata, handles)
 
 val = get(handles.popup_dataset,'Value');
@@ -174,6 +179,7 @@ set(handles.radio_use_BA,'Value',0);
 set(handles.radio_run_continuous,'Value',0);
 set(handles.radio_all_features,'Value',0);
 set(handles.radio_inlier_features,'Value',0);
+set(handles.radio_triang_features,'Value',0);
 
 % clear console
 set(handles.listbox_console,'String','');
@@ -235,7 +241,7 @@ handles.params = loadParameters();
 % set general parameters
 handles.params.perf.profiling = false;
 handles.params.compare_against_groundthruth = false;
-handles.params.run_on_first_x_images = 0; % 0 for all images
+handles.params.run_on_first_x_images = 100; % 0 for all images
 handles.params.show_map_and_cams = false;
 handles.params.through_gui = true;
 % disable debug figures
@@ -272,5 +278,6 @@ handles.params.init.use_BA = get(handles.radio_use_BA,'Value');
 handles.params.run_continous = get(handles.radio_run_continuous,'Value');
 handles.params.gui.show_all_features = get(handles.radio_all_features,'Value');
 handles.params.gui.show_inlier_features = get(handles.radio_inlier_features,'Value');
+handles.params.gui.show_triang_features = get(handles.radio_triang_features,'Value');
 
 guidata(hObject, handles);
