@@ -68,7 +68,7 @@ if params.through_gui
     gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
 end
 
-updateConsole(params, '...boostrapping done.\n');
+updateConsole(params, '...boostrapping done.\n\n');
 
 %% Setup logging variables
 % set range of images to run on

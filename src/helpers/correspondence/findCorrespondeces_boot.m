@@ -32,14 +32,10 @@ database_descriptors = describeKeypoints(database_image,database_keypoints,param
 % match descriptors
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 
-% update gui keypoints
-if params.gui.show_all_features
-    gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
-end
-
 % display fraction of matched keypoints
-fprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f %%)\n',...
-        nnz(matches),100*nnz(matches)/size(database_keypoints,2));
+updateConsole(params,...
+              sprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f perc.)\n',...
+              nnz(matches),100*nnz(matches)/size(database_keypoints,2)));
 
 % filter invalid matches
 [~,matched_query_indices,matched_database_indices] = find(matches);
@@ -66,7 +62,7 @@ if params.boot.show_boot_keypoints
     title('Bootstrap frame 2 keypoints');
     
     % display valid correspondences
-    if params.boot.show_corr_matches
+    if params.boot.show_matches
         subplot(2,2,3);
         showMatchedFeatures(database_image,query_image,matched_database_keypoints',matched_query_keypoints');
         title('Bootstrap frame pair matches');
@@ -78,6 +74,11 @@ if params.boot.show_boot_keypoints
         plotMatches(matches,query_keypoints,database_keypoints,'m-');
         title('Initialization image with matches');
     end
+end
+
+% update gui keypoints
+if params.gui.show_all_features
+    gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
 end
 
 end

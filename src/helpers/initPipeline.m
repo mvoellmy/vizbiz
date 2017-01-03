@@ -36,10 +36,10 @@ else
     I_init = I_i2;
     if params.through_gui
         gui_updateImage(I_init, gui_handles.ax_current_frame);
-    end    
+    end
     
     % find 2D correspondences (sorted)
-    [p_i1, p_i2, query_keypoints] = findCorrespondeces(params,I_i1,I_i2);
+    [p_i1, p_i2, query_keypoints] = findCorrespondeces(params, I_i1, I_i2);
     
     % homogenize keypoints
     p_hom_i1 = [p_i1; ones(1,length(p_i1))];
