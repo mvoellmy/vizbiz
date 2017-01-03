@@ -7,6 +7,8 @@ function gui_updateTrajectory(W_trajectory, axes_handle, plot_handle)
 %  - plot_handle(handle) : gui plot handle
 %
 % Output: none
+%
+% Note: Always call after updateLocalCloud()
 
 % update data to plot
 axes(axes_handle);

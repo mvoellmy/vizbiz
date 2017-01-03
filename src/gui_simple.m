@@ -206,6 +206,8 @@ axis off;
 % clear trajectory axes
 axes(handles.ax_trajectory);
 cla(handles.ax_trajectory);
+handles.plot_gt = plot(0, 0, 'k-');
+hold on;
 handles.plot_trajectory = plot(0, 0, '.-');
 hold on;
 handles.plot_local_cloud = plot(0, 0, 'k.');
