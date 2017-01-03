@@ -109,6 +109,11 @@ else
         gui_updateKeypoints(flipud(p_hom_inlier_i2(1:2,:)), gui_handles.ax_current_frame, 'g.');
     end
     
+    % update gui triangulated keypoints
+    if params.through_gui && params.gui.show_triang_features
+        gui_updateKeypoints(flipud(p_hom_inlier_i2(1:2,:)), gui_handles.ax_current_frame, 'gx');
+    end
+    
     % display statistics
     updateConsole(params,...
                   sprintf(['  Number of initialization keypoints: %i\n',...
