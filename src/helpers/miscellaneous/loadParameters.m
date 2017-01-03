@@ -17,8 +17,9 @@ params.show_map_and_cams = true;
 params.through_gui = false;
 
 % additional gui parameters
-params.gui.show_all_features = true;
-params.gui.show_inlier_features = true;
+params.gui.show_all_features = false;
+params.gui.show_inlier_features = false;
+params.gui.show_triang_features = false;
 
 % bootstrap parameters
 params.boot.figures = true; % on/off figure
