@@ -43,11 +43,20 @@ params.init.use_BA = false;
 params.init.landmarks_cutoff = 100;
 params.init.normalize_scale = false;
 
+% correspondence parameters initialisation
+params.init.corr.harris_patch_size = 9; % 9 [pixels]
+params.init.corr.harris_kappa = 0.08;
+params.init.corr.nonmaximum_supression_radius = 8;
+params.init.corr.num_keypoints = 400; % 200
+params.init.corr.descriptor_radius = 9; % [pixels]
+params.init.corr.match_lambda = 6; % 5
+
+
 % correspondence parameters
 params.corr.harris_patch_size = 9; % 9 [pixels]
 params.corr.harris_kappa = 0.08;
 params.corr.nonmaximum_supression_radius = 8;
-params.corr.num_keypoints = 400; % 200
+params.corr.num_keypoints = 200; % 200
 params.corr.descriptor_radius = 9; % [pixels]
 params.corr.match_lambda = 6; % 5
 
@@ -76,7 +85,7 @@ params.localization_ransac.show_iterations = false;
 
 params.kp_tracker.show_matches = true;
 params.kp_tracker.show_triangulated = true;
-params.kp_tracker.bearing_low_thr = 3; % [deg]
+params.kp_tracker.bearing_low_thr = 4; % [deg]
 params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*1.5; % [deg]
 params.kp_tracker.min_nr_trackings = 3; % 3
 params.kp_tracker.max_reproj_error = 10; % 12 [pixels]
