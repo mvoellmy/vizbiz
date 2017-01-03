@@ -1,4 +1,4 @@
-function [ T_F2F1 ] = tf2invtf( T_F1F2 )
+function [ T_F2F1 ] = tform2invtform( T_F1F2 )
 % Returns the inv. homogeneous transformation
 % Input:
 %  - T_F1F2(4x4) : homogeneous transformation from Frame F2 to F1
