@@ -32,6 +32,7 @@ params.boot.landmarks_cutoff = 100;
 params.boot.show_landmarks = false;
 params.boot.min_num_inlier_kps = 100;
 params.boot.min_b2dratio = 0.2;
+params.boot_min_av_angle_deg = 5; % [deg]
 
 % initialization parameters
 params.init.figures = true; % on/off figure

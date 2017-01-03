@@ -28,6 +28,8 @@ query_descriptors = describeKeypoints(query_image,query_keypoints,params.corr.de
 % describe database keypoints
 database_descriptors = describeKeypoints(database_image,database_keypoints,params.corr.descriptor_radius);
 
+% todo: use klt instead?
+
 % match descriptors
 matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
 

@@ -38,14 +38,14 @@ if params.auto_bootstrap
     end
     
     % compute harris scores for database image
-    database_harris = harris(img1, params.corr.harris_patch_size, params.corr.harris_kappa);
+    img1_harris = harris(img1, params.corr.harris_patch_size, params.corr.harris_kappa);
     % compute keypoints for database image
-    database_keypoints = selectKeypoints(database_harris, params.boot.num_keypoints, params.corr.nonmaximum_supression_radius);
+    img1_keypoints = selectKeypoints(img1_harris, params.boot.num_keypoints, params.corr.nonmaximum_supression_radius);
 
     %% search for second bootstrapping image
-    app = 1; % todo: which is best?
+    app = 2; % todo: which is best?
     
-    if app == 1
+    if app == 1 % approach: matchDescriptors + eightPointRansac + averageDepth
         bootstrap_pair_found = false;
         candidate_frame_idx = bootstrap_frame_1_idx;
 
@@ -61,7 +61,7 @@ if params.auto_bootstrap
             end
 
             % find 2D correspondences (sorted)
-            [p_i1, p_i2] = findCorrespondeces_boot(params, img1, database_keypoints, img_candidate);
+            [p_i1, p_i2] = findCorrespondeces_boot(params, img1, img1_keypoints, img_candidate);
 
             % homogenize points
             p_hom_i1 = [p_i1; ones(1,length(p_i1))];
@@ -141,18 +141,89 @@ if params.auto_bootstrap
                 img2 = getFrame(params, bootstrap_frame_2_idx);
                 bootstrap_pair_found = true;
             end
+            
             % allow plots to refresh
             pause(0.01);
             
             updateConsole(params, '\n');
         end
-    elseif app == 2
         
+    elseif app == 2 % approach: KLT tracking + averageBearingAngle
+        bootstrap_pair_found = false;
+        candidate_frame_idx = bootstrap_frame_1_idx;
+
+        while ~bootstrap_pair_found    
+            candidate_frame_idx = candidate_frame_idx + 1;
+
+            % read in candidate image
+            img_candidate = getFrame(params, candidate_frame_idx);
+
+            % update gui image
+            if params.through_gui
+                gui_updateImage(img_candidate, gui_handles.ax_current_frame);
+            end
+
+            % create a point tracker
+            klt_tracker = vision.PointTracker('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
+
+            % initialize tracker with the query kp locations
+            initialize(klt_tracker, flipud(img1_keypoints)', img1);
+
+            % track keypoints
+            [candidate_tracked, validIdx, ~] = step(klt_tracker, img_candidate); % todo: use validity scores?
+            img1_inlier_keypoints = img1_keypoints(:,validIdx); % [v u]
+            candidate_inlier_keypoints = flipud(candidate_tracked(validIdx,:)'); % [v u]
+            
+            % display fraction of inlier matches
+            updateConsole(params,...
+                          sprintf('  %0.2f perc. of inliers matches found\n',...
+                          100*size(candidate_inlier_keypoints,2)/size(img1_keypoints,2)));
+            
+            % show inlier and filtered matches
+            if (params.boot.figures && params.boot.show_keypoints && params.boot.show_inlier_matches)
+                figure(fig_boot);
+                showMatchedFeatures(img1, img_candidate,...
+                                    flipud(img1_inlier_keypoints)',...
+                                    flipud(candidate_inlier_keypoints)', 'blend', 'PlotOptions', {'rx','gx','y-'});
+                title('Filtered inlier keypoint matches');
+            end
+            
+            % update filtered inlier gui keypoints
+            if params.through_gui && params.gui.show_inlier_features
+                gui_updateKeypoints(candidate_inlier_keypoints, gui_handles.ax_current_frame, 'g.');
+            end
+            
+            % calculate bearing angles
+            bearing_angles_deg = calcBearingAngle(img1_inlier_keypoints, candidate_inlier_keypoints, K);
+            av_bearing_angle_deg = mean(bearing_angles_deg);
+            updateConsole(params,...
+                          sprintf('  Av. bearing angle of frame pair (%i,%i): %0.2f degrees\n',...
+                          bootstrap_frame_1_idx, candidate_frame_idx, av_bearing_angle_deg));
+            
+            % check for sufficient number of bootstrap inlier matches
+            if (size(candidate_inlier_keypoints,2) > params.boot.min_num_inlier_kps)
+                % decide wether candidate is suited as bootstrap image
+                if av_bearing_angle_deg > params.boot_min_av_angle_deg
+                    bootstrap_frame_2_idx = candidate_frame_idx;
+                    img2 = img_candidate;
+                    bootstrap_pair_found = true;
+                end
+            else
+                bootstrap_frame_2_idx = max([candidate_frame_idx - 1, bootstrap_frame_1_idx + 1]);
+                img2 = getFrame(params, bootstrap_frame_2_idx);
+                bootstrap_pair_found = true;
+            end
+            
+            % allow plots to refresh
+            pause(0.01);
+            
+            updateConsole(params, '\n');
+        end
     end
 
 else
     bootstrap_frame_1_idx = 1;
-    bootstrap_frame_2_idx = bootstrapFrames(params.ds,'second');
+    bootstrap_frame_2_idx = bootstrapFrames(params.ds, 'second');
     
     if params.ds == 0
         img1 = imread([params.kitti_path '/00/image_0/' ...

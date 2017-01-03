@@ -19,10 +19,11 @@ function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated ] =..
 
 %% Triangulate new landmarks
 % calculate bearing angle
-vector_first = [(kp_tracks_updated.first_obs_kp);repmat(K(1,1),[1, size(kp_tracks_updated.first_obs_kp, 2)])];
-vector_j = [kp_tracks_updated.candidate_kp;repmat(K(1,1),[1, size(kp_tracks_updated.candidate_kp, 2)])];
-
-bearing_angle_deg = atan2d(twoNormMatrix(cross(vector_j,vector_first)),dot(vector_j,vector_first));
+bearing_angle_deg = calcBearingAngle(kp_tracks_updated.first_obs_kp, kp_tracks_updated.candidate_kp, K);
+% vector_first = [(kp_tracks_updated.first_obs_kp); repmat(K(1,1),[1, size(kp_tracks_updated.first_obs_kp,2)])];
+% vector_j = [kp_tracks_updated.candidate_kp; repmat(K(1,1),[1, size(kp_tracks_updated.candidate_kp,2)])];
+% 
+% bearing_angle_deg = atan2d(twoNormMatrix(cross(vector_j,vector_first)), dot(vector_j,vector_first));
 
 % create idx vector of trianguable candidate points
 idx_good_trianguable = ((bearing_angle_deg > params.kp_tracker.bearing_low_thr)...

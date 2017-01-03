@@ -11,9 +11,9 @@ function [matched_database_keypoints, matched_query_keypoints] = ...
 %  - query_image(size) : second image
 %
 % Output:
-%  - query_keypoints(2xN) : matched keypoints of second image, [v u]
-%  - matches (2xN):  indices vector where the i-th coefficient is the index of
-%    database_keypoints which matches to the i-th entry of matched_query_keypoints.
+%  - matched_database_keypoints(2xN) : [u v]
+%  - matched_query_keypoints(2xN): [u v]
+% todo: update
 
 global fig_boot gui_handles;
 
