@@ -203,7 +203,7 @@ if params.run_continous
             % add super title with frame number
             if params.cont.figures
                 figure(fig_cont);
-                suptitle(sprintf('Frame #%i',j));
+                %suptitle(sprintf('Frame #%i',j));
             end
         else
             updateConsole(params, 'Too few keypoints left!! Break continuous operation loop - Terminating...');

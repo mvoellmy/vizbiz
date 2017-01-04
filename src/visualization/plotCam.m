@@ -8,7 +8,7 @@ function plotCam(T_WC, camsize, camcolor)
 %
 % Output: none
 %
-% More options and overload can be added if neccessary
+% More options and overload can be added if neccessary [1 0 0; 0 0 -1; 0 1 0;]
 
 for c=1:size(T_WC,3)
     if (~isnan(T_WC(1,1,c)))    % dont plot if NAN (after break)
