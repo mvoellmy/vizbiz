@@ -124,6 +124,11 @@ else
     bootstrap_frame_2_idx = bootstrapFrames(params.ds,'second');
     
     if params.ds == 0
+        
+        if params.init.use_KITTI_precalculated_init
+            bootstrap_frame_2_idx = 1;
+        end
+
         img1 = imread([params.kitti_path '/00/image_0/' ...
             sprintf('%06d.png',bootstrap_frame_1_idx)]);
         img2 = imread([params.kitti_path '/00/image_0/' ...
@@ -165,6 +170,7 @@ else
         gui_updateImage(img1, gui_handles.ax_current_frame);
     end
 end
+
 
 % display frames chosen
 updateConsole(params,...
