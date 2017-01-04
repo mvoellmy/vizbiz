@@ -12,7 +12,7 @@ params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 params.run_continous = true;
-params.run_on_first_x_images = 10; % 0 for all images
+params.run_on_first_x_images = 30; % 0 for all images
 params.show_map_and_cams = true;
 params.through_gui = false;
 
@@ -70,7 +70,7 @@ params.eightPoint_ransac.max_error = 1.0; % [pixels]
 params.cont.figures = true; % on/off figure
 params.cont.show_new_image = true;
 params.cont.show_new_keypoints = true;
-params.cont.use_KLT = false;
+params.cont.use_KLT = true;
 params.cont.show_matches = true;
 params.cont.show_inlier_matches = true;
 params.cont.landmarks_cutoff = 100;
