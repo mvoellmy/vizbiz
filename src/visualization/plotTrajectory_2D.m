@@ -1,5 +1,5 @@
-function plotTrajectory_2D (W_Pos_C)
-% Plot projected 2D trajectory of camera.
+function plotTrajectory_2D(W_Pos_C)
+% Plots projected 2D trajectory of camera.
 % 
 % Input:
 %  - W_Pos_C(3xN) : camera positions in world frame
