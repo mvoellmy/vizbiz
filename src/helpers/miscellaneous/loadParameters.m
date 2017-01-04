@@ -22,7 +22,7 @@ params.gui.show_inlier_features = false;
 params.gui.show_triang_features = false;
 
 % bootstrap parameters
-params.boot.figures = true; % on/off figure
+params.boot.figures = false; % on/off figure
 params.boot.show_boot_images = true;
 params.boot.num_keypoints = 600;
 params.boot.show_boot_keypoints = true;
@@ -56,7 +56,7 @@ params.init.corr.match_lambda = 6; % 5
 params.corr.harris_patch_size = 9; % 9 [pixels]
 params.corr.harris_kappa = 0.08;
 params.corr.nonmaximum_supression_radius = 8;
-params.corr.num_keypoints = 200; % 200
+params.corr.num_keypoints = 400; % 200
 params.corr.descriptor_radius = 9; % [pixels]
 params.corr.match_lambda = 6; % 5
 
@@ -70,7 +70,7 @@ params.eightPoint_ransac.max_error = 1.0; % [pixels]
 params.cont.figures = true; % on/off figure
 params.cont.show_new_image = true;
 params.cont.show_new_keypoints = true;
-params.cont.use_KLT = false;
+params.cont.use_KLT = true;
 params.cont.show_matches = true;
 params.cont.show_inlier_matches = true;
 params.cont.landmarks_cutoff = 100;

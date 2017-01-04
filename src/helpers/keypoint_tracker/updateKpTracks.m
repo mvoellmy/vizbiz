@@ -47,7 +47,8 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         kp_tracks_updated.first_obs_pose = kp_tracks_updated.first_obs_pose(:,idx_matched_kp_tracks_cand);
         kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(idx_matched_kp_tracks_cand);
         
-        matches_untriang = validIdx;
+        %matches_untriang = find(validIdx');
+        %matches_untriang = validIdx(validIdx'>0)';
         new_kp = query_keypoints;
     else
         % descripe query keypoints
