@@ -58,10 +58,6 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
 
         % compute keypoints for query image
         query_keypoints = selectKeypoints(query_harris,100,params.corr.nonmaximum_supression_radius);
-
-        
-        
-        
         new_kp = query_keypoints;
     else
         % descripe query keypoints
@@ -106,8 +102,11 @@ kp_tracks_updated.first_obs_pose = [kp_tracks_updated.first_obs_pose, repmat(T_W
 kp_tracks_updated.nr_trackings = [kp_tracks_updated.nr_trackings, zeros(1, size(new_kp, 2))];
 
 updateConsole(params,...
-              sprintf('  Number of matched keypoint candidates: %i (%0.2f perc.)\n',...
-              nr_matched_kp_cand,100*nr_matched_kp_cand/size(kp_tracks_prev.candidate_kp,2))); 
+              sprintf('  Number of matched keypoint candidates: %i (%0.2f)\n',...
+              nr_matched_kp_cand,100*nr_matched_kp_cand/size(kp_tracks_prev.candidate_kp,2)));
+updateConsole(params,...
+              sprintf('  Number of total/newly added keypoint candidates: %i/%i\n',...
+              size(kp_tracks_updated.candidate_kp,2), size(new_kp,2))); 
 
 % display matched keypoint tracks
 if (params.cont.figures && params.kp_tracker.show_matches)
