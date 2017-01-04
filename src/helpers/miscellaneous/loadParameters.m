@@ -24,7 +24,7 @@ params.gui.show_triang_features = false;
 % bootstrap parameters
 params.boot.figures = false; % on/off figure
 params.boot.show_boot_images = true;
-params.boot.num_keypoints = 600;
+params.boot.num_keypoints = 1000;
 params.boot.show_boot_keypoints = true;
 params.boot.show_matches = true;
 params.boot.landmarks_cutoff = 100;
@@ -49,7 +49,7 @@ params.init.corr.harris_kappa = 0.08;
 params.init.corr.nonmaximum_supression_radius = 8;
 params.init.corr.num_keypoints = 900; % 200 % 400
 params.init.corr.descriptor_radius = 9; % [pixels]
-params.init.corr.match_lambda = 6; % 5
+params.init.corr.match_lambda = 8; % 5
 
 
 % correspondence parameters
@@ -81,7 +81,7 @@ params.localization_ransac.show_inlier_matches = true;
 params.localization_ransac.use_p3p = true;
 params.localization_ransac.num_iterations_pnp = 3000; % 2000 fix?
 params.localization_ransac.num_iterations_DLT = 200;
-params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]
+params.localization_ransac.pixel_tolerance = 8; % 10 [pixels]
 params.localization_ransac.show_iterations = true;
 
 params.kp_tracker.show_matches = true;

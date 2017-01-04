@@ -93,8 +93,8 @@ Cj_P_hom_new_inliers = [];
 p_candidates_j_inliers = [];
 
 if size(Cj_P_hom_new,2) > 0 
-    fprintf('  -> Apply spherical filter to new Landmarks\n');
     [Cj_P_hom_new_neigb, outFOV_idx] = applySphericalFilter(params, Cj_P_hom_new, params.cont.landmarks_cutoff);
+    fprintf('  -> Apply spherical filter to new Landmarks: (%i/%i) inside Sphere\n',size(Cj_P_hom_new_neigb, 2) , size(outFOV_idx, 2)+size(Cj_P_hom_new_neigb, 2));
 
     % remove unrealistic landmarks and corresponding keypoints
     if (size(outFOV_idx)<size(Cj_P_hom_new,2)) % some Landmarks were in neigbourhood
