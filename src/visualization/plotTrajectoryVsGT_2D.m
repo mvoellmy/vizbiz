@@ -1,4 +1,4 @@
-function plotTrajectoryVsGT_2D (W_Pos_C,W_ground_truth)
+function plotTrajectoryVsGT_2D (W_Pos_C, W_ground_truth)
 % Plot projected 2D trajectory of camera versus ground truth data.
 % 
 % Input:

@@ -139,12 +139,15 @@ if params.through_gui
     % update tracking metric
     gui_updateTracked(size(keypoints_init,2),...
                       gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
-    
-    % update gui trajectory
-    gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
 
+    % update ground truth
+    gui_updateGT(ground_truth, gui_handles.ax_trajectory, gui_handles.plot_gt);
+    
     % update gui local cloud
     gui_updateLocalCloud(W_landmarks_init, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+    
+    % update gui trajectory
+    gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);    
 end
 
 % display initialization landmarks and bootstrap motion
@@ -222,14 +225,13 @@ if params.run_continous
         W_landmarks_map = [W_landmarks_map, W_landmarks_new];
         
         if params.through_gui
-            % update gui trajectory
-            gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
-            % update gui local cloud
-            gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
-            
             % update tracking metric
             gui_updateTracked(size(keypoints_new_triang,2),...
                               gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
+            % update gui local cloud
+            gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+            % update gui trajectory
+            gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);            
         end
 
         % allow plots to refresh
