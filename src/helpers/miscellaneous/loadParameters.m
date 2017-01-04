@@ -7,7 +7,7 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
@@ -34,9 +34,9 @@ params.boot.min_b2dratio = 0.1;
 
 % initialization parameters
 params.init.figures = true; % on/off figure
-params.init.show_keypoints = false;
+params.init.show_keypoints = true;
 params.init.show_inlier_matches = true;
-params.init.show_landmarks = false;
+params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
 params.init.use_BA = false;
@@ -47,7 +47,7 @@ params.init.normalize_scale = false;
 params.init.corr.harris_patch_size = 9; % 9 [pixels]
 params.init.corr.harris_kappa = 0.08;
 params.init.corr.nonmaximum_supression_radius = 8;
-params.init.corr.num_keypoints = 400; % 200
+params.init.corr.num_keypoints = 800; % 200 % 400
 params.init.corr.descriptor_radius = 9; % [pixels]
 params.init.corr.match_lambda = 6; % 5
 
@@ -88,7 +88,7 @@ params.kp_tracker.show_matches = true;
 params.kp_tracker.show_triangulated = true;
 params.kp_tracker.bearing_low_thr = 4; % [deg]
 params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*1.5; % [deg]
-params.kp_tracker.min_nr_trackings = 30; % 3
+params.kp_tracker.min_nr_trackings = 3; % 3
 params.kp_tracker.max_reproj_error = 10; % 12 [pixels]
 
 end
