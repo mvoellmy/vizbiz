@@ -81,32 +81,58 @@
 
 \newpage
 \section{Introduction}
-VO, sequential, monocular, markov assumption
+The aim of this mini project is the developement of a visual odometry pipeline. This pipeline takes the consecutive gray-scale images of a single digital camera as input. Therefore the pipeline developed in this mini project is a monocular visual odometry pipeline.
+
+The output of the pipeline is the position of the camera in relation to its initial position for each frame.
+
+\
+
+keywords:
+(VO, sequential, monocular, markov assumption)
 
 \section{Implementation}
 
 \subsection{Framework}
+(keywords: MATLAB, Git)
+
 \subsubsection{Coordinate Frames}
 \subsubsection{Pipeline overview}
-Flow chart
+
+The pipeline consists mainly of two parts, its inizialisation and its continuous operation. Both of them are discussed within the two following sections.
+
+\begin{figure}[ht]
+	\includegraphics[width=0.8\textwidth]{rough_flow2}
+	\caption{Rough Flow chart}
+	\label{img_flow_rough}
+\end{figure}
 %\input{pipeline_overview}
 \subsubsection{Options and parameters}
-parameter handling, GUI
+(keywords: parameter handling, GUI)
 
 
 
 \subsection{Initialization}
+\begin{figure}[ht]
+	\includegraphics[width=0.8\textwidth]{test}
+	\caption{Init Flow chart}
+	\label{img_flow_init}
+\end{figure}
 
 
 \subsection{Continuous Operation}
+\begin{figure}[ht]
+	\includegraphics[width=0.8\textwidth]{test}
+	\caption{Cont Flow chart}
+	\label{img_flow_cont}
+\end{figure}
 
 
 \newpage
 \section{Results}
 
 \subsection{Overall performance}
-Real time ness, comparison to groundtruth, compare different datasets
-Impact of features
+(keywords: Real time ness, comparison to groundtruth, compare different datasets
+Impact of features)
 
 \section{Discussion}
 What have we learned, what worked?
