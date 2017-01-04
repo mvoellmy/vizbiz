@@ -1,5 +1,5 @@
 function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated ] =...
-    triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj)
+    triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj, nr_landmarks)
 % Checks which candiate keypoints have good trianguability (bearing vector)
 % and then triangulates a new landmark.
 % Newly triangulated landmarks are filtered to have positive z-coordinate
@@ -11,6 +11,7 @@ function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated ] =..
 % - K: Camera calibration matrix
 % - T_WCj (4x4): Transformation matrix
 % - fig_kp_triangulate: Figure handle
+% - nr_landmarks: Number of existing landmarks in pipeline
 %
 % Output:
 % - Cj_P_hom_new_inliers [4xN]: New landmarks filtered homogenized
@@ -25,9 +26,17 @@ vector_j = [kp_tracks_updated.candidate_kp;repmat(K(1,1),[1, size(kp_tracks_upda
 bearing_angle_deg = atan2d(twoNormMatrix(cross(vector_j,vector_first)),dot(vector_j,vector_first));
 
 % create idx vector of trianguable candidate points
-idx_good_trianguable = ((bearing_angle_deg > params.kp_tracker.bearing_low_thr)...
+if nr_landmarks<40
+    bearing_angle_low_thr = params.kp_tracker.bearing_low_thr;
+    bearing_angle_up_thr = params.kp_tracker.bearing_up_thr;
+else
+    bearing_angle_low_thr = params.kp_tracker.bearing_low_thr*1.5;
+    bearing_angle_up_thr = params.kp_tracker.bearing_up_thr*1.5;
+end
+
+idx_good_trianguable = ((bearing_angle_deg > bearing_angle_low_thr)...
     & (kp_tracks_updated.nr_trackings >= params.kp_tracker.min_nr_trackings)...
-    & (bearing_angle_deg < params.kp_tracker.bearing_up_thr));
+    & (bearing_angle_deg < bearing_angle_up_thr));
 
 p_candidates_first = kp_tracks_updated.first_obs_kp(:,idx_good_trianguable);
 p_candidates_first_pose = kp_tracks_updated.first_obs_pose(:,idx_good_trianguable);
