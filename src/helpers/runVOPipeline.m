@@ -65,7 +65,7 @@ deltaT = toc;
 
 % update gui metrics
 if params.through_gui
-    gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
+    gui_updateMetrics(deltaT, gui_handles.text_RT_value);
 end
 
 updateConsole(params, '...boostrapping done.\n');
@@ -134,7 +134,7 @@ deltaT = toc;
 
 if params.through_gui
     % update gui metrics
-    gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
+    gui_updateMetrics(deltaT, gui_handles.text_RT_value);
     
     % update tracking metric
     gui_updateTracked(size(keypoints_init,2),...
@@ -249,7 +249,7 @@ if params.run_continous
         
         if params.through_gui
             % update gui metrics
-            gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
+            gui_updateMetrics(deltaT, gui_handles.text_RT_value);
         end
     end
     updateConsole(params, '...VO-pipeline terminated.\n');

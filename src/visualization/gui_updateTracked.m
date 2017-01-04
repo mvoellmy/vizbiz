@@ -1,8 +1,8 @@
 function gui_updateTracked(bar_length, metrics_handle, axes_handle, plot_handle)
-% todo: add description
+% Updates indicator track bar.
 % 
 % Input:
-%  - bar_length(1x1) : todo
+%  - bar_length(1x1) : bar length, integer
 %  - metrics_handle(handle) : gui metrics handle
 %  - axes_handle(handle) : gui axes handle
 %  - plot_handle(handle) : gui plot handle

@@ -1,5 +1,5 @@
-function plotGroundThruth_3D (W_Pos_C,W_ground_truth)
-% Plot 3D trajectory of camera.
+function plotGroundThruth_3D (W_Pos_C, W_ground_truth)
+% Plots 3D trajectory of camera.
 % 
 % Input:
 %  - W_Pos_C(3xN) : camera positions in world frame
