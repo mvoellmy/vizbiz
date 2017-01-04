@@ -21,6 +21,7 @@
 \usepackage[latin1]{inputenc}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows}
+\usepackage{cleveref}
 
 %setup url
 \hypersetup{
@@ -81,7 +82,7 @@
 
 \newpage
 \section{Introduction}
-The aim of this mini project is the developement of a visual odometry pipeline. This pipeline takes the consecutive gray-scale images of a single digital camera as input. Therefore the pipeline developed in this mini project is a monocular visual odometry pipeline.
+The aim of this mini project is the development of a visual odometry pipeline. This pipeline takes the consecutive gray-scale images of a single digital camera as input. Therefore the pipeline developed in this mini project is a monocular visual odometry pipeline.
 
 The output of the pipeline is the position of the camera in relation to its initial position for each frame.
 
@@ -96,9 +97,22 @@ keywords:
 (keywords: MATLAB, Git)
 
 \subsubsection{Coordinate Frames}
+In this mini project the coordinate frames were defined as shown in \cref{img_coord_frames}. The camera coordinates are in a way oriented, that the x-y plane lies parallel to the image plane, while the z-axis is pointing towards the scenery. The world frame however is oriented in such a way that the x-y plane is parallel to the ground and the the z-axis is pointing upwards.
+
+The origin of the world frame is at the same location as the origin of the first boot-strap image.
+
+\begin{figure}[ht]
+	\includegraphics[width=0.8\textwidth]{coord_frames}
+	\caption{Coordinate Frames}
+	\label{img_coord_frames}
+\end{figure}
+
+
+
+
 \subsubsection{Pipeline overview}
 
-The pipeline consists mainly of two parts, its inizialisation and its continuous operation. Both of them are discussed within the two following sections.
+The pipeline consists mainly of two parts, its initialisation and its continuous operation. Both of them are discussed within the two following sections.
 
 \begin{figure}[ht]
 	\includegraphics[width=0.8\textwidth]{rough_flow2}
