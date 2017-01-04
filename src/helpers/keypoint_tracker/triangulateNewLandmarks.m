@@ -54,29 +54,45 @@ Cj_P_hom_new = zeros(4,size(p_candidates_first,2));
 updateConsole(params,...
               sprintf('  Number of trianguable keypoint candidates: %i\n',...
               nnz(idx_good_trianguable)));
-     
-for i=1:size(p_candidates_first,2)
-    T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
-    
-    % calculate M's
-    M_Cfirst = K * eye(3,4);
-    T_CjW = tf2invtf(T_WCj);
-    T_CjCfirst = T_CjW * T_WCfirst;
-    M_CjCfirst = K * T_CjCfirst(1:3,:);
-        
-    % triangulate landmark    
-    Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first_uv(:,i),p_hom_candidates_j_uv(:,i),M_Cfirst,M_CjCfirst);
-    Cj_P_hom_new(:,i) = T_CjCfirst*Cfirst_P_hom_new(:,i);
-end
 
+
+    for i=1:size(p_candidates_first,2)
+        T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
+
+        % calculate M's
+        M_Cfirst = K * eye(3,4);
+        T_CjW = tf2invtf(T_WCj);
+        T_CjCfirst = T_CjW * T_WCfirst;
+        M_CjCfirst = K * T_CjCfirst(1:3,:);
+
+
+        % triangulate landmark    
+        Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first_uv(:,i),p_hom_candidates_j_uv(:,i),M_Cfirst,M_CjCfirst);
+        Cj_P_hom_new(:,i) = T_CjCfirst*Cfirst_P_hom_new(:,i);
+    end
+    
 if size(p_candidates_first,2) > 0
-    [Cfirst_P_hom_new, outFOV_idx] = applySphericalFilter(params, Cfirst_P_hom_new, params.cont.landmarks_cutoff);
-    Cj_P_hom_new = T_CjCfirst*Cfirst_P_hom_new;
-    figure
-    hold on
-    plotLandmarks(Cfirst_P_hom_new(1:3,:), 'y', 'down')
-    plotCam(eye(3,4), 5, 'black')
-    plotCam(T_CjCfirst, 5, 'red')
+    
+    fprintf('Apply spherical filter to new Landmarks\n');
+    [Cj_P_hom_new, outFOV_idx] = applySphericalFilter(params, Cj_P_hom_new, params.cont.landmarks_cutoff);
+ 
+    % plots individual cams of landmarks and the landmarks themself
+    if params.cont.plot_new_landmarks && params.cont.figures
+        figure
+        hold on
+        cam_poses = unique(p_candidates_first_pose', 'rows');
+        cam_poses = cam_poses';
+        T_CjCfirsts = zeros(4,4,size(cam_poses, 2));  
+
+        for i=1:size(cam_poses, 2)
+            T_WCfirst = reshape(cam_poses(:,i), [4,4]);
+            T_CjCfirsts(:,:,i) = T_CjW*T_WCfirst;
+        end
+
+        plotLandmarks(Cj_P_hom_new(1:3,:), 'y', 'down')
+        plotCam(T_CjCfirsts, 1, 'red');
+        plotCam(eye(3,4), 1, 'black');
+    end
 end
 
 
