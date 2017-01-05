@@ -164,6 +164,8 @@ updateConsole(params, '...initialization done.\n\n');
 %% Continuous operation VO pipeline
 global fig_cont fig_RANSAC_debug fig_kp_triangulate;
 
+fig_debug_traj = figure('name','Trajectory');
+
 if params.run_continous
     updateConsole(params, 'start continuous VO operation...\n');
     
@@ -212,6 +214,8 @@ if params.run_continous
 
         % append newest Cj to W transformation
         T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1) * T_CiCj_vo_j(:,:,frame_idx);
+        figure(fig_debug_traj);
+        plotGroundThruth_3D(squeeze(T_WCj_vo(1:3,end,1:frame_idx)), ground_truth);
 
         % extend 2D trajectory
         W_traj =[W_traj, T_WCj_vo(1:2,4,frame_idx)];
@@ -235,7 +239,7 @@ if params.run_continous
         end
 
         % allow plots to refresh
-        pause(0.01);       
+        pause(1.01);       
 
         % update previous image, keypoints, landmarks and tracker
         img_prev = img;
@@ -258,7 +262,7 @@ end
 %% Results summary
 if (params.ds ~= 1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
-    plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth');
+    plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:), ground_truth');
 elseif (params.ds == 1 && params.compare_against_groundthruth)
     % plot VO trajectory
     plotTrajectory_2D(T_WCj_vo(1:3,4,:));

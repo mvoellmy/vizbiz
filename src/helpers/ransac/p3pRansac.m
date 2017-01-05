@@ -32,13 +32,13 @@ end
 matched_query_keypoints_uv = flipud(matched_query_keypoints);
 
 % initialize RANSAC
-best_guess_inliers = zeros(1, size(matched_query_keypoints_uv,2));
+best_guess_inliers = zeros(1,size(matched_query_keypoints_uv,2));
 max_num_inliers_history = zeros(1,num_iterations);
 max_num_inliers = 0;
 
 % run RANSAC for pose estimation
-R_CjCi_best_guess = zeros(3,3);
-Cj_t_CjCi_best_guess = zeros(3, 1);
+R_CjCi_best_guess = eye(3,3);
+Cj_t_CjCi_best_guess = zeros(3,1);
 
 for i = 1:num_iterations
     [landmark_sample,idx] = datasample(Ci_corresponding_landmarks,s,2,'Replace',false);
@@ -69,7 +69,7 @@ for i = 1:num_iterations
     end
     
     % count inliers
-    projected_points_uv = projectPoints((R_CjCi_guess(:,:,1)*Ci_corresponding_landmarks) +...
+    projected_points_uv = projectPoints((R_CjCi_guess(:,:,1) * Ci_corresponding_landmarks) +...
                                      repmat(-Cj_t_CjCi_guess(:,:,1),[1 size(Ci_corresponding_landmarks, 2)]),K);
     difference = matched_query_keypoints_uv - projected_points_uv;
     errors = sum(difference.^2,1);
@@ -108,7 +108,7 @@ if params.localization_ransac.show_iterations
     
     % display fraction of inlier matches
     updateConsole(params,...
-                  sprintf('  Max number of inlier matches found: %i (%0.2f %%)\n',...
+                  sprintf('  Max number of inlier matches found: %i (%0.2f perc.)\n',...
                   max_num_inliers,100*max_num_inliers/size(matched_query_keypoints_uv,2)));
     
 end
