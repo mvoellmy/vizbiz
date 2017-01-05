@@ -19,6 +19,7 @@ x_estimated = T_C1C2(1,4);
 z_estimated = T_C1C2(3,4);
 
 scale_factor = sqrt(x_truth^2 + z_truth^2)/sqrt(x_estimated^2 + z_estimated^2);
+fprintf('  Normalization scale: %.2f\n', scale_factor);
 
 T_C1C2(1:3,4) = T_C1C2(1:3,4)*scale_factor;
 C2_landmarks_init = C2_landmarks_init*scale_factor;

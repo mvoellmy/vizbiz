@@ -65,7 +65,7 @@ deltaT = toc;
 
 % update gui metrics
 if params.through_gui
-    gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
+    gui_updateMetrics(deltaT, gui_handles.text_RT_value);
 end
 
 updateConsole(params, '...boostrapping done.\n');
@@ -134,17 +134,20 @@ deltaT = toc;
 
 if params.through_gui
     % update gui metrics
-    gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
+    gui_updateMetrics(deltaT, gui_handles.text_RT_value);
     
     % update tracking metric
     gui_updateTracked(size(keypoints_init,2),...
                       gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
-    
-    % update gui trajectory
-    gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
 
+    % update ground truth
+    gui_updateGT(ground_truth, gui_handles.ax_trajectory, gui_handles.plot_gt);
+    
     % update gui local cloud
     gui_updateLocalCloud(W_landmarks_init, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+    
+    % update gui trajectory
+    gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);    
 end
 
 % display initialization landmarks and bootstrap motion
@@ -160,6 +163,8 @@ updateConsole(params, '...initialization done.\n\n');
 
 %% Continuous operation VO pipeline
 global fig_cont fig_RANSAC_debug fig_kp_triangulate;
+
+fig_debug_traj = figure('name','Trajectory');
 
 if params.run_continous
     updateConsole(params, 'start continuous VO operation...\n');
@@ -200,7 +205,7 @@ if params.run_continous
             % add super title with frame number
             if params.cont.figures
                 figure(fig_cont);
-                suptitle(sprintf('Frame #%i',j));
+                %suptitle(sprintf('Frame #%i',j));
             end
         else
             updateConsole(params, 'Too few keypoints left!! Break continuous operation loop - Terminating...');
@@ -212,7 +217,9 @@ if params.run_continous
 
         % extend 2D trajectory
         W_traj =[W_traj, T_WCj_vo(1:2,4,frame_idx)];
-        
+        figure(fig_debug_traj);
+        plotGroundThruth_3D(squeeze(T_WCj_vo(1:3,end,1:frame_idx)), ground_truth);
+
         % update map with new landmarks
         W_landmarks_new = [];
         if size(Cj_landmarks_new,2)>0
@@ -222,18 +229,17 @@ if params.run_continous
         W_landmarks_map = [W_landmarks_map, W_landmarks_new];
         
         if params.through_gui
-            % update gui trajectory
-            gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
-            % update gui local cloud
-            gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
-            
             % update tracking metric
             gui_updateTracked(size(keypoints_new_triang,2),...
                               gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
+            % update gui local cloud
+            gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+            % update gui trajectory
+            gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);            
         end
 
         % allow plots to refresh
-        pause(0.01);       
+        pause(1.01);       
 
         % update previous image, keypoints, landmarks and tracker
         img_prev = img;
@@ -247,7 +253,7 @@ if params.run_continous
         
         if params.through_gui
             % update gui metrics
-            gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
+            gui_updateMetrics(deltaT, gui_handles.text_RT_value);
         end
     end
     updateConsole(params, '...VO-pipeline terminated.\n');

@@ -37,17 +37,13 @@ max_num_inliers_history = zeros(1,num_iterations);
 max_num_inliers = 0;
 
 % run RANSAC for pose estimation
-R_CjCi_best_guess = zeros(3,3);
-Cj_t_CjCi_best_guess = zeros(3, 1);
+R_CjCi_best_guess = eye(3);
+Cj_t_CjCi_best_guess = zeros(3,1);
 
 for i = 1:num_iterations
     [landmark_sample,idx] = datasample(Ci_corresponding_landmarks,s,2,'Replace',false);
     keypoint_sample = matched_query_keypoints_uv(:,idx); % needed as [u,v]
-    
-    if ~params.localization_ransac.use_p3p % todo: needed?
-        fprintf('Current datasample index of Cj_matched_query_keypoint_uv: %d, %d, %d, %d, %d, %d\n',idx(1),idx(2),idx(3),idx(4),idx(5),idx(6));
-    end
-    
+       
     if params.localization_ransac.use_p3p
         normalized_bearings = K\[keypoint_sample; ones(1, 3)];
         for ii = 1:3
@@ -108,7 +104,7 @@ if params.localization_ransac.show_iterations
     
     % display fraction of inlier matches
     updateConsole(params,...
-                  sprintf('  Max number of inlier matches found: %i (%0.2f %%)\n',...
+                  sprintf('  Max number of inlier matches found: %i (%0.2f perc.)\n',...
                   max_num_inliers,100*max_num_inliers/size(matched_query_keypoints_uv,2)));
     
 end

@@ -12,7 +12,8 @@ params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 params.run_continous = true;
-params.run_on_first_x_images = 5; % 0 for all images
+
+params.run_on_first_x_images = 20; % 0 for all images
 params.show_map_and_cams = true;
 params.through_gui = false;
 
@@ -22,9 +23,9 @@ params.gui.show_inlier_features = false;
 params.gui.show_triang_features = false;
 
 % bootstrap parameters
-params.boot.figures = true; % on/off figure
+params.boot.figures = false; % on/off figure
 params.boot.show_boot_images = true;
-params.boot.num_keypoints = 600;
+params.boot.num_keypoints = 1000;
 params.boot.show_boot_keypoints = true;
 params.boot.show_matches = true;
 params.boot.landmarks_cutoff = 100;
@@ -34,20 +35,29 @@ params.boot.min_b2dratio = 0.1;
 
 % initialization parameters
 params.init.figures = true; % on/off figure
-params.init.show_keypoints = false;
+params.init.use_KLT = true;
+params.init.show_keypoints = true;
 params.init.show_inlier_matches = true;
-params.init.show_landmarks = false;
+params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
 params.init.use_BA = false;
 params.init.landmarks_cutoff = 100;
 params.init.normalize_scale = true;
 
+% correspondence parameters initialisation
+params.init.corr.harris_patch_size = 9; % 9 [pixels]
+params.init.corr.harris_kappa = 0.08;
+params.init.corr.nonmaximum_supression_radius = 8;
+params.init.corr.num_keypoints = 900; % 200 % 400
+params.init.corr.descriptor_radius = 9; % [pixels]
+params.init.corr.match_lambda = 8; % 5
+
 % correspondence parameters
 params.corr.harris_patch_size = 9; % 9 [pixels]
 params.corr.harris_kappa = 0.08;
 params.corr.nonmaximum_supression_radius = 8;
-params.corr.num_keypoints = 400; % 200
+params.corr.num_keypoints = 600; % 200
 params.corr.descriptor_radius = 9; % [pixels]
 params.corr.match_lambda = 6; % 5
 
@@ -64,21 +74,25 @@ params.cont.show_new_keypoints = true;
 params.cont.use_KLT = true;
 params.cont.show_matches = true;
 params.cont.show_inlier_matches = true;
-params.cont.landmarks_cutoff = 5;
+params.cont.landmarks_cutoff = 100;
+params.cont.plot_new_landmarks = true;
 
 params.localization_ransac.show_matched_keypoints = true;
 params.localization_ransac.show_inlier_matches = true;
 params.localization_ransac.use_p3p = true;
 params.localization_ransac.num_iterations_pnp = 3000; % 2000 fix?
 params.localization_ransac.num_iterations_DLT = 200;
-params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]
-params.localization_ransac.show_iterations = false;
+params.localization_ransac.pixel_tolerance = 8; % 10 [pixels]
+params.localization_ransac.show_iterations = true;
 
+params.kp_tracker.use_KLT = true;
+params.kp_tracker.nr_new_candidates = 300;
 params.kp_tracker.show_matches = true;
 params.kp_tracker.show_triangulated = true;
-params.kp_tracker.bearing_low_thr = 5; % [deg]
+params.kp_tracker.bearing_low_thr = 2; % [deg]
 params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*1.5; % [deg]
 params.kp_tracker.min_nr_trackings = 3; % 3
+% Todo: Max number trackings
 params.kp_tracker.max_reproj_error = 10; % 12 [pixels]
 
 end

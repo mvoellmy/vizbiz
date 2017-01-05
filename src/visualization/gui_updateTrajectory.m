@@ -1,5 +1,5 @@
 function gui_updateTrajectory(W_trajectory, axes_handle, plot_handle)
-% todo: add description
+% Updates 2D visual odometry trajectory plot in world frame.
 % 
 % Input:
 %  - W_trajectory(2xN) : 2D trajectory in world frame, each [x y]
@@ -7,6 +7,8 @@ function gui_updateTrajectory(W_trajectory, axes_handle, plot_handle)
 %  - plot_handle(handle) : gui plot handle
 %
 % Output: none
+%
+% Note: always call after updateLocalCloud()
 
 % update data to plot
 axes(axes_handle);

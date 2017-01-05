@@ -1,4 +1,4 @@
-function [ kp_tracks_updated ] = updateKpTracks(params, kp_tracks_prev,img_prev, img_new, query_keypoints, T_WCj)
+function [ kp_tracks_updated ] = updateKpTracks(params, kp_tracks_prev,img_prev, img_new, query_keypoints, T_WCj, query_image)
 % Tries to match query keypoints with current image and keeps track of
 % tracked candiate keypoints and their first observations.
 % Inserts new candidate keypoints into the keypoint tracks and discard
@@ -16,10 +16,11 @@ kp_tracks_updated.candidate_kp = [];   % 2xN
 kp_tracks_updated.first_obs_kp = [];   % 2xN
 kp_tracks_updated.first_obs_pose = []; % 16xN
 kp_tracks_updated.nr_trackings = []; % 1xN
+nr_matched_kp_cand = 0;
 
 % if there are candiate keypoints, try to match
 if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
-    if params.cont.use_KLT
+    if params.kp_tracker.use_KLT
         % create a point tracker
         klt_tracker = vision.PointTracker('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
 
@@ -45,6 +46,20 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         kp_tracks_updated.first_obs_kp = kp_tracks_updated.first_obs_kp(:,idx_matched_kp_tracks_cand);
         kp_tracks_updated.first_obs_pose = kp_tracks_updated.first_obs_pose(:,idx_matched_kp_tracks_cand);
         kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(idx_matched_kp_tracks_cand);
+        
+        nr_matched_kp_cand = nnz(validIdx);
+        %matches_untriang = idx_matched_kp_tracks_cand; (does not have to
+        %do anything with query_keypoints anymore darum gehts nicht mit
+        %matching plot
+        
+        % Generate new keypoints
+        % todo make faster
+        % compute harris scores for query image
+        query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+
+        % compute keypoints for query image
+        query_keypoints = selectKeypoints(query_harris,params.kp_tracker.nr_new_candidates,params.corr.nonmaximum_supression_radius);
+        new_kp = query_keypoints;
     else
         % descripe query keypoints
         query_descriptors = describeKeypoints(img_new,query_keypoints,params.corr.descriptor_radius);
@@ -70,16 +85,17 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         kp_tracks_updated.first_obs_kp = kp_tracks_updated.first_obs_kp(:,idx_matched_kp_tracks_cand);
         kp_tracks_updated.first_obs_pose = kp_tracks_updated.first_obs_pose(:,idx_matched_kp_tracks_cand);
         kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(idx_matched_kp_tracks_cand);
-    end   
-    
-    % append all new found keypoints and their pose
-    new_kp_1 = query_keypoints(:,matches_untriang==0); % todo: describe
-    new_kp_2 = []; % todo: use?
-    new_kp = [new_kp_1, new_kp_2]; % kp which could not be matched
+        
+        new_kp = query_keypoints(:,matches_untriang==0); % kp which could not be matched
+        
+        nr_matched_kp_cand = nnz(matches_untriang);
+        
+    end     
 else
-    new_kp = query_keypoints(:,matches_untriang==0);
+    new_kp = query_keypoints;
 end
 
+% append all new found keypoints and their pose
 T_WCj_col = T_WCj(:); % convert to col vector for storage
 kp_tracks_updated.candidate_kp = [kp_tracks_updated.candidate_kp, new_kp];
 kp_tracks_updated.first_obs_kp = [kp_tracks_updated.first_obs_kp, new_kp]; % is equal to candidate when adding
@@ -87,8 +103,11 @@ kp_tracks_updated.first_obs_pose = [kp_tracks_updated.first_obs_pose, repmat(T_W
 kp_tracks_updated.nr_trackings = [kp_tracks_updated.nr_trackings, zeros(1, size(new_kp, 2))];
 
 updateConsole(params,...
-              sprintf('  Number of matched keypoint candidates: %i (%0.2f perc.)\n',...
-              nnz(matches_untriang),100*nnz(matches_untriang)/size(kp_tracks_prev.candidate_kp,2))); 
+              sprintf('  Number of matched keypoint candidates: %i (%0.2f)\n',...
+              nr_matched_kp_cand,100*nr_matched_kp_cand/size(kp_tracks_prev.candidate_kp,2)));
+updateConsole(params,...
+              sprintf('  Number of total/newly added keypoint candidates: %i/%i\n',...
+              size(kp_tracks_updated.candidate_kp,2), size(new_kp,2))); 
 
 % display matched keypoint tracks
 if (params.cont.figures && params.kp_tracker.show_matches)
