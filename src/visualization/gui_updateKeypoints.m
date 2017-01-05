@@ -1,5 +1,5 @@
 function gui_updateKeypoints(keypoints, axes_handle, style)
-% todo: add description
+% Updates keypoints on top of current frame.
 % 
 % Input:
 %  - keypoints(2xN) : keypoints, each [v u]
@@ -8,7 +8,7 @@ function gui_updateKeypoints(keypoints, axes_handle, style)
 %
 % Output: none
 %
-% Note: Always call after updateTrajectory()
+% Note: always call after updateImage()
 
 axes(axes_handle);
 

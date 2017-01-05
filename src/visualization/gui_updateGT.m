@@ -1,5 +1,5 @@
 function gui_updateGT(ground_truth, axes_handle, plot_handle)
-% todo: add description
+% Updates ground truth path provided by dataset.
 % 
 % Input:
 %  - W_trajectory(2xN) : 2D trajectory in world frame, each [x y]

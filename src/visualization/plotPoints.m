@@ -1,8 +1,9 @@
-function h = plotPoints(keypoints,style)
+function h = plotPoints(keypoints, style)
 % Plots 2D points.
 % 
 % Input:
 %  - keypoints(2xN) : 2D points, each [v,u]
+%  - style(string) : marker style
 %
 % Output:
 %  - h(handle)

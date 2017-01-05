@@ -1,5 +1,5 @@
 function gui_updateLocalCloud(W_local_cloud, axes_handle, plot_handle)
-% todo: add description
+% Updates 2D plot of local cloud in world frame.
 % 
 % Input:
 %  - W_local_cloud(3xN) : local point cloud in world frame, [x y z]
