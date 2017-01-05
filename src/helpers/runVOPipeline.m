@@ -262,10 +262,10 @@ end
 %% Results summary
 if (params.ds ~= 1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
-    plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth');
+    plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth', bootstrap_frame_idx_1, bootstrap_frame_idx_2);
 elseif (params.ds == 1 && params.compare_against_groundthruth)
     % plot VO trajectory
-    plotTrajectory_2D(T_WCj_vo(1:3,4,:));
+    plotTrajectory_2D(T_WCj_vo(1:3,4,:), bootstrap_frame_idx_1, bootstrap_frame_idx_2);
 end
 
 % display full map and cameras
