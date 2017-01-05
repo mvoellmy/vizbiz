@@ -7,13 +7,13 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
-params.perf.profiling = false;
+params.perf.profiling = true;
 params.compare_against_groundthruth = true;
 params.run_continous = true;
 
-params.run_on_first_x_images = 0; % 0 for all images
+params.run_on_first_x_images = 30; % 0 for all images
 params.show_map_and_cams = true;
 params.through_gui = false;
 
@@ -82,18 +82,19 @@ params.localization_ransac.show_inlier_matches = true;
 params.localization_ransac.use_p3p = true;
 params.localization_ransac.num_iterations_pnp = 2000; % 2000 fix?
 params.localization_ransac.num_iterations_DLT = 200;
-params.localization_ransac.pixel_tolerance = 8; % 10 [pixels]  % --------------------------------------
+params.localization_ransac.pixel_tolerance = 3; % 10 [pixels]  % --------------------------------------
 params.localization_ransac.show_iterations = false;
 
 params.kp_tracker.use_KLT = true;  % --------------------------------------
-params.kp_tracker.min_nr_landmarks = 250;
-params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 150;
+params.kp_tracker.min_nr_landmarks = 400;
+params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 170;
 params.kp_tracker.bearing_angle_multiplicator = 2.5;
-params.kp_tracker.max_nr_candidates = 600;  % --------------------------------------
+params.kp_tracker.max_nr_candidates = 500;  % --------------------------------------
+params.kp_tracker.nr_best_candidates = 100;
 params.kp_tracker.show_matches = true;
 params.kp_tracker.show_triangulated = true;
-params.kp_tracker.bearing_low_thr = 1.2; % [deg]  % --------------------------------------
-params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*3.5; % [deg]
+params.kp_tracker.bearing_low_thr = 5.5; % [deg]  % --------------------------------------
+params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
 params.kp_tracker.min_nr_trackings = 2; % 3
 params.kp_tracker.max_nr_trackings = 20;
 params.kp_tracker.max_reproj_error = 10; % 12 [pixels]  % --------------------------------------

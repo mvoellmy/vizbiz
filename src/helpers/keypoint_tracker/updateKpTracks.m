@@ -63,8 +63,11 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
 
         % compute keypoints for query image
         nr_new_candidates = max([0, params.kp_tracker.max_nr_candidates - size(kp_tracks_updated.candidate_kp,2)]); % maybe todo min number increase
-        query_keypoints = selectKeypoints(query_harris, nr_new_candidates, params.cont.corr.nonmaximum_supression_radius);
-        new_kp = query_keypoints;
+        nr_new_potential_candidates = max(nr_new_candidates, params.kp_tracker.nr_best_candidates);
+        query_keypoints = selectKeypoints(query_harris, nr_new_potential_candidates, params.cont.corr.nonmaximum_supression_radius);
+        % random picking of potential candidates
+        idx_new_kp = randi(size(query_keypoints,2), 1, nr_new_candidates);
+        new_kp = query_keypoints(:,idx_new_kp);
     else
         % descripe query keypoints
         query_descriptors = describeKeypoints(img_new,query_keypoints,params.cont.corr.descriptor_radius);
