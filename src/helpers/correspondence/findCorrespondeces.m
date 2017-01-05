@@ -17,25 +17,25 @@ global fig_init gui_handles;
 
 % todo: move params into subroutines, expose only method string
 % compute harris scores for query image % todo: move into keypoint-selection
-query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+query_harris = harris(query_image,params.init.corr.harris_patch_size,params.init.corr.harris_kappa);
 
 % compute harris scores for query image
-database_harris = harris(database_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+database_harris = harris(database_image,params.init.corr.harris_patch_size,params.init.corr.harris_kappa);
 
 % compute keypoints for query image
-query_keypoints = selectKeypoints(query_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
+query_keypoints = selectKeypoints(query_harris,params.init.corr.num_keypoints,params.init.corr.nonmaximum_supression_radius);
 
 % compute keypoints for database image
-database_keypoints = selectKeypoints(database_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
+database_keypoints = selectKeypoints(database_harris,params.init.corr.num_keypoints,params.init.corr.nonmaximum_supression_radius);
 
 % descripe query keypoints
-query_descriptors = describeKeypoints(query_image,query_keypoints,params.corr.descriptor_radius);
+query_descriptors = describeKeypoints(query_image,query_keypoints,params.init.corr.descriptor_radius);
 
 % describe database keypoints
-database_descriptors = describeKeypoints(database_image,database_keypoints,params.corr.descriptor_radius);
+database_descriptors = describeKeypoints(database_image,database_keypoints,params.init.corr.descriptor_radius);
 
 % match descriptors
-matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+matches = matchDescriptors(query_descriptors,database_descriptors,params.init.corr.match_lambda);
 
 % display fraction of matched keypoints
 updateConsole(params,...

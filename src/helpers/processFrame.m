@@ -104,11 +104,11 @@ T_CjCi = tf2invtf(T_CiCj);
 
 %% Candiate Keypoint tracker
 T_WCj = T_WCi * T_CiCj;
-kp_tracks_updated = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, query_keypoints, T_WCj);
+kp_tracks_updated = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, query_keypoints, T_WCj, img_new);
 
 %% Triangulate new landmarks & update landmarks and keypoint list
 [Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated] =...
-    triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj);
+    triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj, size(Ci_corresponding_inlier_landmarks, 2));
 
 % append used candidate keypoints to p_new_matched_triang
 % rounding because of integer operations in describeKeypoints()
@@ -135,4 +135,4 @@ updateConsole(params,...
               sprintf('  Number of landmarks (total/new): %i / %i\n',...
               size(Cj_new_landmarks,2), size(Cj_P_hom_new_inliers,2)));
 
-end
+ end
