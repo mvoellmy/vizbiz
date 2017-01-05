@@ -52,7 +52,6 @@ params.init.corr.num_keypoints = 900; % 200 % 400
 params.init.corr.descriptor_radius = 9; % [pixels]
 params.init.corr.match_lambda = 8; % 5
 
-
 % correspondence parameters
 params.corr.harris_patch_size = 9; % 9 [pixels]
 params.corr.harris_kappa = 0.08;

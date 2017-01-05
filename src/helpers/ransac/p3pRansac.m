@@ -37,8 +37,8 @@ max_num_inliers_history = zeros(1,num_iterations);
 max_num_inliers = 0;
 
 % run RANSAC for pose estimation
-R_CjCi_best_guess = zeros(3,3);
-Cj_t_CjCi_best_guess = zeros(3, 1);
+R_CjCi_best_guess = eye(3);
+Cj_t_CjCi_best_guess = zeros(3,1);
 
 for i = 1:num_iterations
     [landmark_sample,idx] = datasample(Ci_corresponding_landmarks,s,2,'Replace',false);
