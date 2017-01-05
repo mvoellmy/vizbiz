@@ -15,6 +15,12 @@ function [matched_database_keypoints, matched_query_keypoints, unmatched_query_k
 
 global fig_init gui_handles;
 
+% compute harris scores for query image
+query_harris = harris(query_image,params.init.corr.harris_patch_size,params.init.corr.harris_kappa);
+
+% compute keypoints for query image
+query_keypoints = selectKeypoints(query_harris,params.init.corr.num_keypoints,params.init.corr.nonmaximum_supression_radius);
+
 if params.init.use_KLT
     % compute harris scores for query image
     database_harris = harris(database_image,params.corr.harris_patch_size,params.corr.harris_kappa);
@@ -35,23 +41,11 @@ if params.init.use_KLT
     matched_query_keypoints = query_keypoints_klt(:,validIdx'); % [u v]
     
     % Generate new query keypoints for tracker
-    % compute harris scores for query image
-    query_harris = harris(query_image,params.init.corr.harris_patch_size,params.init.corr.harris_kappa);
-    
-    % compute keypoints for query image
-    query_keypoints = selectKeypoints(query_harris,params.init.corr.num_keypoints,params.init.corr.nonmaximum_supression_radius);
     unmatched_query_kp = query_keypoints;    
     
 else
-
-    % compute harris scores for query image
-    query_harris = harris(query_image,params.init.corr.harris_patch_size,params.init.corr.harris_kappa);
-
     % compute harris scores for query image
     database_harris = harris(database_image,params.init.corr.harris_patch_size,params.init.corr.harris_kappa);
-
-    % compute keypoints for query image
-    query_keypoints = selectKeypoints(query_harris,params.init.corr.num_keypoints,params.init.corr.nonmaximum_supression_radius);
 
     % compute keypoints for database image
     database_keypoints = selectKeypoints(database_harris,params.init.corr.num_keypoints,params.init.corr.nonmaximum_supression_radius);
