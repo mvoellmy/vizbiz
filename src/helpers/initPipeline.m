@@ -54,7 +54,7 @@ else
     end    
     
     % find 2D correspondences (sorted)
-    [p_i1, p_i2, query_keypoints] = findCorrespondeces(params,I_i1,I_i2);
+    [p_i1, p_i2, unmatched_query_kp] = findCorrespondeces(params,I_i1,I_i2);
     
     % homogenize keypoints
     p_hom_i1 = [p_i1; ones(1,length(p_i1))];
@@ -135,8 +135,8 @@ else
                   '  Number of initialization landmarks: %i\n'],...
                   size(keypoints_init,2), size(C2_landmarks_init,2)));
     
-	% initialise keypoint tracker   
-    kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, query_keypoints, T_WC2);    
+	% initialise keypoint tracker
+    kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, unmatched_query_kp, T_WC2);    
 end
 
 % check for same number of keypoints and landmarks

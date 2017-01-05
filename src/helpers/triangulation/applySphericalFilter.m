@@ -4,12 +4,12 @@ function [C_P_hom, outFOV_idx] = applySphericalFilter(params, C_P_hom, cutoff_ra
 %
 % Input:
 %  - params(struct) : parameter struct
-%  - P_hom(4xN) : list of homogeneous 3D Points in camera frame with y 
-% pointing vertically down
+%  - C_P_hom(4xN) : list of homogeneous 3D Points in camera frame with y 
+% pointing vertically down % TODO: ??? y ???
 %  - cutoff_radius(1x1) : constant radial distance
 %
 % Output:
-%  - P_hom(4x(N-O)) : filtered homogeneous 3D Points
+%  - C_P_hom(4x(N-O)) : filtered homogeneous 3D Points
 %  - outFOV_idx(Ox1) : indeces of the Outliers. Can be used to remove the
 %  corresponding 2D keypoints.
 %
@@ -27,7 +27,7 @@ size_filtered_landmarks = size(C_P_hom, 2);
 
 % display filter statistic
 updateConsole(params,...
-              sprintf('  %0.2f%% (%i/%i) of landmarks within neighborhood\n',...
+              sprintf('  %0.2f perc. (%i/%i) of landmarks within neighborhood\n',...
               100*size_filtered_landmarks/size_unfiltered_landmarks, size_filtered_landmarks, size_unfiltered_landmarks));
 
 end

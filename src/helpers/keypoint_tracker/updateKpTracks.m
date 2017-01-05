@@ -1,12 +1,16 @@
-function [ kp_tracks_updated ] = updateKpTracks(params, kp_tracks_prev,img_prev, img_new, query_keypoints, T_WCj, query_image)
+function [ kp_tracks_updated ] = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, query_keypoints, T_WCj)
 % Tries to match query keypoints with current image and keeps track of
 % tracked candiate keypoints and their first observations.
 % Inserts new candidate keypoints into the keypoint tracks and discard
 % candidate keypoints that could not be matched.
 
 % Inputs:
-% - query_keypoints (2xN) : [v u]
-% - T_WCj(4x4) : Trasnformation matrix 
+%  - params(struct) : parameter struct
+%  - kp_tracks_prev : struct
+%  - img_prev : last image
+%  - img_new : current image
+%  - query_keypoints (2xN) : [v u]
+%  - T_WCj(4x4) : Trasnformation matrix 
 
 global fig_kp_tracks;
 
@@ -20,7 +24,7 @@ nr_matched_kp_cand = 0;
 
 % if there are candiate keypoints, try to match
 if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
-    if params.cont.use_KLT
+    if params.kp_tracker.use_KLT
         % create a point tracker
         klt_tracker = vision.PointTracker('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
 
@@ -36,7 +40,7 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         idx_matched_kp_tracks_database = idx_matched_kp_tracks_cand;
         
         % update kp information that could be tracked (sorting like query keypoints)
-        kp_tracks_updated.candidate_kp(:,idx_matched_kp_tracks_cand) = matched_kp_tracks_cand; % new v,u coord
+        kp_tracks_updated.candidate_kp(:,idx_matched_kp_tracks_cand) = round(matched_kp_tracks_cand); % new v,u coord
         kp_tracks_updated.first_obs_kp(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_kp(:,idx_matched_kp_tracks_database);
         kp_tracks_updated.first_obs_pose(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_pose(:,idx_matched_kp_tracks_database);
         kp_tracks_updated.nr_trackings(idx_matched_kp_tracks_cand) = kp_tracks_prev.nr_trackings(idx_matched_kp_tracks_database)+1;
@@ -55,20 +59,24 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         % Generate new keypoints
         % todo make faster
         % compute harris scores for query image
-        query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+        query_harris = harris(img_new,params.cont.corr.harris_patch_size,params.cont.corr.harris_kappa);
 
         % compute keypoints for query image
-        query_keypoints = selectKeypoints(query_harris,100,params.corr.nonmaximum_supression_radius);
-        new_kp = query_keypoints;
+        nr_new_candidates = max([0, params.kp_tracker.max_nr_candidates - size(kp_tracks_updated.candidate_kp,2)]); % maybe todo min number increase
+        nr_new_potential_candidates = max(nr_new_candidates, params.kp_tracker.nr_best_candidates);
+        query_keypoints = selectKeypoints(query_harris, nr_new_potential_candidates, params.cont.corr.nonmaximum_supression_radius);
+        % random picking of potential candidates
+        idx_new_kp = randi(size(query_keypoints,2), 1, nr_new_candidates);
+        new_kp = query_keypoints(:,idx_new_kp);
     else
         % descripe query keypoints
-        query_descriptors = describeKeypoints(img_new,query_keypoints,params.corr.descriptor_radius);
+        query_descriptors = describeKeypoints(img_new,query_keypoints,params.cont.corr.descriptor_radius);
 
         % describe database keypoints
-        database_descriptors = describeKeypoints(img_prev,kp_tracks_prev.candidate_kp,params.corr.descriptor_radius);
+        database_descriptors = describeKeypoints(img_prev,kp_tracks_prev.candidate_kp,params.cont.corr.descriptor_radius);
 
         % match descriptors
-        matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+        matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.cont.corr.match_lambda);
 
         % update candidate_kp coordinates with matched current kp
         idx_matched_kp_tracks_cand = find(matches_untriang);
@@ -94,6 +102,13 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
 else
     new_kp = query_keypoints;
 end
+
+% delete keypoints tracked too often
+idx_old_kp = find(kp_tracks_updated.nr_trackings > params.kp_tracker.max_nr_trackings);
+kp_tracks_updated.candidate_kp(:, idx_old_kp) = [];
+kp_tracks_updated.first_obs_kp(:, idx_old_kp) = [];
+kp_tracks_updated.first_obs_pose(:, idx_old_kp) = [];
+kp_tracks_updated.nr_trackings(idx_old_kp) = [];
 
 % append all new found keypoints and their pose
 T_WCj_col = T_WCj(:); % convert to col vector for storage
