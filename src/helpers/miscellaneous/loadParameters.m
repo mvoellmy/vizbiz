@@ -34,6 +34,7 @@ params.boot.min_b2dratio = 0.1;
 
 % initialization parameters
 params.init.figures = true; % on/off figure
+params.init.use_KLT = true;
 params.init.show_keypoints = true;
 params.init.show_inlier_matches = true;
 params.init.show_landmarks = true;
