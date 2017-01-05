@@ -1,12 +1,16 @@
-function [ kp_tracks_updated ] = updateKpTracks(params, kp_tracks_prev,img_prev, img_new, query_keypoints, T_WCj, query_image)
+function [ kp_tracks_updated ] = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, query_keypoints, T_WCj)
 % Tries to match query keypoints with current image and keeps track of
 % tracked candiate keypoints and their first observations.
 % Inserts new candidate keypoints into the keypoint tracks and discard
 % candidate keypoints that could not be matched.
 
 % Inputs:
-% - query_keypoints (2xN) : [v u]
-% - T_WCj(4x4) : Trasnformation matrix 
+%  - params(struct) : parameter struct
+%  - kp_tracks_prev : struct
+%  - img_prev : last image
+%  - img_new : current image
+%  - query_keypoints (2xN) : [v u]
+%  - T_WCj(4x4) : Trasnformation matrix 
 
 global fig_kp_tracks;
 
@@ -36,7 +40,7 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         idx_matched_kp_tracks_database = idx_matched_kp_tracks_cand;
         
         % update kp information that could be tracked (sorting like query keypoints)
-        kp_tracks_updated.candidate_kp(:,idx_matched_kp_tracks_cand) = matched_kp_tracks_cand; % new v,u coord
+        kp_tracks_updated.candidate_kp(:,idx_matched_kp_tracks_cand) = round(matched_kp_tracks_cand); % new v,u coord
         kp_tracks_updated.first_obs_kp(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_kp(:,idx_matched_kp_tracks_database);
         kp_tracks_updated.first_obs_pose(:,idx_matched_kp_tracks_cand) = kp_tracks_prev.first_obs_pose(:,idx_matched_kp_tracks_database);
         kp_tracks_updated.nr_trackings(idx_matched_kp_tracks_cand) = kp_tracks_prev.nr_trackings(idx_matched_kp_tracks_database)+1;
@@ -55,7 +59,7 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         % Generate new keypoints
         % todo make faster
         % compute harris scores for query image
-        query_harris = harris(query_image,params.cont.corr.harris_patch_size,params.cont.corr.harris_kappa);
+        query_harris = harris(img_new,params.cont.corr.harris_patch_size,params.cont.corr.harris_kappa);
 
         % compute keypoints for query image
         query_keypoints = selectKeypoints(query_harris,params.kp_tracker.nr_new_candidates,params.cont.corr.nonmaximum_supression_radius);

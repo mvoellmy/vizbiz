@@ -85,14 +85,14 @@ kp_tracks_updated.first_obs_kp = kp_tracks_updated.first_obs_kp(:,~idx_good_tria
 kp_tracks_updated.first_obs_pose = kp_tracks_updated.first_obs_pose(:,~idx_good_trianguable);
 kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(~idx_good_trianguable);
 
-%% Filter landmarks with 'cylindrical' and reprojection filter
+%% Filter landmarks with spherical and reprojection filter
 Cj_reprojected_points_uv = [];
 Cj_P_hom_new_inliers = [];
 p_candidates_j_inliers = [];
 
 if size(Cj_P_hom_new,2) > 0 
     [Cj_P_hom_new_neigb, outFOV_idx] = applySphericalFilter(params, Cj_P_hom_new, params.cont.landmarks_cutoff);
-    fprintf('  -> Apply spherical filter to new Landmarks: (%i/%i) inside Sphere\n',size(Cj_P_hom_new_neigb, 2) , size(outFOV_idx, 2)+size(Cj_P_hom_new_neigb, 2));
+    %fprintf('  -> Apply spherical filter to new Landmarks: (%i/%i) inside Sphere\n',size(Cj_P_hom_new_neigb, 2) , size(outFOV_idx, 2)+size(Cj_P_hom_new_neigb, 2));
 
     % remove unrealistic landmarks and corresponding keypoints
     if (size(outFOV_idx)<size(Cj_P_hom_new,2)) % some Landmarks were in neigbourhood
@@ -108,6 +108,8 @@ if size(Cj_P_hom_new,2) > 0
 
         Cj_P_hom_new_inliers = Cj_P_hom_new(:, reproj_inliers);
         p_candidates_j_inliers = p_candidates_j(:, reproj_inliers);
+        assert(size(Cj_P_hom_new_inliers,2) == size(p_candidates_j_inliers,2));
+        
         updateConsole(params,...
                       sprintf('  Removed %i of %i realistic landmarks due to too big reprojection error\n',...
                       nnz(~reproj_inliers), size(Cj_P_hom_new,2)));

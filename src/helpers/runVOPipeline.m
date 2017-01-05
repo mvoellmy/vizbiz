@@ -192,7 +192,7 @@ if params.run_continous
         
         % pick current frame, due to initialization +2
         frame_idx = j - bootstrap_frame_idx_2 + 2;
-        img = getFrame(params, j);
+        img_new = getFrame(params, j);
         
         if (size(keypoints_prev_triang,2) > 6) % todo: minimum number?            
             % extract current camera pose
@@ -200,7 +200,7 @@ if params.run_continous
             
             % process newest image
             [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new] =...
-                processFrame(params, img, img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
+                processFrame(params, img_new, img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
             
             % add super title with frame number
             if params.cont.figures
@@ -242,7 +242,7 @@ if params.run_continous
         pause(1.01);       
 
         % update previous image, keypoints, landmarks and tracker
-        img_prev = img;
+        img_prev = img_new;
         keypoints_prev_triang = keypoints_new_triang;
         Ci_landmarks_prev = Cj_landmarks_new;
         kp_tracks = updated_kp_tracks;

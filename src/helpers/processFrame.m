@@ -102,15 +102,14 @@ T_CjCi = tf2invtf(T_CiCj);
 T_WCj = T_WCi * T_CiCj;
 unmatched_query_kp = query_keypoints;
 unmatched_query_kp(:,matched_query_indices>0) = [];
-kp_tracks_updated = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, unmatched_query_kp, T_WCj, img_new);
+kp_tracks_updated = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, unmatched_query_kp, T_WCj);
 
 %% Triangulate new landmarks & update landmarks and keypoint list
 [Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated] =...
     triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj, size(Ci_corresponding_inlier_landmarks, 2));
 
 % append used candidate keypoints to p_new_matched_triang
-% rounding because of integer operations in describeKeypoints()
-p_new_matched_triang = [p_new_matched_triang, round(p_candidates_j_inliers)];
+p_new_matched_triang = [p_new_matched_triang, p_candidates_j_inliers];
 
 Cj_P_hom_inliers = [];
 if localized % otherwise index error since Ci_corresponding_inlier_landmarks = []

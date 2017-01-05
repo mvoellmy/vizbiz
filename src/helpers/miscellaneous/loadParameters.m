@@ -13,7 +13,7 @@ params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 params.run_continous = true;
 
-params.run_on_first_x_images = 20; % 0 for all images
+params.run_on_first_x_images = 10; % 0 for all images
 params.show_map_and_cams = true;
 params.through_gui = false;
 
@@ -35,7 +35,7 @@ params.boot.min_b2dratio = 0.1;
 
 % initialization parameters
 params.init.figures = true; % on/off figure
-params.init.use_KLT = true; % --------------------------------------
+params.init.use_KLT = false; % --------------------------------------
 params.init.show_keypoints = true;
 params.init.show_inlier_matches = true;
 params.init.show_landmarks = true;
@@ -85,13 +85,13 @@ params.localization_ransac.num_iterations_DLT = 200;
 params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]  % --------------------------------------
 params.localization_ransac.show_iterations = true;
 
-params.kp_tracker.use_KLT = false;
+params.kp_tracker.use_KLT = true;  % --------------------------------------
 params.kp_tracker.nr_new_candidates = 300;  % --------------------------------------
 params.kp_tracker.show_matches = true;
 params.kp_tracker.show_triangulated = true;
 params.kp_tracker.bearing_low_thr = 2; % [deg]  % --------------------------------------
 params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*1.5; % [deg]
-params.kp_tracker.min_nr_trackings = 30; % 3
+params.kp_tracker.min_nr_trackings = 3; % 3
 % Todo: Max number trackings
 params.kp_tracker.max_reproj_error = 5; % 12 [pixels]  % --------------------------------------
 
