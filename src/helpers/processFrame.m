@@ -104,7 +104,9 @@ T_CjCi = tf2invtf(T_CiCj);
 
 %% Candiate Keypoint tracker
 T_WCj = T_WCi * T_CiCj;
-kp_tracks_updated = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, query_keypoints, T_WCj, img_new);
+unmatched_query_kp = query_keypoints;
+unmatched_query_kp(:,matched_query_indices) = [];
+kp_tracks_updated = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, unmatched_query_kp, T_WCj, img_new);
 
 %% Triangulate new landmarks & update landmarks and keypoint list
 [Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated] =...

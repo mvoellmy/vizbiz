@@ -1,4 +1,4 @@
-function [matched_database_keypoints, matched_query_keypoints, query_keypoints] = ...
+function [matched_database_keypoints, matched_query_keypoints, unmatched_query_kp] = ...
     findCorrespondeces(params, database_image, query_image)
 % Detects N keypoint correspondeces given image pair
 % and returns the SORTED keypoints of both images.
@@ -41,11 +41,14 @@ matches = matchDescriptors(query_descriptors,database_descriptors,params.init.co
 updateConsole(params,...
               sprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f perc.)\n',...
               nnz(matches), 100*nnz(matches)/size(database_keypoints,2)));
-
+          
 % filter invalid matches
 [~, matched_query_indices, matched_database_indices] = find(matches);
 matched_query_keypoints = flipud(query_keypoints(:,matched_query_indices));
 matched_database_keypoints = flipud(database_keypoints(:,matched_database_indices));
+
+unmatched_query_kp = query_keypoints;
+unmatched_query_kp(:,matched_query_indices) = [];
 
 % check for consistent correspondences
 assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
