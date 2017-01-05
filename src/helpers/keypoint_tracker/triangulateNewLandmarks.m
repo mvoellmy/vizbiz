@@ -77,6 +77,10 @@ kp_tracks_updated.first_obs_kp = kp_tracks_updated.first_obs_kp(:,~idx_good_tria
 kp_tracks_updated.first_obs_pose = kp_tracks_updated.first_obs_pose(:,~idx_good_trianguable);
 kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(~idx_good_trianguable);
 
+updateConsole(params,...
+              sprintf('  Number of remaining candidate keypoint tracks: %i\n',...
+              size(kp_tracks_updated.candidate_kp,2)));
+
 %% Filter landmarks with 'cylindrical' and reprojection filter
 % [Cj_hom_landmarks_new, outFOV_idx] = applyCylindricalFilter(Cj_hom_landmarks_new, params.cont.landmarks_cutoff);
 idx_Ci_P_hom_new_realistic = find(Cj_P_hom_new(3,:)>0);
@@ -96,8 +100,8 @@ if (nnz(idx_Ci_P_hom_new_realistic)>0)
     errors = sum(difference.^2, 1);
     reproj_inliers = errors < params.kp_tracker.max_reproj_error^2;
 
-    Cj_P_hom_new_inliers = Cj_P_hom_new(:, reproj_inliers);
-    p_candidates_j_inliers = p_candidates_j(:, reproj_inliers);
+    Cj_P_hom_new_inliers = Cj_P_hom_new(:,reproj_inliers);
+    p_candidates_j_inliers = p_candidates_j(:,reproj_inliers);
     updateConsole(params,...
                   sprintf('  Removed %i of %i realistic landmarks due to too big reprojection error\n',...
                   nnz(~reproj_inliers), size(Cj_P_hom_new,2)));

@@ -130,7 +130,8 @@ else
     kp_tracks.first_obs_pose = []; % 16xN
     kp_tracks.nr_trackings = []; % 1xN
     
-    kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, query_keypoints, T_WC2);    
+    kp_tracks_init = updateKpTracks(params, kp_tracks, I_i1, I_i2, flipud(p_i2), T_WC2);
+    %kp_tracks_init = updateKpTracks(params, kp_tracks, I_i1, I_i2, query_keypoints, T_WC2);    
 end
 
 % check for same number of keypoints and landmarks

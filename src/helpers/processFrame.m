@@ -53,33 +53,11 @@ if params.cont.figures
 end
 
 %% Find correspondences between new and prev image
-[query_keypoints, matches] = findCorrespondeces_cont(params, img_prev, keypoints_prev_triang, img_new);
+[matched_query_keypoints, query_keypoints, matches] = findCorrespondeces_cont(params, img_prev, keypoints_prev_triang, img_new);
 
 % delete landmark where no matching keypoint was found
 corr_ldk_matches = matches(matches > 0);
 Ci_corresponding_landmarks = Ci_landmarks_prev(:,corr_ldk_matches);
-
-% filter query and database keypoints
-[~, matched_query_indices, matched_database_indices] = find(matches);
-matched_query_keypoints = query_keypoints(:,matched_query_indices);
-matched_database_keypoints = keypoints_prev_triang(:,matched_database_indices);
-
-% check for consistent correspondences
-assert(size(matched_query_keypoints,2) == length(corr_ldk_matches) && ...
-       size(matched_database_keypoints,2) == length(corr_ldk_matches));
-
-% display matched keypoints
-if (params.cont.figures && params.localization_ransac.show_matched_keypoints)
-    figure(fig_cont);
-    subplot(2,1,1);
-    plotPoints(matched_query_keypoints,'g.');
-    plotCircles(matched_query_keypoints,'y',params.localization_ransac.pixel_tolerance);
-    title('Matched kp (green) with confidence (yellow)');
-    
-    subplot(2,1,2);
-    plotPoints(matched_query_keypoints,'g.');
-    title('Matched kp (green)');
-end
 
 %% Estimate transformation Cj to Ci
 [R_CiCj, Ci_t_CiCj, p_new_matched_triang, Ci_corresponding_inlier_landmarks] = ...

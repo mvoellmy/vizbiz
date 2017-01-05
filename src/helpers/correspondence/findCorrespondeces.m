@@ -15,37 +15,57 @@ function [matched_database_keypoints, matched_query_keypoints, query_keypoints] 
 
 global fig_init gui_handles;
 
-% todo: move params into subroutines, expose only method string
-% compute harris scores for query image % todo: move into keypoint-selection
-query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+if params.init.use_KLT
+    % compute harris scores for query image
+    database_harris = harris(database_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+    % compute keypoints for database image
+    database_keypoints = selectKeypoints(database_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
+    
+    % create a point tracker
+    klt_tracker = vision.PointTracker('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
 
-% compute harris scores for query image
-database_harris = harris(database_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+    % initialize tracker with the query kp locations
+    initialize(klt_tracker, flipud(database_keypoints)', database_image);
 
-% compute keypoints for query image
-query_keypoints = selectKeypoints(query_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
+    % track keypoints
+    [kp_tracked, validIdx, ~] = step(klt_tracker, query_image); % todo: use validity scores?
+    query_keypoints = round(flipud(kp_tracked')); % [v u]
+    
+    matched_database_keypoints = flipud(database_keypoints(:,validIdx')); % [u v]
+    matched_query_keypoints = flipud(query_keypoints(:,validIdx')); % [u v]
+    
+else
+    % compute harris scores for query image
+    query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
 
-% compute keypoints for database image
-database_keypoints = selectKeypoints(database_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
+    % compute harris scores for query image
+    database_harris = harris(database_image,params.corr.harris_patch_size,params.corr.harris_kappa);
 
-% descripe query keypoints
-query_descriptors = describeKeypoints(query_image,query_keypoints,params.corr.descriptor_radius);
+    % compute keypoints for query image
+    query_keypoints = selectKeypoints(query_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
 
-% describe database keypoints
-database_descriptors = describeKeypoints(database_image,database_keypoints,params.corr.descriptor_radius);
+    % compute keypoints for database image
+    database_keypoints = selectKeypoints(database_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
 
-% match descriptors
-matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+    % descripe query keypoints
+    query_descriptors = describeKeypoints(query_image,query_keypoints,params.corr.descriptor_radius);
 
-% display fraction of matched keypoints
-updateConsole(params,...
-              sprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f perc.)\n',...
-              nnz(matches), 100*nnz(matches)/size(database_keypoints,2)));
+    % describe database keypoints
+    database_descriptors = describeKeypoints(database_image,database_keypoints,params.corr.descriptor_radius);
 
-% filter invalid matches
-[~, matched_query_indices, matched_database_indices] = find(matches);
-matched_query_keypoints = flipud(query_keypoints(:,matched_query_indices));
-matched_database_keypoints = flipud(database_keypoints(:,matched_database_indices));
+    % match descriptors
+    matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+
+    % display fraction of matched keypoints
+    updateConsole(params,...
+                  sprintf('  Number of new keypoints matched with prev keypoints: %i (%0.2f perc.)\n',...
+                  nnz(matches), 100*nnz(matches)/size(database_keypoints,2)));
+
+    % filter invalid matches
+    [~, matched_query_indices, matched_database_indices] = find(matches);
+    matched_query_keypoints = flipud(query_keypoints(:,matched_query_indices));
+    matched_database_keypoints = flipud(database_keypoints(:,matched_database_indices));
+end
 
 % check for consistent correspondences
 assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
