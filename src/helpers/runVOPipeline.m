@@ -255,7 +255,7 @@ if params.run_continous
             % update gui metrics
             gui_updateMetrics(deltaT, gui_handles.text_RT_value);
         end
-    end
+    end % end for loop
     updateConsole(params, '...VO-pipeline terminated.\n');
 end
 

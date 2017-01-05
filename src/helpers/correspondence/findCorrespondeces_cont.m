@@ -40,11 +40,11 @@ if params.cont.use_KLT
     % Filter coresponding landmarks
     matchedLandmarks = database_landmarks(:,validIdx');
     
-    figure
-    showMatchedFeatures(database_image, query_image,...
-                            flipud(database_keypoints(:,validIdx))',...
-                            flipud(matched_keypoints)', 'blend', 'PlotOptions', {'rx','gx','y-'});
-        title('KLT matches');
+%     figure
+%     showMatchedFeatures(database_image, query_image,...
+%                             flipud(database_keypoints(:,validIdx))',...
+%                             flipud(matched_keypoints)', 'blend', 'PlotOptions', {'rx','gx','y-'});
+%         title('KLT matches');
 
        
 else

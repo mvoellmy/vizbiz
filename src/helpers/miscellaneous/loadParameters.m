@@ -13,7 +13,7 @@ params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 params.run_continous = true;
 
-params.run_on_first_x_images = 10; % 0 for all images
+params.run_on_first_x_images = 50; % 0 for all images
 params.show_map_and_cams = true;
 params.through_gui = false;
 

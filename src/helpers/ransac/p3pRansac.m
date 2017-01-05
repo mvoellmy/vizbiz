@@ -37,7 +37,7 @@ max_num_inliers_history = zeros(1,num_iterations);
 max_num_inliers = 0;
 
 % run RANSAC for pose estimation
-R_CjCi_best_guess = zeros(3);
+R_CjCi_best_guess = eye(3);
 Cj_t_CjCi_best_guess = zeros(3,1);
 
 for i = 1:num_iterations
@@ -66,14 +66,14 @@ for i = 1:num_iterations
     
     % count inliers
     projected_points_uv = projectPoints((R_CjCi_guess(:,:,1)*Ci_corresponding_landmarks) +...
-                                     repmat(-Cj_t_CjCi_guess(:,:,1),[1 size(Ci_corresponding_landmarks, 2)]),K);
+                                     repmat(Cj_t_CjCi_guess(:,:,1),[1 size(Ci_corresponding_landmarks, 2)]),K);
     difference = matched_query_keypoints_uv - projected_points_uv;
     errors = sum(difference.^2,1);
     inliers = errors < params.localization_ransac.pixel_tolerance^2;
     
     if params.localization_ransac.use_p3p
         projected_points_uv = projectPoints((R_CjCi_guess(:,:,2) * Ci_corresponding_landmarks) +...
-                                         repmat(-Cj_t_CjCi_guess(:,:,2),[1 size(Ci_corresponding_landmarks, 2)]),K);
+                                         repmat(Cj_t_CjCi_guess(:,:,2),[1 size(Ci_corresponding_landmarks, 2)]),K);
         difference = matched_query_keypoints_uv - projected_points_uv;
         errors = sum(difference.^2, 1);
         alternative_inliers = errors < params.localization_ransac.pixel_tolerance^2;
@@ -120,8 +120,8 @@ if (max_num_inliers == 0)
     updateConsole(params, '  No inlier matches found\n');
 else
     % discard outliers
-    matched_query_keypoints_uv = matched_query_keypoints_uv(:, best_guess_inliers);
-    Ci_corresponding_inlier_landmarks = Ci_corresponding_landmarks(:, best_guess_inliers);
+    matched_query_keypoints_uv = matched_query_keypoints_uv(:, best_guess_inliers>0);
+    Ci_corresponding_inlier_landmarks = Ci_corresponding_landmarks(:, best_guess_inliers>0);
 
     % calculate [R,t] with best inlier points and DLT
 %     M_CjCi = estimatePoseDLT(matched_query_keypoints_uv', Ci_corresponding_inlier_landmarks', K);
