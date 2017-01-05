@@ -62,7 +62,8 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         query_harris = harris(img_new,params.cont.corr.harris_patch_size,params.cont.corr.harris_kappa);
 
         % compute keypoints for query image
-        query_keypoints = selectKeypoints(query_harris,params.kp_tracker.nr_new_candidates,params.cont.corr.nonmaximum_supression_radius);
+        nr_new_candidates = max([0, params.kp_tracker.max_nr_candidates - size(kp_tracks_updated.candidate_kp,2)]); % maybe todo min number increase
+        query_keypoints = selectKeypoints(query_harris, nr_new_candidates, params.cont.corr.nonmaximum_supression_radius);
         new_kp = query_keypoints;
     else
         % descripe query keypoints
@@ -98,6 +99,13 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
 else
     new_kp = query_keypoints;
 end
+
+% delete keypoints tracked too often
+idx_old_kp = find(kp_tracks_updated.nr_trackings > params.kp_tracker.max_nr_trackings);
+kp_tracks_updated.candidate_kp(:, idx_old_kp) = [];
+kp_tracks_updated.first_obs_kp(:, idx_old_kp) = [];
+kp_tracks_updated.first_obs_pose(:, idx_old_kp) = [];
+kp_tracks_updated.nr_trackings(idx_old_kp) = [];
 
 % append all new found keypoints and their pose
 T_WCj_col = T_WCj(:); % convert to col vector for storage

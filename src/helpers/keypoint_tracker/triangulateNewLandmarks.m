@@ -25,15 +25,19 @@ vector_j = [kp_tracks_updated.candidate_kp;repmat(K(1,1),[1, size(kp_tracks_upda
 
 bearing_angle_deg = atan2d(twoNormMatrix(cross(vector_j,vector_first)),dot(vector_j,vector_first));
 
-% create idx vector of trianguable candidate points
-if nr_landmarks<40
+% adapt bearing angle threshhold to landmarks remaining for triangulation
+if nr_landmarks < params.kp_tracker.min_nr_landmarks_bearing_angle_adapt
     bearing_angle_low_thr = params.kp_tracker.bearing_low_thr;
     bearing_angle_up_thr = params.kp_tracker.bearing_up_thr;
 else
-    bearing_angle_low_thr = params.kp_tracker.bearing_low_thr*1.5;
-    bearing_angle_up_thr = params.kp_tracker.bearing_up_thr*1.5;
+    bearing_angle_low_thr = params.kp_tracker.bearing_low_thr * params.kp_tracker.bearing_angle_multiplicator;
+    bearing_angle_up_thr = params.kp_tracker.bearing_up_thr * params.kp_tracker.bearing_angle_multiplicator;
 end
-
+updateConsole(params,...
+              sprintf('  Bearing angle interval: [%0.2f. %0.2f]\n',...
+              bearing_angle_low_thr, bearing_angle_up_thr));
+          
+% create idx vector of trianguable candidate points
 idx_good_trianguable = ((bearing_angle_deg > bearing_angle_low_thr)...
     & (kp_tracks_updated.nr_trackings >= params.kp_tracker.min_nr_trackings)...
     & (bearing_angle_deg < bearing_angle_up_thr));
@@ -77,7 +81,7 @@ updateConsole(params,...
         Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first_uv(:,i),p_hom_candidates_j_uv(:,i),M_Cfirst,M_CjCfirst);
         Cj_P_hom_new(:,i) = T_CjCfirst*Cfirst_P_hom_new(:,i);
     end
-    
+
 %% Update keypoint tracks, Cj_landmarks and p_new_matched_triang
 % delete candidate keypoint used for triangulation from updated_kp_tracks
 kp_tracks_updated.candidate_kp = kp_tracks_updated.candidate_kp(:,~idx_good_trianguable);
@@ -109,7 +113,7 @@ if size(Cj_P_hom_new,2) > 0
         Cj_P_hom_new_inliers = Cj_P_hom_new(:, reproj_inliers);
         p_candidates_j_inliers = p_candidates_j(:, reproj_inliers);
         assert(size(Cj_P_hom_new_inliers,2) == size(p_candidates_j_inliers,2));
-        
+
         updateConsole(params,...
                       sprintf('  Removed %i of %i realistic landmarks due to too big reprojection error\n',...
                       nnz(~reproj_inliers), size(Cj_P_hom_new,2)));

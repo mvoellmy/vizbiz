@@ -25,7 +25,7 @@ matched_query_indices = zeros(1,size(query_keypoints,2));
 
 if params.cont.use_KLT
     % create a point tracker
-    klt_tracker = vision.PointTracker();
+    klt_tracker = vision.PointTracker('NumPyramidLevels',5); % TODO: Make adaptive
 
     % initialize tracker with the query kp locations
     initialize(klt_tracker, flipud(database_keypoints)', database_image);
@@ -39,13 +39,6 @@ if params.cont.use_KLT
     
     % Filter coresponding landmarks
     matchedLandmarks = database_landmarks(:,validIdx');
-    
-%     figure
-%     showMatchedFeatures(database_image, query_image,...
-%                             flipud(database_keypoints(:,validIdx))',...
-%                             flipud(matched_keypoints)', 'blend', 'PlotOptions', {'rx','gx','y-'});
-%         title('KLT matches');
-
        
 else
     % descripe query keypoints
@@ -58,7 +51,7 @@ else
     matches = matchDescriptors(query_descriptors,database_descriptors,params.cont.corr.match_lambda);
     
     % filter query and database keypoints
-    [~, matched_query_indices, matched_database_indices] = find(matches);
+    [~, matched_query_indices, ~] = find(matches);
     matched_keypoints = query_keypoints(:,matched_query_indices);
     
     % delete landmark where no matching keypoint was found

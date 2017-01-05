@@ -7,13 +7,13 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
 params.run_continous = true;
 
-params.run_on_first_x_images = 50; % 0 for all images
+params.run_on_first_x_images = 0; % 0 for all images
 params.show_map_and_cams = true;
 params.through_gui = false;
 
@@ -35,7 +35,7 @@ params.boot.min_b2dratio = 0.1;
 
 % initialization parameters
 params.init.figures = true; % on/off figure
-params.init.use_KLT = false; % --------------------------------------
+params.init.use_KLT = true; % --------------------------------------
 params.init.show_keypoints = true;
 params.init.show_inlier_matches = true;
 params.init.show_landmarks = true;
@@ -49,7 +49,7 @@ params.init.normalize_scale = true;
 params.init.corr.harris_patch_size = 9; % 9 [pixels]
 params.init.corr.harris_kappa = 0.08;
 params.init.corr.nonmaximum_supression_radius = 8;
-params.init.corr.num_keypoints = 900; % 200 % 400 % --------------------------------------
+params.init.corr.num_keypoints = 600; % 200 % 400 % --------------------------------------
 params.init.corr.descriptor_radius = 9; % [pixels]
 params.init.corr.match_lambda = 8; % 5 % --------------------------------------
 
@@ -67,32 +67,35 @@ params.cont.use_KLT = true;   % --------------------------------------
 params.cont.show_matches = true;
 params.cont.show_inlier_matches = true;
 params.cont.landmarks_cutoff = 100;  % --------------------------------------
-params.cont.plot_new_landmarks = true;
+params.cont.plot_new_landmarks = false;
 
 % correspondence parameters continiuous
 params.cont.corr.harris_patch_size = 9; % 9 [pixels]
 params.cont.corr.harris_kappa = 0.08;
 params.cont.corr.nonmaximum_supression_radius = 8;
-params.cont.corr.num_keypoints = 600; % 200 % --------------------------------------
+params.cont.corr.num_keypoints = 200; % 200 % --------------------------------------
 params.cont.corr.descriptor_radius = 9; % [pixels]
 params.cont.corr.match_lambda = 6; % 5 % --------------------------------------
 
 params.localization_ransac.show_matched_keypoints = true;
 params.localization_ransac.show_inlier_matches = true;
 params.localization_ransac.use_p3p = true;
-params.localization_ransac.num_iterations_pnp = 3000; % 2000 fix?
+params.localization_ransac.num_iterations_pnp = 2000; % 2000 fix?
 params.localization_ransac.num_iterations_DLT = 200;
-params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]  % --------------------------------------
-params.localization_ransac.show_iterations = true;
+params.localization_ransac.pixel_tolerance = 8; % 10 [pixels]  % --------------------------------------
+params.localization_ransac.show_iterations = false;
 
 params.kp_tracker.use_KLT = true;  % --------------------------------------
-params.kp_tracker.nr_new_candidates = 300;  % --------------------------------------
+params.kp_tracker.min_nr_landmarks = 250;
+params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 150;
+params.kp_tracker.bearing_angle_multiplicator = 2.5;
+params.kp_tracker.max_nr_candidates = 600;  % --------------------------------------
 params.kp_tracker.show_matches = true;
 params.kp_tracker.show_triangulated = true;
-params.kp_tracker.bearing_low_thr = 2; % [deg]  % --------------------------------------
-params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*1.5; % [deg]
-params.kp_tracker.min_nr_trackings = 3; % 3
-% Todo: Max number trackings
-params.kp_tracker.max_reproj_error = 5; % 12 [pixels]  % --------------------------------------
+params.kp_tracker.bearing_low_thr = 1.2; % [deg]  % --------------------------------------
+params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*3.5; % [deg]
+params.kp_tracker.min_nr_trackings = 2; % 3
+params.kp_tracker.max_nr_trackings = 20;
+params.kp_tracker.max_reproj_error = 10; % 12 [pixels]  % --------------------------------------
 
 end

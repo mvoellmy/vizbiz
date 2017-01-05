@@ -107,7 +107,7 @@ T_WC1 = [1      0           0       0;
 
 % normalize scale with ground truth
 if params.init.normalize_scale
-    [C2_landmarks_init, T_C1C2] = normalizeScale(C2_landmarks_init, T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+    [C2_landmarks_init, T_C1C2] = normalizeScale(params, C2_landmarks_init, T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
 end
 
 % assign first two poses
@@ -164,8 +164,6 @@ updateConsole(params, '...initialization done.\n\n');
 %% Continuous operation VO pipeline
 global fig_cont fig_RANSAC_debug fig_kp_triangulate;
 
-fig_debug_traj = figure('name','Trajectory');
-
 if params.run_continous
     updateConsole(params, 'start continuous VO operation...\n');
     
@@ -175,9 +173,9 @@ if params.run_continous
         if params.localization_ransac.show_iterations
             fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
         end
-    end
-    if params.cont.figures
-        fig_kp_triangulate = figure('name', 'triangulate');
+
+        fig_kp_triangulate = figure('name', 'triangulate');   
+        fig_debug_traj = figure('name','Trajectory');
     end
     
 	% hand-over initialization variables
@@ -217,9 +215,11 @@ if params.run_continous
 
         % extend 2D trajectory
         W_traj =[W_traj, T_WCj_vo(1:2,4,frame_idx)];
-        figure(fig_debug_traj);
-        plotGroundThruth_3D(squeeze(T_WCj_vo(1:3,end,1:frame_idx)), ground_truth);
-
+        if params.cont.figures
+            figure(fig_debug_traj);
+            plotGroundThruth_3D(squeeze(T_WCj_vo(1:3,end,1:frame_idx)), ground_truth);
+        end
+        
         % update map with new landmarks
         W_landmarks_new = [];
         if size(Cj_landmarks_new,2)>0
@@ -239,7 +239,7 @@ if params.run_continous
         end
 
         % allow plots to refresh
-        pause(1.01);       
+        pause(0.01);       
 
         % update previous image, keypoints, landmarks and tracker
         img_prev = img_new;

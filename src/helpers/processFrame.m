@@ -105,8 +105,14 @@ unmatched_query_kp(:,matched_query_indices>0) = [];
 kp_tracks_updated = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, unmatched_query_kp, T_WCj);
 
 %% Triangulate new landmarks & update landmarks and keypoint list
-[Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated] =...
-    triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj, size(Ci_corresponding_inlier_landmarks, 2));
+nr_landmarks = size(Ci_corresponding_inlier_landmarks, 2);
+if params.kp_tracker.min_nr_landmarks > nr_landmarks
+    [Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated] =...
+        triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj, nr_landmarks);
+else
+    Cj_P_hom_new_inliers = [];
+    p_candidates_j_inliers = [];
+end
 
 % append used candidate keypoints to p_new_matched_triang
 p_new_matched_triang = [p_new_matched_triang, p_candidates_j_inliers];
