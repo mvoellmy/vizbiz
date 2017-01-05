@@ -25,7 +25,7 @@ matched_query_indices = zeros(1,size(query_keypoints,2));
 
 if params.cont.use_KLT
     % create a point tracker
-    klt_tracker = vision.PointTracker('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
+    klt_tracker = vision.PointTracker();
 
     % initialize tracker with the query kp locations
     initialize(klt_tracker, flipud(database_keypoints)', database_image);

@@ -7,7 +7,7 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.compare_against_groundthruth = true;
@@ -85,11 +85,14 @@ params.localization_ransac.num_iterations_DLT = 200;
 params.localization_ransac.pixel_tolerance = 8; % 10 [pixels]
 params.localization_ransac.show_iterations = true;
 
+params.kp_tracker.use_KLT = true;
+params.kp_tracker.nr_new_candidates = 300;
 params.kp_tracker.show_matches = true;
 params.kp_tracker.show_triangulated = true;
-params.kp_tracker.bearing_low_thr = 3.7; % [deg]
+params.kp_tracker.bearing_low_thr = 2; % [deg]
 params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*1.5; % [deg]
 params.kp_tracker.min_nr_trackings = 3; % 3
-params.kp_tracker.max_reproj_error = 8; % 12 [pixels]
+% Todo: Max number trackings
+params.kp_tracker.max_reproj_error = 10; % 12 [pixels]
 
 end

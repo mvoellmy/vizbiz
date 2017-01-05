@@ -20,7 +20,7 @@ nr_matched_kp_cand = 0;
 
 % if there are candiate keypoints, try to match
 if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
-    if params.cont.use_KLT
+    if params.kp_tracker.use_KLT
         % create a point tracker
         klt_tracker = vision.PointTracker('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
 
@@ -58,7 +58,7 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
 
         % compute keypoints for query image
-        query_keypoints = selectKeypoints(query_harris,100,params.corr.nonmaximum_supression_radius);
+        query_keypoints = selectKeypoints(query_harris,params.kp_tracker.nr_new_candidates,params.corr.nonmaximum_supression_radius);
         new_kp = query_keypoints;
     else
         % descripe query keypoints
