@@ -17,10 +17,10 @@ function [query_keypoints,matched_query_indices, matched_keypoints, matchedLandm
 global fig_cont gui_handles;
 
 % compute harris scores for query image
-query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+query_harris = harris(query_image,params.cont.corr.harris_patch_size,params.cont.corr.harris_kappa);
 
 % compute keypoints for query image
-query_keypoints = selectKeypoints(query_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
+query_keypoints = selectKeypoints(query_harris,params.cont.corr.num_keypoints,params.cont.corr.nonmaximum_supression_radius);
 matched_query_indices = zeros(1,size(query_keypoints,2));
 
 if params.cont.use_KLT
@@ -42,13 +42,13 @@ if params.cont.use_KLT
        
 else
     % descripe query keypoints
-    query_descriptors = describeKeypoints(query_image,query_keypoints,params.corr.descriptor_radius);
+    query_descriptors = describeKeypoints(query_image,query_keypoints,params.cont.corr.descriptor_radius);
 
     % describe database keypoints
-    database_descriptors = describeKeypoints(database_image,database_keypoints,params.corr.descriptor_radius);
+    database_descriptors = describeKeypoints(database_image,database_keypoints,params.cont.corr.descriptor_radius);
 
     % match descriptors
-    matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+    matches = matchDescriptors(query_descriptors,database_descriptors,params.cont.corr.match_lambda);
     
     % filter query and database keypoints
     [~, matched_query_indices, matched_database_indices] = find(matches);

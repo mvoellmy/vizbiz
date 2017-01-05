@@ -55,20 +55,20 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         % Generate new keypoints
         % todo make faster
         % compute harris scores for query image
-        query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+        query_harris = harris(query_image,params.cont.corr.harris_patch_size,params.cont.corr.harris_kappa);
 
         % compute keypoints for query image
-        query_keypoints = selectKeypoints(query_harris,params.kp_tracker.nr_new_candidates,params.corr.nonmaximum_supression_radius);
+        query_keypoints = selectKeypoints(query_harris,params.kp_tracker.nr_new_candidates,params.cont.corr.nonmaximum_supression_radius);
         new_kp = query_keypoints;
     else
         % descripe query keypoints
-        query_descriptors = describeKeypoints(img_new,query_keypoints,params.corr.descriptor_radius);
+        query_descriptors = describeKeypoints(img_new,query_keypoints,params.cont.corr.descriptor_radius);
 
         % describe database keypoints
-        database_descriptors = describeKeypoints(img_prev,kp_tracks_prev.candidate_kp,params.corr.descriptor_radius);
+        database_descriptors = describeKeypoints(img_prev,kp_tracks_prev.candidate_kp,params.cont.corr.descriptor_radius);
 
         % match descriptors
-        matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+        matches_untriang = matchDescriptors(query_descriptors,database_descriptors,params.cont.corr.match_lambda);
 
         % update candidate_kp coordinates with matched current kp
         idx_matched_kp_tracks_cand = find(matches_untriang);

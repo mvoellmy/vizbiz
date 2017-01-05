@@ -23,12 +23,12 @@ query_keypoints = selectKeypoints(query_harris,params.init.corr.num_keypoints,pa
 
 if params.init.use_KLT
     % compute harris scores for query image
-    database_harris = harris(database_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+    database_harris = harris(database_image,params.init.corr.harris_patch_size,params.init.corr.harris_kappa);
     % compute keypoints for database image
-    database_keypoints = selectKeypoints(database_harris,params.corr.num_keypoints,params.corr.nonmaximum_supression_radius);
+    database_keypoints = selectKeypoints(database_harris,params.init.corr.num_keypoints,params.init.corr.nonmaximum_supression_radius);
     
     % create a point tracker
-    klt_tracker = vision.PointTracker('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
+    klt_tracker = vision.PointTracker(); %('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
 
     % initialize tracker with the query kp locations
     initialize(klt_tracker, flipud(database_keypoints)', database_image);

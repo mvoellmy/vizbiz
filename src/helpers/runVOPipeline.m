@@ -155,8 +155,8 @@ if (params.init.figures && params.init.show_landmarks)
     figure('name','Landmarks and motion of initialization image pair');
     hold on;
     plotLandmarks(W_landmarks_init, 'z', 'up');
-    plotCam(T_WCj_vo(:,:,1), 1, 'black');
-    plotCam(T_WCj_vo(:,:,2), 1, 'red');
+    plotCam(T_WCj_vo(:,:,1), 0.2, 'black');
+    plotCam(T_WCj_vo(:,:,2), 0.2, 'red');
 end
 
 updateConsole(params, '...initialization done.\n\n');
@@ -273,8 +273,8 @@ if params.show_map_and_cams
     figure('name', 'Map landmarks');
     plotLandmarks(W_landmarks_map, 'z', 'up');
     hold on;
-    plotCam(T_WCj_vo(:,:,1), 2, 'black');
-    plotCam(T_WCj_vo(:,:,2:end), 2, 'red');
+    plotCam(T_WCj_vo(:,:,1), 0.2, 'black');
+    plotCam(T_WCj_vo(:,:,2:end), 0.2, 'red');
 end
 
 end

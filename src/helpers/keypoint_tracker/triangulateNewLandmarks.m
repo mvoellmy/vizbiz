@@ -64,7 +64,6 @@ updateConsole(params,...
               sprintf('  Number of trianguable keypoint candidates: %i\n',...
               nnz(idx_good_trianguable)));
 
-
     for i=1:size(p_candidates_first,2)
         T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
 
@@ -73,7 +72,6 @@ updateConsole(params,...
         T_CjW = tf2invtf(T_WCj);
         T_CjCfirst = T_CjW * T_WCfirst;
         M_CjCfirst = K * T_CjCfirst(1:3,:);
-
 
         % triangulate landmark    
         Cfirst_P_hom_new(:,i) = linearTriangulation(p_hom_candidates_first_uv(:,i),p_hom_candidates_j_uv(:,i),M_Cfirst,M_CjCfirst);
@@ -147,8 +145,8 @@ if size(Cj_P_hom_new,2) > 0
                 end
 
                 plotLandmarks(Cj_P_hom_new_inliers(1:3,:), 'y', 'down')
-                plotCam(T_CjCfirsts, 1, 'red');
-                plotCam(eye(3,4), 1, 'black');
+                plotCam(T_CjCfirsts, 0.2, 'red');
+                plotCam(eye(3,4), 0.2, 'black');
             end
         end
     end

@@ -14,7 +14,7 @@ plot3(W_Pos_C(1,:),W_Pos_C(2,:),W_Pos_C(3,:)+10,'b.-');
 plot(W_ground_truth(1,1),W_ground_truth(1,2),'ksquare');
 plot(W_ground_truth(end,1),W_ground_truth(end,2),'ko');
 
-w = 100; % window size, todo: parametrize?
+w = 50; % window size, todo: parametrize?
 x_last = W_Pos_C(1,end);
 y_last = W_Pos_C(2,end);
 
