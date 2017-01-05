@@ -53,6 +53,7 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         %matching plot
         
         % Generate new keypoints
+        % todo make faster
         % compute harris scores for query image
         query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
 
