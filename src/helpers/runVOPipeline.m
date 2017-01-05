@@ -164,6 +164,8 @@ updateConsole(params, '...initialization done.\n\n');
 %% Continuous operation VO pipeline
 global fig_cont fig_RANSAC_debug fig_kp_triangulate;
 
+fig_debug_traj = figure('name','Trajectory');
+
 if params.run_continous
     updateConsole(params, 'start continuous VO operation...\n');
     
@@ -215,7 +217,9 @@ if params.run_continous
 
         % extend 2D trajectory
         W_traj =[W_traj, T_WCj_vo(1:2,4,frame_idx)];
-        
+        figure(fig_debug_traj);
+        plotGroundThruth_3D(squeeze(T_WCj_vo(1:3,end,1:frame_idx)), ground_truth);
+
         % update map with new landmarks
         W_landmarks_new = [];
         if size(Cj_landmarks_new,2)>0
