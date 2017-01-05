@@ -67,7 +67,7 @@ addpath(genpath('./testing/'));
 addpath(genpath('./visualization/'));
 
 % place gui
-movegui(hObject, 'north');
+movegui(hObject, 'onscreen');
 
 % load parameter struct
 handles = guidata(hObject);  % Care for the newest version explicitly!
