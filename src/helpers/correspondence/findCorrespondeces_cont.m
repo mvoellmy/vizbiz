@@ -6,7 +6,7 @@ function [query_keypoints,matched_query_indices, matched_keypoints, matchedLandm
 %  - params(struct) : parameter struct
 %  - database_image(size) : first image
 %  - database_keypoints(2xN) : previous image keypoints, [v u] which have a
-%  - corresponding landmark
+%    corresponding landmark
 %  - query_image(size) : second image
 %
 % Output:

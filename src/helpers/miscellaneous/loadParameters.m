@@ -7,13 +7,12 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
-params.auto_bootstrap = false;
-params.perf.profiling = true;
-params.compare_against_groundthruth = true;
-params.run_continous = true;
-
+params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
+params.auto_bootstrap = true;
+params.perf.profiling = false;
+params.run_continous = false;
 params.run_on_first_x_images = 30; % 0 for all images
+params.compare_against_groundthruth = true;
 params.show_map_and_cams = true;
 params.through_gui = false;
 
@@ -23,15 +22,17 @@ params.gui.show_inlier_features = false;
 params.gui.show_triang_features = false;
 
 % bootstrap parameters
-params.boot.figures = false; % on/off figure
-params.boot.show_boot_images = true;
-params.boot.num_keypoints = 600;
-params.boot.show_boot_keypoints = true;
+params.boot.figures = true; % on/off figure
+params.boot.use_bearing_angle = true;
+params.boot.num_keypoints = 1000;
+params.boot.show_keypoints = true;
 params.boot.show_matches = true;
-params.boot.landmarks_cutoff = 100;
-params.boot.show_boot_landmarks = true;
-params.boot.min_num_inlier_kps = 100;
-params.boot.min_b2dratio = 0.1;
+params.boot.show_inlier_matches = true;
+params.boot.landmarks_cutoff = 500;
+params.boot.show_landmarks = false;
+params.boot.min_num_inlier_kps = 600;
+params.boot.min_b2dratio = 0.2;
+params.boot.min_av_angle_deg = 10; % [deg]
 
 % initialization parameters
 params.init.figures = true; % on/off figure
@@ -42,7 +43,7 @@ params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
 params.init.use_BA = false;
-params.init.landmarks_cutoff = 100; % --------------------------------------
+params.init.landmarks_cutoff = 500; % high because normalization not accurate for Malaga --------------------------------------
 params.init.normalize_scale = true;
 
 % correspondence parameters initialisation

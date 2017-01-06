@@ -27,8 +27,8 @@ if params.init.use_KLT
     % compute keypoints for database image
     database_keypoints = selectKeypoints(database_harris,params.init.corr.num_keypoints,params.init.corr.nonmaximum_supression_radius);
     
-    % create a point tracker
-    klt_tracker = vision.PointTracker(); %('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
+    % create a point tracker, same settings as bootstrapper
+    klt_tracker = vision.PointTracker('NumPyramidLevels', 6, 'MaxBidirectionalError', 2); % todo: adapt options to get even higher precision
 
     % initialize tracker with the query kp locations
     initialize(klt_tracker, flipud(database_keypoints)', database_image);
