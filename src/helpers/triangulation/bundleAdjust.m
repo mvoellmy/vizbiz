@@ -43,7 +43,7 @@ orientations = cell(nr_of_cams, 1);
 locations = cell(nr_of_cams, 1);
 
 for i=1:nr_of_cams % todo: might be possible to remove for loop
-    orientations(i) = {T_WC(1:3, 1:3, i)'};
+    orientations(i) = {T_WC(1:3, 1:3, i)'}; % This is transposed as we want the orientation of the cam in the world frame
     locations(i) = {T_WC(1:3, 4, i)'};
 end
 
