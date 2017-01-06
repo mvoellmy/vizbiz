@@ -1,6 +1,15 @@
 \subsection{Continuous Operation}
 \label{sec_cont_op}
+Continuous operation of the VO pipeline is implemented in the ``process frame'' function. It tracks keypoints with corresponding landmarks over several frames while estimating the pose difference between successive frames. Further, a keypoint tracker finds new candidate keypoints which will become new landmarks if a candidate keypoint was tracked war enough and achieved ``good'' trianguability. This ensures to never run out of landmarks and keypoints if the image changes over time.
 
+\subsubsection{Conventions}
+\begin{itemize}
+	\item Index of previous image: $i$
+	\item Index of current image: $j$
+	\item Pose difference between previous to current image: $T_{C_iC_j}$
+\end{itemize}
+
+\subsubsection{Overview}
 
 \begin{figure}[ht]
 	\centering
