@@ -1,5 +1,5 @@
 function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks] =...
-    processFrame(params, img_new, img_prev, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K)
+    processFrame(params, img_new, img_prev, img_reInit, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K)
 % Estimates pose transformation T_CiCj between two images.
 % Tracks potential new keypoints and triangulates new landmarks if
 % trianguability is good.
@@ -85,6 +85,10 @@ end
 if (params.cont.reinit.do_reinit)
     if (size(Ci_corresponding_inlier_landmarks) < params.cont.reinit.inlier_th)
         % TODO reinit
+        
+        % copy of initPipeline
+        % [img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks] = initPipeline(params, img0, img1, K, T_WC1);
+        [] = initPipeline(params, );
     end
 end
 

@@ -80,6 +80,7 @@ params.cont.corr.match_lambda = 6; % 5 % --------------------------------------
 % Reinitialization parameters
 params.cont.reinit.do_reinit = false;
 params.cont.reinit.inlier_th = 100;
+params.cont.reinit.deltaFrames = 5;
 
 params.localization_ransac.show_matched_keypoints = true;
 params.localization_ransac.show_inlier_matches = true;

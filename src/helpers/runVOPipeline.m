@@ -194,11 +194,31 @@ if params.run_continous
         
         if (size(keypoints_prev_triang,2) > 6) % todo: minimum number?            
             % extract current camera pose
-            T_WCi = T_WCj_vo(:,:,frame_idx-1); 
+            T_WCi = T_WCj_vo(:,:,frame_idx-1);
+            
+            % choose img for reinit
+            reInitFrameNr = frame_idx - params.cont.reinit.deltaFrames;
+            if params.ds == 0
+                img_reInit = imread([params.kitti_path '/00/image_0/' ...
+                    sprintf('%06d.png',reInitFrameNr)]);
+            elseif params.ds == 1
+                images = dir([params.malaga_path ...
+                    '/malaga-urban-dataset-extract-07_rectified_800x600_Images']);
+                left_images = images(3:2:end);
+                img_reInit = rgb2gray(imread([params.malaga_path ...
+                    '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
+                left_images(reInitFrameNr).name]));
+            elseif params.ds == 2
+                img_reInit = rgb2gray(imread([params.parking_path ...
+                sprintf('/images/img_%05d.png',reInitFrameNr)]));
+            else
+                assert(false);
+            end
+            
             
             % process newest image
             [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new] =...
-                processFrame(params, img_new, img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
+                processFrame(params, img_new, img_prev, img_reInit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
             
             % add super title with frame number
             if params.cont.figures
