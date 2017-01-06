@@ -137,7 +137,7 @@ if params.through_gui
     gui_updateMetrics(deltaT, gui_handles.text_RT_value);
     
     % update tracking metric
-    gui_updateTracked(size(keypoints_init,2),...
+    gui_updateTracked(params, size(keypoints_init,2),...
                       gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
 
     % update ground truth
@@ -230,7 +230,7 @@ if params.run_continous
         
         if params.through_gui
             % update tracking metric
-            gui_updateTracked(size(keypoints_new_triang,2),...
+            gui_updateTracked(params, size(keypoints_new_triang,2),...
                               gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
             % update gui local cloud
             gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);

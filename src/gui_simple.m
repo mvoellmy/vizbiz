@@ -258,7 +258,6 @@ handles.plot_bar.XData = 0;
 handles.plot_bar.YData = 0;
 handles.plot_bar.LineWidth = 2;
 
-xlim([0 200]); % todo: parametrize?
 axis equal;
 axis off;
 
