@@ -94,7 +94,7 @@ T_WC1 = [1      0           0       0;
                  zeros(1,3)         1];
 
 % initialize pipeline with bootstrap images
-[img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks] = initPipeline(params, img0, img1, K, T_WC1);
+[img_init,keypoints_first_frame, keypoints_second_frame, C2_landmarks_init, T_C1C2, kp_tracks] = initPipeline(params, img0, img1, K, T_WC1);
 
 % normalize scale with ground truth
 if params.init.normalize_scale
@@ -128,7 +128,7 @@ if params.through_gui
     gui_updateMetrics(deltaT, gui_handles.text_RT_value);
     
     % update tracking metric
-    gui_updateTracked(size(keypoints_init,2),...
+    gui_updateTracked(size(keypoints_second_frame,2),...
                       gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
 
     % update ground truth
@@ -171,17 +171,32 @@ if params.run_continous
     
 	% hand-over initialization variables
 	img_prev = img_init;
-    keypoints_prev_triang = keypoints_init;
+    keypoints_prev_triang = keypoints_second_frame;
     Ci_landmarks_prev = C2_landmarks_init;
     
-    for j = range_cont
-        updateConsole(params, ['Processing frame ',num2str(j),'\n']);
+%     needed for ground truthplotting with img nr.
+%     img_has_pose(bootstrap_frame_idx_1) = 1;
+%     img_has_pose(bootstrap_frame_idx_2) = 1;
+%     
+
+    % Fill first two Frames to bundleAdjust container
+%     keypoints_init = [keypoints_first_frame; keypoints_second_frame];
+%     for i=1:size(size(keypoints_second_frame, 2))
+%         
+%         ba_point_tracks = 
+%     
+%     end
+
+
+
+    for img_idx = range_cont
+        updateConsole(params, ['Processing frame ',num2str(img_idx),'\n']);
         
         tic;
         
         % pick current frame, due to initialization +2
-        frame_idx = j - bootstrap_frame_idx_2 + 2;
-        img_new = getFrame(params, j);
+        frame_idx = img_idx - bootstrap_frame_idx_2 + 2;
+        img_new = getFrame(params, img_idx);
         
         if (size(keypoints_prev_triang,2) > 6) % todo: minimum number?            
             % extract current camera pose
