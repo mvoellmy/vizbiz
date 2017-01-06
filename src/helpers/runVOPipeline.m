@@ -95,7 +95,7 @@ T_WC1 = [1      0           0       0;
 
 % initialize pipeline with bootstrap images
 [img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks] = ...
-    initPipeline(params, img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2, K, T_WC1, ground_truth);
+    initPipeline(params, img0, img1, K, T_WC1, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame, C1 to C1
@@ -181,11 +181,54 @@ if params.run_continous
         
         if (size(keypoints_prev_triang,2) > 6) % todo: minimum number?            
             % extract current camera pose
-            T_WCi = T_WCj_vo(:,:,frame_idx-1); 
+            T_WCi = T_WCj_vo(:,:,frame_idx-1);
             
+            
+            % choose img for reinit
+            reInitFrameNr = max( [1, frame_idx - params.cont.reinit.deltaFrames] );
+            img_reInit = getFrame(params, reInitFrameNr);
+            
+%             if params.ds == 0
+%                 img_reInit = imread([params.kitti_path '/00/image_0/' ...
+%                     sprintf('%06d.png',reInitFrameNr)]);
+%             elseif params.ds == 1
+%                 images = dir([params.malaga_path ...
+%                     '/malaga-urban-dataset-extract-07_rectified_800x600_Images']);
+%                 left_images = images(3:2:end);
+%                 img_reInit = rgb2gray(imread([params.malaga_path ...
+%                     '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
+%                 left_images(reInitFrameNr).name]));
+%             elseif params.ds == 2
+%                 img_reInit = rgb2gray(imread([params.parking_path ...
+%                 sprintf('/images/img_%05d.png',reInitFrameNr)]));
+%             else
+%                 assert(false);
+%             end
+            
+            % create bootstrap idx
+            bootstepIdx.first = reInitFrameNr;
+            bootstepIdx.second = frame_idx;
+            
+            % save Pose for reInit
+            T_WCinit = T_WCj_vo(:,:,reInitFrameNr);
+                        
             % process newest image
-            [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new] =...
-                processFrame(params, img_new, img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
+            [T_CiCj, keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new, reInitFlag] =...
+                processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
+            
+            % check if reInit was performed
+            if (reInitFlag)
+                
+                % check if reinitialization before enough steps performed
+                assert ((reInitFrameNr - 1) > 0);
+                for idx = reInitFrameNr:frame_idx
+                    T_WCj_vo(:,:,idx) = T_WCj_vo(:,:,reInitFrameNr - 1);
+                    T_CiCj_vo_j(:,:,idx) = eye(4);
+                end
+            end
+            % append last pose
+            T_CiCj_vo_j(:,:,frame_idx) = T_CiCj;
+            
             
             % add super title with frame number
             if params.cont.figures
