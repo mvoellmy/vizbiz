@@ -156,10 +156,13 @@ if params.auto_bootstrap
     elseif app == 2 % approach: KLT tracking + averageBearingAngle
         bootstrap_pair_found = false;
         candidate_frame_idx = bootstrap_frame_1_idx;
+        
+        img_old_candidate = img1;
+        old_candidate_inlier_keypoints = img1_keypoints;
 
         while ~bootstrap_pair_found    
             candidate_frame_idx = candidate_frame_idx + 1;
-
+            
             % read in candidate image
             img_candidate = getFrame(params, candidate_frame_idx);
 
@@ -215,14 +218,15 @@ if params.auto_bootstrap
             % update gui image with previous image
             if params.through_gui
                 gui_updateImage(img_old_candidate, gui_handles.ax_current_frame);
-            end
+                
+                % update filtered inlier gui keypoints
+                if params.gui.show_inlier_features
+                    gui_updateKeypoints(old_candidate_inlier_keypoints, gui_handles.ax_current_frame, 'g.');
+                end
+            end  
             
-            % update filtered inlier gui keypoints
-            if params.through_gui && params.gui.show_inlier_features
-                gui_updateKeypoints(old_candidate_inlier_keypoints, gui_handles.ax_current_frame, 'g.');
-            end
-            
-            img_old_candidate = img2;
+            % update
+            img_old_candidate = img_candidate;
             old_candidate_inlier_keypoints = candidate_inlier_keypoints;
             prev_number_of_boot_kp = number_of_boot_kp;
             
