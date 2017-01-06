@@ -7,7 +7,7 @@ function [ W_P_refined, T_WC_refined ] = bundleAdjust(params, W_P, p, T_WC, K, f
 %  - params(struct) : parameter struct
 %  - W_P(3xN)     : list of 3D Points in world-frame
 %  - p(nC*2xN)  : matrix containing 2D Points sorted according to
-%  their correspondance with each other and the 3D points.
+%  their correspondance with each other and the 3D points. [u, v]
 %  - T_WC(4x4xnC)  : stack of transformation matrices towards the individual
 %  cameras
 %  - K(3x3) : intrinsics matrix of camera
@@ -60,7 +60,7 @@ T_WC_refined = zeros(size(T_WC));
 
 for i=1:nr_of_cams % todo: pretty sure this can be indexed nicer and potentially done without a for loop
     T_WC_refined(1:4, 1:4, i) = [cell2mat(refinedPoses.Orientation(i))', cell2mat(refinedPoses.Location(i))';
-           zeros(1,3),       1];
+                                 zeros(1,3)                            , 1                                  ;];
 end
     
 end
