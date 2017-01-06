@@ -67,7 +67,7 @@ addpath(genpath('./testing/'));
 addpath(genpath('./visualization/'));
 
 % place gui
-movegui(hObject, 'onscreen');
+movegui(hObject, 'north');
 
 % load parameter struct
 handles = guidata(hObject);  % Care for the newest version explicitly!
@@ -171,6 +171,16 @@ handles = guidata(hObject);  % Care for the newest version explicitly!
 reset_parameters(hObject, eventdata, handles);
 handles = guidata(hObject);  % Get the version updated!
 
+% reset dropdown
+
+% reset buttons to false
+set(handles.radio_use_bootstrapping,'Value',0);
+set(handles.radio_use_BA,'Value',0);
+set(handles.radio_run_continuous,'Value',0);
+set(handles.radio_all_features,'Value',0);
+set(handles.radio_inlier_features,'Value',0);
+set(handles.radio_triang_features,'Value',0);
+
 % clear console
 set(handles.listbox_console,'String','');
 
@@ -248,6 +258,7 @@ handles.plot_bar.XData = 0;
 handles.plot_bar.YData = 0;
 handles.plot_bar.LineWidth = 2;
 
+xlim([0 200]); % todo: parametrize?
 axis equal;
 axis off;
 
