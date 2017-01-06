@@ -94,12 +94,8 @@ T_WC1 = [1      0           0       0;
                  zeros(1,3)         1];
 
 % initialize pipeline with bootstrap images
-[img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks] = initPipeline(params, img0, img1, K, T_WC1);
-
-% normalize scale with ground truth
-if params.init.normalize_scale
-    [C2_landmarks_init, T_C1C2] = normalizeScale(params, C2_landmarks_init, T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
-end
+[img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks] = ...
+    initPipeline(params, img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2, K, T_WC1, ground_truth);
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame, C1 to C1

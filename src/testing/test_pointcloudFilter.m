@@ -1,7 +1,14 @@
+close all;
+
+addpath(genpath('visualization'));
+
+% load parameter struct
+params = loadParameters();
+
 
 % randomly generate points
-n_points = 1e4;
-range = 80;
+n_points = 1e5;
+range = 200;
 landmarks = range*rand(3,n_points) - range/2*ones(1,n_points);
 landmarks_hom = [landmarks; ones(1,size(landmarks,2))];
 
@@ -14,7 +21,7 @@ plotLandmarks(landmarks, 'y', 'down');
 
 % filter landmarks
 cut_radius = 30;
-[landmarks_hom_cut, ~] = applySphericalFilter(landmarks_hom, cut_radius);
+[landmarks_hom_cut, ~] = applySphericalFilter(params, landmarks_hom, cut_radius);
 
 subplot(1,2,2);
 plotLandmarks(landmarks_hom_cut(1:3,:), 'y', 'down');
