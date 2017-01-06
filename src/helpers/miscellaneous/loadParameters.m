@@ -51,7 +51,7 @@ params.init.scale = 1; % get changed by init pipeline (in bootstrap mode)
 
 % correspondence parameters initialisation
 params.init.corr.harris_patch_size = 9; % 9 [pixels]
-params.init.corr.harris_kappa = 0.08;
+params.init.corr.harris_kappa = 0.08; %0.08;
 params.init.corr.nonmaximum_supression_radius = 8;
 params.init.corr.num_keypoints = 600; % 200 % 400 % --------------------------------------
 params.init.corr.descriptor_radius = 9; % [pixels]
@@ -61,7 +61,7 @@ params.eightPoint_ransac.show_iterations = false;
 params.eightPoint_ransac.show_inlier_matches = true;
 params.eightPoint_ransac.p_success = 0.999999;
 params.eightPoint_ransac.fract_inliers = 0.5;
-params.eightPoint_ransac.max_error = 1.0; % [pixels]
+params.eightPoint_ransac.max_error = 2.0; % [pixels]
 
 % continuous operation parameters
 params.cont.figures = true; % on/off figure
@@ -83,29 +83,30 @@ params.cont.corr.match_lambda = 6; % 5 % --------------------------------------
 
 % Reinitialization parameters
 params.cont.reinit.do_reinit = true;
-params.cont.reinit.inlier_th = 100;
-params.cont.reinit.deltaFrames = 5;
+params.cont.reinit.inlier_th = 85; % when to reinit
+params.cont.reinit.deltaFrames = 4;
 
 params.localization_ransac.show_matched_keypoints = true;
 params.localization_ransac.show_inlier_matches = true;
 params.localization_ransac.use_p3p = true;
 params.localization_ransac.num_iterations_pnp = 2000; % 2000 fix?
-params.localization_ransac.num_iterations_DLT = 200;
-params.localization_ransac.pixel_tolerance = 6; % 10 [pixels]  % -------------------------------------
+params.localization_ransac.num_iterations_DLT = 150; % 200;
+params.localization_ransac.pixel_tolerance = 15; % 10 [pixels]  % -------------------------------------
 params.localization_ransac.show_iterations = false;
 
 params.kp_tracker.use_KLT = true;  % --------------------------------------
-params.kp_tracker.min_nr_landmarks = 400;
-params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 200;
+params.kp_tracker.min_nr_landmarks = 500;
+params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 230;
 params.kp_tracker.bearing_angle_multiplicator = 1.75;
-params.kp_tracker.max_nr_candidates = 500;  % --------------------------------------
-params.kp_tracker.nr_best_candidates = 100;
+params.kp_tracker.max_nr_candidates = 700;  % --------------------------------------
+params.kp_tracker.rand_pick = true;
+params.kp_tracker.nr_best_candidates = 100; % for randomized picking
 params.kp_tracker.show_matches = true;
 params.kp_tracker.show_triangulated = true;
-params.kp_tracker.bearing_low_thr = 3.5; % [deg]  % --------------------------------------
+params.kp_tracker.bearing_low_thr = 2.5; % [deg]  % --------------------------------------
 params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
 params.kp_tracker.min_nr_trackings = 2; % 3
 params.kp_tracker.max_nr_trackings = 20;
-params.kp_tracker.max_reproj_error = 8; % 12 [pixels]  % --------------------------------------
+params.kp_tracker.max_reproj_error = 10; % 12 [pixels]  % --------------------------------------
 
 end
