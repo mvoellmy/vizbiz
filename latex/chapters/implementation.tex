@@ -30,9 +30,7 @@ As shown in \cref{img_flow_rough} the pipeline consists mainly of three parts, a
 %\input{pipeline_overview}
 
 \subsubsection{Options and parameters}
-(keywords: parameter handling, GUI)\\
-
-The pipeline was designed in a modular way. A lot of functionality was wrapped into self-contained and self-explanatory functions, as described in the pipeline overview. Next to this 'functional programming' approach all the tuning variables (e.g. number of keypoints, bearing angle thresholds, etc.) were centrally aggregated in a parameter struct.\\
+The pipeline was designed in a modular way. A lot of functionality was wrapped into self-contained functions, as described in the pipeline overview. Next to this 'functional programming' approach all the tuning variables (e.g. number of keypoints, bearing angle thresholds, etc.) were centrally aggregated in a parameter struct.\\
 For further insight please consult the function \code{loadParameters.m}.\\
 
 In order to run the visual odometry two launch procedures where implemented: For development and debug mode the main.m with default parameters can be executed. Numerous individual plots are displayed with insightful information about matching, inlier rejection and triangulation.\\
@@ -52,7 +50,7 @@ For more advanced parameter tuning resort to changing the default parameters in 
 	\centering
 	\includegraphics[width=0.4\textwidth]{test}
 	\captionsetup{justification=centering}
-	\caption{Graphical user interface \\all features (green $\bullet$), inlier features (red $\bullet$), triangulated features (green $\times$)}
+	\caption{Graphical user interface \\all features (red $\bullet$), inlier features (green $\bullet$), triangulated features (green $\times$)}
 	\label{img_gui}
 \end{figure}
 
