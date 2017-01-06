@@ -8,8 +8,8 @@ function [img1, img2, bootstrap_frame_1_idx, bootstrap_frame_2_idx] = getBootstr
 % Output:
 %  - img1(size) : first bootstrap image
 %  - img2(size) : second bootstrap image
-%  - bootstrap_frame_1_idx(1x1) : dataset image index of img0
-%  - bootstrap_frame_2_idx(1x1) : dataset image index of img1
+%  - bootstrap_frame_1_idx(1x1) : dataset image index of img1
+%  - bootstrap_frame_2_idx(1x1) : dataset image index of img2
 
 global fig_boot gui_handles;
 
@@ -126,15 +126,15 @@ if params.auto_bootstrap
             end
 
             % calculate average depth of triangulated points
-            C1_avg_depth = mean(C1_P_hom_init(3,:));
+            C1_av_depth = mean(C1_P_hom_init(3,:));
             updateConsole(params,...
                           sprintf('  Baseline-Depth ratio of frame pair (%i,%i): %0.1f perc.\n',...
-                          bootstrap_frame_1_idx, candidate_frame_idx, 100*C1_baseline/C1_avg_depth));
+                          bootstrap_frame_1_idx, candidate_frame_idx, 100*C1_baseline/C1_av_depth));
 
             % check for sufficient number of bootstrap inlier matches
             if (number_of_boot_kp > params.boot.min_num_inlier_kps)
                 % decide wether candidate is suited as bootstrap image
-                if (C1_baseline/C1_avg_depth >= params.boot.min_b2dratio)
+                if (C1_baseline/C1_av_depth >= params.boot.min_b2dratio)
                    bootstrap_frame_2_idx = candidate_frame_idx;
                    img2 = img_candidate;
                    bootstrap_pair_found = true;
@@ -201,7 +201,7 @@ if params.auto_bootstrap
             % check for sufficient number of bootstrap inlier matches
             if number_of_boot_kp > params.boot.min_num_inlier_kps
                 % decide wether candidate is suited as bootstrap image
-                if av_bearing_angle_deg > params.boot.min_av_angle_deg
+                if av_bearing_angle_deg >= params.boot.min_av_angle_deg
                     bootstrap_frame_2_idx = candidate_frame_idx;
                     img2 = img_candidate;
                     bootstrap_pair_found = true;

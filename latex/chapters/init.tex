@@ -1,11 +1,35 @@
 \subsection{Initialization}
 \label{sec_init}
+Todo: @Miro
+%short intro
 
 \subsubsection{Bootstraping}
+In order to pick reasonable image pairs for initialization an automatic procedure was implemented.\\
+Since a good initialization relies heavily on the number of inlier keypoints a hard constrain on their minimum number of \code{min\_num\_inlier\_kp} = $600$ was set.\\
 
-\subsubsection{? findCorrespondences}
+Two approaches were investigated:
+\begin{compactitem}
+	\item \textit{SSD matching + Baseline/Depth}:\\
+	correspondence search via SSD on Harris features \& 8-point-Ransac for outlier rejection \& baseline/depth-ratio (as proposed in the lecture)\\
+	\begin{equation}
+		\frac{C1\_baseline}{C1\_av\_depth} \geqslant min\_b2dratio = 0.1
+	\end{equation}\\
+	
+	\item \textit{KLT + bearing angle}:\\
+	correspondence search and inlier selection via KLT tracking on query Harris corners \& minimum average bearing angle\\
+	\begin{equation}
+		av\_bearing\_angle\_deg \geqslant min\_av\_angle\_deg = 10
+	\end{equation}\\
+
+\end{compactitem}
+
+
+\subsubsection{? findCorrespondences()}
+Todo: @Miro
+%write one sentence about using either harris matching(SSD?) or klt tracking - any %different to findCorrespondences_cont()?
 
 \subsubsection{eightPointRansac}
+Todo: @Miro
 
 \subsubsection{linearTriangulation}
 maybe only 1 sentences - ``like in the exercise''
