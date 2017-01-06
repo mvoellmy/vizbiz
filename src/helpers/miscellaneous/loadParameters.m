@@ -17,7 +17,7 @@ params.compare_against_groundthruth = true;
 params.show_map_and_cams = true;
 params.through_gui = false;
 
-params.cont.use_BA = false;
+params.cont.use_BA = true;
 
 % additional gui parameters
 params.gui.show_all_features = false;

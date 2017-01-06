@@ -19,7 +19,7 @@ function [C_P_hom, outFOV_idx] = applySphericalFilter(params, C_P_hom, cutoff_ra
 % todo: change indices once newest best_rot is merged with this ???
 size_unfiltered_landmarks = size(C_P_hom, 2);
 
-outFOV_idx = find( ( (C_P_hom(3,:) <0) | (sqrt(C_P_hom(1,:).^2 + C_P_hom(2,:).^2+ C_P_hom(3,:).^2) > cutoff_radius) ) );
+outFOV_idx = find(any([(C_P_hom(3,:) <0); (sqrt(C_P_hom(1,:).^2 + C_P_hom(2,:).^2+ C_P_hom(3,:).^2) > cutoff_radius)],1));
 % Note: Single | is used to compare vectors. 
 
 C_P_hom(:,outFOV_idx) = [];
