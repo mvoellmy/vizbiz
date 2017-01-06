@@ -5,9 +5,10 @@ This pipeline was developed in MATLAB. Since the group consists of four students
 (keywords: MATLAB, Git)
 
 \subsubsection{Coordinate Frames}
-In this mini project the coordinate frames were defined as shown in \cref{img_coord_frames}. The camera coordinates are in a way oriented, that the x-y plane lies parallel to the image plane, while the z-axis is pointing towards the scenery. The world frame however is oriented in such a way that the x-y plane is parallel to the ground and the the z-axis is pointing upwards.
+In this mini project the coordinate frames were defined as shown in \cref{img_coord_frames}. The camera coordinates are in a way oriented, that the x-y plane lies parallel to the image plane, while the z-axis is pointing towards the scenery. The world frame however is oriented in such a way that the x-y plane is parallel to the ground and the z-axis is pointing upwards. The origin of the world frame is at the same location as the origin of the first boot-strap image.
 
-The origin of the world frame is at the same location as the origin of the first boot-strap image.
+
+Transformation between frames are described by homogenous transformation matrices. $T_{AB}$ maps points from frame $B$ to frame $A$.
 
 \begin{figure}[ht]
 	\centering
