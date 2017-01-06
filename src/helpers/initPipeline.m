@@ -117,7 +117,6 @@ else
             plotCam(T_WC2,20,'red');
             title('After BA');
         end
-
     end
     
     % discard landmarks not contained in spherical neighborhood

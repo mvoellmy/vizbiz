@@ -8,7 +8,7 @@ function [ W_P_refined, T_WC_refined ] = bundleAdjust(params, W_P, p, T_WC, K, f
 %  - W_P(3xN)     : list of 3D Points in world-frame
 %  - p(nC*2xN)  : matrix containing 2D Points sorted according to
 %  their correspondance with each other and the 3D points.
-%  - T_WC(nC*4x4)  : stack of transformation matrices towards the individual
+%  - T_WC(4x4xnC)  : stack of transformation matrices towards the individual
 %  cameras
 %  - K(3x3) : intrinsics matrix of camera
 %  - fixed_cams(1xC) : vector with camera_ids defining which cams are fixed
@@ -16,7 +16,7 @@ function [ W_P_refined, T_WC_refined ] = bundleAdjust(params, W_P, p, T_WC, K, f
 %
 % Output:
 %  - W_P_refined(3xN) : bundle adjusted 3D points in world-frame
-%  - T_WC_refined(nC*4x4) : refined transformation matrices of cameras
+%  - T_WC_refined(4x4xnC) : refined transformation matrices of cameras
 %
 % Definitions:
 %  - nC(int) : number of cameras
