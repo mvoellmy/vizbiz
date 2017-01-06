@@ -215,10 +215,12 @@ if params.run_continous
                 assert(false);
             end
             
+            T_WCinit = T_WCj_vo(:,:,reInitFrameNr);
+            
             
             % process newest image
             [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new] =...
-                processFrame(params, img_new, img_prev, img_reInit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
+                processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
             
             % add super title with frame number
             if params.cont.figures

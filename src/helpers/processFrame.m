@@ -1,5 +1,5 @@
 function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks] =...
-    processFrame(params, img_new, img_prev, img_reInit, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K)
+    processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K)
 % Estimates pose transformation T_CiCj between two images.
 % Tracks potential new keypoints and triangulates new landmarks if
 % trianguability is good.
@@ -8,6 +8,8 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks] =..
 %  - params(struct) : parameter struct
 %  - img_new(size) : current frame
 %  - img_prev(size) : previous frame
+%  - img_reInit(size) : image for reinit
+%  - T_WCinit : Transformation world to Cinit
 %  - keypoints_prev_triang (2xN) : 2D points, [v u] which have
 %    corresponding Landmarks
 %  - kp_tracks_old : struct container for tracking keypoints (no associated
@@ -88,7 +90,7 @@ if (params.cont.reinit.do_reinit)
         
         % copy of initPipeline
         % [img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks] = initPipeline(params, img0, img1, K, T_WC1);
-        [] = initPipeline(params, );
+        [] = initPipeline(params, img_reInit, img_new, K, T_WCinit);
     end
 end
 
