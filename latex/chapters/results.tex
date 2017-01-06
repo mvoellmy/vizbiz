@@ -1,5 +1,44 @@
 \section{Results}
 
+\subsection{Bootstrapping methods}
+The comparison showed a massively higher performance of the KLT tracker approach, this being orders of magnitude faster and yielding many more feature correspondences also over large distances. \cref{tab_boot_idx} depicts the index tuples retrieved through the second approach with \code{min\_num\_inlier\_kp} = $600$ being set.
+\begin{center}
+	\begin{tabular}{ c | l | c  c  c }
+		approach &				 &				Kitti &		Malaga &	Parking\\
+  		\hline
+ \multirow{2}{*}{\textit{KLT + Bearing angle}} &	\textit{first idx} &	1 & 		1 & 		1\\
+  		 & 						\textit{second idx} &	4 & 		6 & 		5\\
+  		& 						\# keypoints & 				600 & 		600 & 		600\\
+  		&						angle [deg] & 				x &			x &			x\\
+  		\hline
+	\end{tabular}
+	\captionof{table}{Bootstrapping pair indices for different datasets with min. keypoint inliers}
+	\label{tab_boot_idx}
+\end{center}
+\cref{tab_boot_idx} depicts the index tuples retrieved through the second approach with \code{min\_num\_inlier\_kp} = $600$ being set, where a maximal angle of xx degrees was attained.\\
+
+Relaxing the minimum number of inlier keypoints allowed to reach the desired baseline/depth ratio of $0.1$ for the first and the $10$ degrees for the second bootstrapping approach as shown in \cref{tab_relaxed_boot_idx}.
+\begin{center}
+	\begin{tabular}{ c | l | c  c  c }
+		approach &				 &				Kitti &		Malaga &	Parking\\
+  		\hline
+ \multirow{4}{*}{\textit{SSD Harris desc. + baseline/depth ratio}} &	\textit{first idx} &	1 & 		1 & 		1\\
+  		 & 						\textit{second idx} &	4 & 		6 & 		5\\
+  		& 						\# keypoints & 		x & 		x & 		x\\
+  		&						ratio	 & 			0.1 &		0.1 &		0.1\\
+  		\hline
+  \multirow{4}{*}{\textit{KLT + bearing angle}} &	\textit{first idx} &	1 & 		1 & 		1\\
+  		 & 						\textit{second idx} &	4 & 		6 & 		5\\
+  		& 						\# keypoints & 		x & 		x & 		x\\
+  		&						angle [deg] & 		10 &		10 &		10\\
+  		\hline
+	\end{tabular}
+	\captionof{table}{Bootstrapping pair indices for different datasets and no keypoint number constraint}
+	\label{tab_relaxed_boot_idx}
+\end{center}
+
+
+
 \subsection{Overall performance}
 (keywords: Real time ness, comparison to groundtruth, compare different datasets
 Impact of features) Here we describe it such as it runs best in our opinion.

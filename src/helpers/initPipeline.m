@@ -1,4 +1,4 @@
-function [I_init,keypoints_first_frame , keypoints_second_frame, C2_landmarks_init, T_C1C2, kp_tracks_init] = initPipeline(params, I_i1, I_i2, K, T_WC1)
+function [I_init,keypoints_first_frame , keypoints_second_frame, C2_landmarks_init, T_C1C2, kp_tracks_init] = initPipeline(params, I_i1, I_i2, K, T_WC1, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2)
 % Returns initialization image and corresponding sorted keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.
@@ -7,8 +7,11 @@ function [I_init,keypoints_first_frame , keypoints_second_frame, C2_landmarks_in
 %  - params(struct) : parameter struct
 %  - I_i1(size) : first image
 %  - I_i2(size) : second image
+%  - bootstrap_frame_1_idx(1x1) : dataset image index of I_i1
+%  - bootstrap_frame_2_idx(1x1) : dataset image index of I_i2
 %  - K(3x3) : camera calibration matrix
 %  - T_WC1(4x4) : fixed transformation from C1 to W
+%  - ground_truth(2xM) : ground thruth positions in world frame
 %
 % Output:
 %  - I_init(size) : initialization image
@@ -42,10 +45,6 @@ if params.init.use_KITTI_precalculated_init % todo: still needed?
     
     T_C1C2 = eye(4);
     
-%     T_C1C2 = [9.999978e-01 5.272628e-04 -2.066935e-03 -4.690294e-02;
-%              -5.296506e-04 9.999992e-01 -1.154865e-03 -2.839928e-02;
-%               2.066324e-03 1.155958e-03 9.999971e-01 8.586941e-01;
-%               zeros(1,3)                                1       ];
     kp_tracks_init = kp_tracks;
 else
     % assign second image as initialization image
@@ -57,7 +56,6 @@ else
     % find 2D correspondences (sorted)
     [p_i1_uv, p_i2_uv, unmatched_query_kp_vu] = findCorrespondeces(params,I_i1,I_i2);
 
-    
     % homogenize keypoints
     p_hom_i1_uv = [p_i1_uv; ones(1,length(p_i1_uv))];
     p_hom_i2_uv = [p_i2_uv; ones(1,length(p_i2_uv))];    
@@ -121,6 +119,26 @@ else
         end
     end
     
+    % check which scale normalization is required
+    if(nargin < 6)
+        % reInit mode
+        % normalize scale with ground truth using precalculated scale
+        if params.init.normalize_scale
+            % read scale from parameter
+            scale = params.init.scale;
+            % pass fake arguments
+            [C1_P_init, T_C1C2] = normalizeScale(params, C1_P_hom_init(1:3,:), T_C1C2, 1, 1, 1, scale);
+        end
+    else
+        % bootstrap Init mode
+        % normalize scale with ground truth by calculate scale
+        if params.init.normalize_scale
+            [C1_P_init, T_C1C2] = normalizeScale(params, C1_P_hom_init(1:3,:), T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+        end
+    end
+        
+    C1_P_hom_init = [C1_P_init; ones(1,size(C1_P_init,2))];
+    
     % discard landmarks not contained in spherical neighborhood
     [C1_P_hom_init, outFOV_idx] = applySphericalFilter(params, C1_P_hom_init, params.init.landmarks_cutoff);
     % filter corresponding keypoints
@@ -161,7 +179,12 @@ else
                   size(keypoints_second_frame,2), size(C2_landmarks_init,2)));
     
 	% initialise keypoint tracker
-    kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, unmatched_query_kp_vu, T_WC2);    
+    kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, unmatched_query_kp_vu, T_WC2);
+    
+    % update gui keypoints % todo: move to initPipeline()
+    if params.through_gui && params.gui.show_all_features
+        gui_updateKeypoints(kp_tracks_init.candidate_kp, gui_handles.ax_current_frame, 'r.');
+    end
 end
 
 % check for same number of keypoints and landmarks

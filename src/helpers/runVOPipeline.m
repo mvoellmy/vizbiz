@@ -94,12 +94,9 @@ T_WC1 = [1      0           0       0;
                  zeros(1,3)         1];
 
 % initialize pipeline with bootstrap images
-[img_init,keypoints_first_frame, keypoints_second_frame, C2_landmarks_init, T_C1C2, kp_tracks] = initPipeline(params, img0, img1, K, T_WC1);
+[img_init,keypoints_first_frame, keypoints_second_frame, C2_landmarks_init, T_C1C2, kp_tracks] = ...
+    initPipeline(params, img0, img1, K, T_WC1, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
 
-% normalize scale with ground truth
-if params.init.normalize_scale
-    [C2_landmarks_init, T_C1C2] = normalizeScale(params, C2_landmarks_init, T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
-end
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame, C1 to C1
@@ -128,7 +125,7 @@ if params.through_gui
     gui_updateMetrics(deltaT, gui_handles.text_RT_value);
     
     % update tracking metric
-    gui_updateTracked(size(keypoints_second_frame,2),...
+    gui_updateTracked(params, size(keypoints_second_frame,2),...
                       gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
 
     % update ground truth
@@ -216,12 +213,36 @@ if params.run_continous
             end
             
             % extract current camera pose
-            T_WCi = T_WCj_vo(:,:,frame_idx-1); 
+            T_WCi = T_WCj_vo(:,:,frame_idx-1);
             
+            % choose img for reinit
+            reInitFrameNr = max( [1, frame_idx - params.cont.reinit.deltaFrames] );
+            img_reInit = getFrame(params, reInitFrameNr);
+            
+            % create bootstrap idx
+            bootstepIdx.first = reInitFrameNr;
+            bootstepIdx.second = frame_idx;
+            
+            % save Pose for reInit
+            T_WCinit = T_WCj_vo(:,:,reInitFrameNr);
+                        
             % process newest image
-            [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new, p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking] =...
-                processFrame(params, img_new, img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
+            [T_CiCj, keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new, p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking, reInitFlag] =...
+                processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
             
+            % check if reInit was performed
+            if (reInitFlag)
+                
+                % check if reinitialization before enough steps performed
+                assert ((reInitFrameNr - 1) > 0);
+                for idx = reInitFrameNr:frame_idx
+                    T_WCj_vo(:,:,idx) = T_WCj_vo(:,:,reInitFrameNr - 1);
+                    T_CiCj_vo_j(:,:,idx) = eye(4);
+                end
+            end
+            % append last pose
+            T_CiCj_vo_j(:,:,frame_idx) = T_CiCj;
+                        
             % add super title with frame number
             if params.cont.figures
                 figure(fig_cont);
@@ -329,7 +350,7 @@ if params.run_continous
 
         if params.through_gui
             % update tracking metric
-            gui_updateTracked(size(keypoints_new_triang,2),...
+            gui_updateTracked(params, size(keypoints_new_triang,2),...
                               gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
             % update gui local cloud
             gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);

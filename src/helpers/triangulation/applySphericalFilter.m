@@ -5,8 +5,8 @@ function [C_P_hom, outFOV_idx] = applySphericalFilter(params, C_P_hom, cutoff_ra
 % Input:
 %  - params(struct) : parameter struct
 %  - C_P_hom(4xN) : list of homogeneous 3D Points in camera frame with y 
-% pointing vertically down % TODO: ??? y ???
-%  - cutoff_radius(1x1) : constant radial distance
+% pointing vertically down
+%  - cutoff_radius(1x1) : normalized constant radial distance
 %
 % Output:
 %  - C_P_hom(4x(N-O)) : filtered homogeneous 3D Points
@@ -16,11 +16,8 @@ function [C_P_hom, outFOV_idx] = applySphericalFilter(params, C_P_hom, cutoff_ra
 % Definitions:
 % - O(int) : Number of Outliers
 
-% todo: change indices once newest best_rot is merged with this ???
 size_unfiltered_landmarks = size(C_P_hom, 2);
-
 outFOV_idx = find(any([(C_P_hom(3,:) <0); (sqrt(C_P_hom(1,:).^2 + C_P_hom(2,:).^2+ C_P_hom(3,:).^2) > cutoff_radius)],1));
-% Note: Single | is used to compare vectors. 
 
 C_P_hom(:,outFOV_idx) = [];
 size_filtered_landmarks = size(C_P_hom, 2);

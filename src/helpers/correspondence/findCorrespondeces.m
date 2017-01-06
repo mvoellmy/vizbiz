@@ -102,9 +102,4 @@ if (params.init.figures && params.init.show_keypoints)
     end
 end
 
-% update gui keypoints % todo: move to initPipeline()
-if params.through_gui && params.gui.show_all_features
-    gui_updateKeypoints(query_keypoints, gui_handles.ax_current_frame, 'r.');
-end
-
 end
