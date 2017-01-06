@@ -203,7 +203,7 @@ if params.auto_bootstrap
             % check for sufficient number of bootstrap inlier matches
             if (size(candidate_inlier_keypoints,2) > params.boot.min_num_inlier_kps)
                 % decide wether candidate is suited as bootstrap image
-                if av_bearing_angle_deg > params.boot_min_av_angle_deg
+                if av_bearing_angle_deg > params.boot.min_av_angle_deg
                     bootstrap_frame_2_idx = candidate_frame_idx;
                     img2 = img_candidate;
                     bootstrap_pair_found = true;
