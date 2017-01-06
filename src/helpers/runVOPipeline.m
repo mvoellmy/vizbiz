@@ -183,27 +183,9 @@ if params.run_continous
             % extract current camera pose
             T_WCi = T_WCj_vo(:,:,frame_idx-1);
             
-            
             % choose img for reinit
             reInitFrameNr = max( [1, frame_idx - params.cont.reinit.deltaFrames] );
             img_reInit = getFrame(params, reInitFrameNr);
-            
-%             if params.ds == 0
-%                 img_reInit = imread([params.kitti_path '/00/image_0/' ...
-%                     sprintf('%06d.png',reInitFrameNr)]);
-%             elseif params.ds == 1
-%                 images = dir([params.malaga_path ...
-%                     '/malaga-urban-dataset-extract-07_rectified_800x600_Images']);
-%                 left_images = images(3:2:end);
-%                 img_reInit = rgb2gray(imread([params.malaga_path ...
-%                     '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
-%                 left_images(reInitFrameNr).name]));
-%             elseif params.ds == 2
-%                 img_reInit = rgb2gray(imread([params.parking_path ...
-%                 sprintf('/images/img_%05d.png',reInitFrameNr)]));
-%             else
-%                 assert(false);
-%             end
             
             % create bootstrap idx
             bootstepIdx.first = reInitFrameNr;
