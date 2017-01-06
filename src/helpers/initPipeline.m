@@ -1,4 +1,4 @@
-function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = initPipeline(params, I_i1, I_i2, K, T_WC1)
+function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = initPipeline(params, I_i1, I_i2, bootstrap_frame_idx_1, bootstrap_frame_idx_2, K, T_WC1, ground_truth)
 % Returns initialization image and corresponding sorted keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.
@@ -7,8 +7,11 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = i
 %  - params(struct) : parameter struct
 %  - I_i1(size) : first image
 %  - I_i2(size) : second image
+%  - bootstrap_frame_1_idx(1x1) : dataset image index of I_i1
+%  - bootstrap_frame_2_idx(1x1) : dataset image index of I_i2
 %  - K(3x3) : camera calibration matrix
 %  - T_WC1(4x4) : fixed transformation from C1 to W
+%  - ground_truth(2xM) : ground thruth positions in world frame
 %
 % Output:
 %  - I_init(size) : initialization image
@@ -97,6 +100,13 @@ else
         T_C1C2 = T_C1W*T_WC2;
         T_C2C1 = tf2invtf(T_C1C1);
     end
+    
+    % normalize scale with ground truth
+    if params.init.normalize_scale
+        [C1_P_init, T_C1C2] = normalizeScale(params, C1_P_hom_init(1:3,:), T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+    end
+    
+    C1_P_hom_init = [C1_P_init; ones(1,size(C1_P_init,2))];
     
     % discard landmarks not contained in spherical neighborhood
     [C1_P_hom_init, outFOV_idx] = applySphericalFilter(params, C1_P_hom_init, params.init.landmarks_cutoff);
