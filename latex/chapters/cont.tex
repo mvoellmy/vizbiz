@@ -6,13 +6,23 @@ Continuous operation of the VO pipeline is implemented in the ``process frame'' 
 \begin{itemize}
 	\item Index of previous frame: $i$
 	\item Index of current frame: $j$
+	\item Index of frame for newly added keypoint: $first$
 	\item Pose difference between previous to current frame: $T_{C_iC_j}$
+	\item $\left[u/v\right]$: Pixel coordinates
+	\item Query keypoints: Keypoints newly generated in frame $j$ 
+	\item Candidate keypoint: A keypoint without associated landmark.
+	\item Harris tracker: Descriptor matching keypoint tracker (based on Harris features) developed during the lecture.
 \end{itemize}
 
 \subsubsection{p3p\_dlt\_Ransac oder Pose difference estimation}
-To estimate the pose difference $T_{C_iC_j}$ from frame $i$ to $j$ we use the p3p ransac algorithm also used in exercise 5. If wished the ransac can also use dlt pose estimation. Using these ransac algorithm ensures to remove outliers from our landmarks. We don't use DLT refinement after the p3p ransac since the best guess from p3p often gave better results.
+To estimate the pose difference $T_{C_iC_j}$ from frame $i$ to $j$ we use the p3p RANSAC algorithm also used in exercise 5. If wished the RANSAC can also use DLT pose estimation. Using these RANSAC algorithm ensures to remove outliers from our landmarks. We don't use DLT refinement after the p3p RANSAC since the best guess from p3p often gave better results.
 
+\subsubsection{find\_correspondences\_cont}
+Tracking keypoints with existing landmarks from frame $i$ to frame $j$ is achieved by the function ``find\_correspondences\_cont''. The user can choose whether to use a KLT or Harris tracker. As a by-product, the generated query keypoints are saved to be used by the candidate keypoint tracker in a successive step so they don't have to be generated twice which saves computation time. The number of generated query keypoints is adjustable by a parameter. In case the KLT tracker is active (which does not return query keypoints by default) new query keypoints are generated using Harris features. The amount of newly generated keypoints is the difference of remaining and wished candidate keypoints.
 
+\subsubsection{updateKpTracks}
+In every frame, candidate keypoints from previous frames are tracked to $j$-frame. Every candidate keypoint track consists of the following entries: $\left\{\left[u/v\right]_j, \left[u/v\right]_{first}, T_{WC_{first}}, nr\_trackings\right\}$. After successive tracking, $[u/v]_j$ as well as the number of successful successive trackings are updated. The user can choose whether to use a KLT or a Harris tracker.
+In case a candidate keypoint could not be tracked it's whole track will be discarded from the tracker. If there are less candidate keypoints in the tracker then desired, newly generated keypoints (generated in find\_correspondences\_cont) are added to the tracker. Every newly added keypoint is stored together with the current pose $T_{WC_{first}}$.
 
 
 \begin{figure}[ht]
