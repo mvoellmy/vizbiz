@@ -211,8 +211,8 @@ if params.run_continous
             assert(size(keypoints_prev_triang, 2) == size(Ci_landmarks_prev, 2));
             
             if size(Ci_landmarks_prev, 2) == 0 || (size(keypoints_prev_triang, 2) ~= size(Ci_landmarks_prev, 2))
-            updateConsole(params, 'Error before processFrames!! Break continuous operation loop - Terminating...');
-            break;
+                updateConsole(params, 'Error before processFrames!! Break continuous operation loop - Terminating...');
+                break;
             end
             
             % extract current camera pose

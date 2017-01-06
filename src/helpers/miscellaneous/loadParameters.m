@@ -8,7 +8,7 @@ function params = loadParameters()
 
 % general parameters
 
-params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = true;
 params.perf.profiling = false;
 params.run_continous = true;
@@ -17,7 +17,7 @@ params.compare_against_groundthruth = true;
 params.show_map_and_cams = true;
 params.through_gui = false;
 
-params.cont.use_BA = true;
+params.cont.use_BA = false;
 
 % additional gui parameters
 params.gui.show_all_features = false;

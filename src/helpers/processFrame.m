@@ -58,7 +58,16 @@ end
 
 % check for consistent correspondences
 assert(size(matched_query_keypoints,2) == size(Ci_corresponding_landmarks,2));
-assert(size(matched_query_keypoints, 2) > 6);
+if size(matched_query_keypoints, 2) < 6
+   T_CiCj = T_WCi;
+   p_new_matched_triang= [];
+   kp_tracks_updated=[];
+   Cj_new_landmarks=[];
+   p_candidates_first_inliers=[];
+   p_candidates_j_inliers_nr_tracking=[];
+   updateConsole(params, 'To few corresponding landmarks/keypoints!! Break continuous operation loop - Terminating...');
+   return 
+end
 
 
 
