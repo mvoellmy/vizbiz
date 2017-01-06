@@ -1,4 +1,4 @@
-function [T_CiCj, p_new_matched_triang, Ci_corresponding_inlier_landmarks, kp_tracks_updated, Cj_new_landmarks] =...
+function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks,p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking] =...
     processFrame(params, img_new, img_prev, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K)
 % Estimates pose transformation T_CiCj between two images.
 % Tracks potential new keypoints and triangulates new landmarks if
@@ -58,6 +58,9 @@ end
 
 % check for consistent correspondences
 assert(size(matched_query_keypoints,2) == size(Ci_corresponding_landmarks,2));
+assert((matched_query_keypoints, 2) < 6);
+
+
 
 % display fraction of matched keypoints/landmarks
 updateConsole(params,...
@@ -107,11 +110,13 @@ kp_tracks_updated = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, un
 %% Triangulate new landmarks & update landmarks and keypoint list
 nr_landmarks = size(Ci_corresponding_inlier_landmarks, 2);
 if params.kp_tracker.min_nr_landmarks > nr_landmarks
-    [Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated] =...
+    [Cj_P_hom_new_inliers, p_candidates_j_inliers,p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking, kp_tracks_updated] =...
         triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj, nr_landmarks);
 else
     Cj_P_hom_new_inliers = [];
     p_candidates_j_inliers = [];
+    p_candidates_j_inliers_nr_tracking = [];
+    p_candidates_first_inliers = [];
 end
 
 % append used candidate keypoints to p_new_matched_triang

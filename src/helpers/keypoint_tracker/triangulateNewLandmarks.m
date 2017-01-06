@@ -1,4 +1,4 @@
-function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated ] =...
+function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, p_candidates_first_inliers,p_candidates_j_inliers_nr_tracking, kp_tracks_updated ] =...
     triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj, nr_landmarks)
 % Checks which candiate keypoints have good trianguability (bearing vector)
 % and then triangulates a new landmark.
@@ -46,6 +46,7 @@ idx_good_trianguable = ((bearing_angle_deg > bearing_angle_low_thr)...
 p_candidates_first = kp_tracks_updated.first_obs_kp(:,idx_good_trianguable);
 p_candidates_first_pose = kp_tracks_updated.first_obs_pose(:,idx_good_trianguable);
 p_candidates_j = kp_tracks_updated.candidate_kp(:,idx_good_trianguable);
+p_candidates_j_nr_tracking = kp_tracks_updated.nr_trackings(idx_good_trianguable);
 
 % show matches from first and j image of keypoints
 if (params.cont.figures && params.kp_tracker.show_matches)
@@ -94,6 +95,8 @@ kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(~idx_good_triang
 Cj_reprojected_points_uv = [];
 Cj_P_hom_new_inliers = [];
 p_candidates_j_inliers = [];
+p_candidates_j_inliers_nr_tracking = [];
+p_candidates_first_inliers = [];
 
 if size(Cj_P_hom_new,2) > 0 
     [Cj_P_hom_new_neigb, outFOV_idx] = applySphericalFilter(params, Cj_P_hom_new, params.cont.landmarks_cutoff);
@@ -102,8 +105,10 @@ if size(Cj_P_hom_new,2) > 0
     % remove unrealistic landmarks and corresponding keypoints
     if (size(outFOV_idx)<size(Cj_P_hom_new,2)) % some Landmarks were in neigbourhood
         Cj_P_hom_new = Cj_P_hom_new_neigb;
+        p_candidates_first(:,outFOV_idx)=[];
         p_candidates_j(:,outFOV_idx)=[];
         p_candidates_first_pose(:,outFOV_idx)=[];
+        p_candidates_j_nr_tracking(:,outFOV_idx)=[];
 
         % reproject realistic landmarks to remove outliers
         Cj_reprojected_points_uv = projectPoints(Cj_P_hom_new(1:3,:), K);
@@ -112,7 +117,9 @@ if size(Cj_P_hom_new,2) > 0
         reproj_inliers = errors < params.kp_tracker.max_reproj_error^2;
 
         Cj_P_hom_new_inliers = Cj_P_hom_new(:, reproj_inliers);
+        p_candidates_first_inliers = p_candidates_first(:, reproj_inliers);
         p_candidates_j_inliers = p_candidates_j(:, reproj_inliers);
+        p_candidates_j_inliers_nr_tracking = p_candidates_j_nr_tracking(reproj_inliers);
         assert(size(Cj_P_hom_new_inliers,2) == size(p_candidates_j_inliers,2));
 
         updateConsole(params,...

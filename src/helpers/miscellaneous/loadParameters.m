@@ -12,10 +12,12 @@ params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = true;
 params.perf.profiling = false;
 params.run_continous = true;
-params.run_on_first_x_images = 10; % 0 for all images
+params.run_on_first_x_images = 0; % 0 for all images
 params.compare_against_groundthruth = true;
 params.show_map_and_cams = true;
 params.through_gui = false;
+
+params.cont.use_BA = false;
 
 % additional gui parameters
 params.gui.show_all_features = false;
