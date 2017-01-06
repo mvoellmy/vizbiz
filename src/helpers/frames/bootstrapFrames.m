@@ -15,9 +15,9 @@ elseif strcmp(frame_number,'second')
     if dataset == 0 % KITTI
         frame_idx = 3;
     elseif dataset == 1 % MALAGA
-        frame_idx = 6; % 3
-    elseif dataset == 2 % PARKING
         frame_idx = 6;
+    elseif dataset == 2 % PARKING
+        frame_idx = 5;
     else
         error('invalid dataset!');  
     end

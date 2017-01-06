@@ -4,6 +4,7 @@ function [ kp_tracks_updated ] = updateKpTracks(params, kp_tracks_prev, img_prev
 % Inserts new candidate keypoints into the keypoint tracks and discard
 % candidate keypoints that could not be matched.
 
+% todo: input, outputs
 % Inputs:
 %  - params(struct) : parameter struct
 %  - kp_tracks_prev : struct
