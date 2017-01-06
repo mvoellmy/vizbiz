@@ -1,12 +1,13 @@
 function [bearing_angle_deg] = calcBearingAngle(kp_img1, kp_img2, K)
-% todo description
+% Returns pair-wise angles between keypoint rays.
 %
-% Input: todo
-%  - kp_img1(2xN) : [v u]
-%  - kp_img2(2xN) : [v u]
+% Input:
+%  - kp_img1(2xN) : keypoints image 1 [v u]
+%  - kp_img2(2xN) : keypoints image 2 [v u]
+%  - K(3x3) : camera calibration matrix
 %
 % Output:
-%  - bearing_angle_deg(1xN) : in-between angles betwain kp pairs
+%  - bearing_angle_deg(1xN) : in-between angles between kp pairs
 
 vector_first = [kp_img1; repmat(K(1,1), [1, size(kp_img1,2)])];
 vector_j = [kp_img2; repmat(K(1,1), [1, size(kp_img2,2)])];
