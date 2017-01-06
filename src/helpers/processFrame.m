@@ -58,7 +58,7 @@ end
 
 % check for consistent correspondences
 assert(size(matched_query_keypoints,2) == size(Ci_corresponding_landmarks,2));
-assert(size(matched_query_keypoints, 2) < 6);
+assert(size(matched_query_keypoints, 2) > 6);
 
 
 
