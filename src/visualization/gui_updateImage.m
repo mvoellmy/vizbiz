@@ -1,5 +1,5 @@
 function gui_updateImage(img, img_handle)
-% todo: add description
+% Updates current frame.
 % 
 % Input:
 %  - img(size) : current image

@@ -17,7 +17,7 @@ function [E, best_guess_inliers] = eightPointRansac(params, p_hom_i1, p_hom_i2, 
 % sample size
 s = 8;
 
-% needed iterations to reach delta-probable outlier free solution
+%needed iterations to reach delta-probable outlier free solution
 num_iterations = ceil(log(1-params.eightPoint_ransac.p_success)/...
                       log(1-params.eightPoint_ransac.fract_inliers^s));
 
@@ -25,7 +25,7 @@ num_iterations = ceil(log(1-params.eightPoint_ransac.p_success)/...
 best_guess_inliers = NaN(1,size(p_hom_i2,2));
 max_num_inliers_history = NaN(1,num_iterations);
 max_num_inliers = 0;
-inliers = zeros(1,size(p_hom_i1,2));
+%inliers = zeros(1,size(p_hom_i1,2));
 
 % run RANSAC for pose estimation
 for i=1:num_iterations

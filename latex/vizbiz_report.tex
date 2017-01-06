@@ -21,18 +21,20 @@
 \usepackage[latin1]{inputenc}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows}
+\usepackage{cleveref}
 
 %setup url
 \hypersetup{
     colorlinks=true,       % false: boxed links; true: colored links
-    urlcolor=black           % color of external links
+    urlcolor  = blue,           % color of external links
+    linkcolor = black
 }
 
 %setup header
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[LE,RO]{Pascal Buholzer, Fabio Dubois, Miro Voellmy, Milan Schilling}
-\fancyhead[RE,LO]{VAMR}
+\fancyhead[RE,LO]{Vision Algorithms for Mobile Robotics}
 %\fancyfoot[CE,CO]{\leftmark}
 \fancyfoot[LE,RO]{\thepage}
 
@@ -69,56 +71,24 @@
 \author{Pascal Buholzer, Fabio Dubois, Milan Schilling, Miro Voellmy}
 \maketitle
 
-\section{Sandbox}
-\begin{figure}[ht]
-	\includegraphics[width=0.8\textwidth]{pig}
-	\caption{Pig image}
-	\label{img_pig}
-\end{figure}
-
+% Table of Contents depth (TODO change if necessary)
 \newpage
-\section{Symbols, Nomencalture}
-
+\input{chapters/symbols}
 \newpage
-\section{Introduction}
-VO, sequential, monocular, markov assumption
 
-\section{Implementation}
-
-\subsection{Framework}
-\subsubsection{Coordinate Frames}
-\subsubsection{Pipeline overview}
-Flow chart
-%\input{pipeline_overview}
-\subsubsection{Options and parameters}
-parameter handling, GUI
-
-
-
-\subsection{Initialization}
-
-
-\subsection{Continuous Operation}
-
-
+\tableofcontents
 \newpage
-\section{Results}
-
-\subsection{Overall performance}
-Real time ness, comparison to groundtruth, compare different datasets
-Impact of features
-
-\section{Discussion}
-What have we learned, what worked?
-
-Possible future work, improvements (loop closure, ...)
-
-\section{Conclusion}
-
+\input{chapters/introduction}
+\newpage
+\input{chapters/implementation}
+\newpage
+\input{chapters/results}
+\newpage
+\input{chapters/discussion}
+\input{chapters/conclusion}
 
 \newpage
 %\subsection*{code.m}
 %\lstinputlisting[language=C]{../code/lab06/lab06.ino}
-
 
 \end{document}

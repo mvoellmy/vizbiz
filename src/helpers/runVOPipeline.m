@@ -65,7 +65,7 @@ deltaT = toc;
 
 % update gui metrics
 if params.through_gui
-    gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
+    gui_updateMetrics(deltaT, gui_handles.text_RT_value);
 end
 
 updateConsole(params, '...boostrapping done.\n\n');
@@ -107,7 +107,7 @@ T_WC1 = [1      0           0       0;
 
 % normalize scale with ground truth
 if params.init.normalize_scale
-    [C2_landmarks_init, T_C1C2] = normalizeScale(C2_landmarks_init, T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+    [C2_landmarks_init, T_C1C2] = normalizeScale(params, C2_landmarks_init, T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
 end
 
 % assign first two poses
@@ -134,17 +134,20 @@ deltaT = toc;
 
 if params.through_gui
     % update gui metrics
-    gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
+    gui_updateMetrics(deltaT, gui_handles.text_RT_value);
     
     % update tracking metric
-    gui_updateTracked(size(keypoints_init,2),...
+    gui_updateTracked(params, size(keypoints_init,2),...
                       gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
-    
-    % update gui trajectory
-    gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
 
+    % update ground truth
+    gui_updateGT(ground_truth, gui_handles.ax_trajectory, gui_handles.plot_gt);
+    
     % update gui local cloud
     gui_updateLocalCloud(W_landmarks_init, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+    
+    % update gui trajectory
+    gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);    
 end
 
 % display initialization landmarks and bootstrap motion
@@ -152,8 +155,8 @@ if (params.init.figures && params.init.show_landmarks)
     figure('name','Landmarks and motion of initialization image pair');
     hold on;
     plotLandmarks(W_landmarks_init, 'z', 'up');
-    plotCam(T_WCj_vo(:,:,1), 1, 'black');
-    plotCam(T_WCj_vo(:,:,2), 1, 'red');
+    plotCam(T_WCj_vo(:,:,1), 0.2, 'black');
+    plotCam(T_WCj_vo(:,:,2), 0.2, 'red');
 end
 
 updateConsole(params, '...initialization done.\n\n');
@@ -170,9 +173,9 @@ if params.run_continous
         if params.localization_ransac.show_iterations
             fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
         end
-    end
-    if params.cont.figures
-        fig_kp_triangulate = figure('name', 'triangulate');
+
+        fig_kp_triangulate = figure('name', 'triangulate');   
+        fig_debug_traj = figure('name','Trajectory');
     end
     
 	% hand-over initialization variables
@@ -187,7 +190,7 @@ if params.run_continous
         
         % pick current frame, due to initialization +2
         frame_idx = j - bootstrap_frame_idx_2 + 2;
-        img = getFrame(params, j);
+        img_new = getFrame(params, j);
         
         if (size(keypoints_prev_triang,2) > 6) % todo: minimum number?            
             % extract current camera pose
@@ -195,12 +198,12 @@ if params.run_continous
             
             % process newest image
             [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new] =...
-                processFrame(params, img, img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
+                processFrame(params, img_new, img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
             
             % add super title with frame number
             if params.cont.figures
                 figure(fig_cont);
-                suptitle(sprintf('Frame #%i',j));
+                %suptitle(sprintf('Frame #%i',j));
             end
         else
             updateConsole(params, 'Too few keypoints left!! Break continuous operation loop - Terminating...');
@@ -212,6 +215,10 @@ if params.run_continous
 
         % extend 2D trajectory
         W_traj =[W_traj, T_WCj_vo(1:2,4,frame_idx)];
+        if params.cont.figures
+            figure(fig_debug_traj);
+            plotGroundThruth_3D(squeeze(T_WCj_vo(1:3,end,1:frame_idx)), ground_truth);
+        end
         
         % update map with new landmarks
         W_landmarks_new = [];
@@ -222,21 +229,20 @@ if params.run_continous
         W_landmarks_map = [W_landmarks_map, W_landmarks_new];
         
         if params.through_gui
-            % update gui trajectory
-            gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);
+            % update tracking metric
+            gui_updateTracked(params, size(keypoints_new_triang,2),...
+                              gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
             % update gui local cloud
             gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
-            
-            % update tracking metric
-            gui_updateTracked(size(keypoints_new_triang,2),...
-                              gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
+            % update gui trajectory
+            gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);            
         end
 
         % allow plots to refresh
         pause(0.01);
 
         % update previous image, keypoints, landmarks and tracker
-        img_prev = img;
+        img_prev = img_new;
         keypoints_prev_triang = keypoints_new_triang;
         Ci_landmarks_prev = Cj_landmarks_new;
         kp_tracks = updated_kp_tracks;
@@ -247,19 +253,19 @@ if params.run_continous
         
         if params.through_gui
             % update gui metrics
-            gui_updateMetrics(params, deltaT, gui_handles.text_RT_value);
+            gui_updateMetrics(deltaT, gui_handles.text_RT_value);
         end
-    end
+    end % end for loop
     updateConsole(params, '...VO-pipeline terminated.\n');
 end
 
 %% Results summary
 if (params.ds ~= 1 && params.compare_against_groundthruth)
     % plot VO trajectory against ground truth   
-    plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth');
+    plotTrajectoryVsGT_2D(T_WCj_vo(1:3,4,:),ground_truth', bootstrap_frame_idx_1, bootstrap_frame_idx_2);
 elseif (params.ds == 1 && params.compare_against_groundthruth)
     % plot VO trajectory
-    plotTrajectory_2D(T_WCj_vo(1:3,4,:));
+    plotTrajectory_2D(T_WCj_vo(1:3,4,:), bootstrap_frame_idx_1, bootstrap_frame_idx_2);
 end
 
 % display full map and cameras
@@ -267,8 +273,8 @@ if params.show_map_and_cams
     figure('name', 'Map landmarks');
     plotLandmarks(W_landmarks_map, 'z', 'up');
     hold on;
-    plotCam(T_WCj_vo(:,:,1), 2, 'black');
-    plotCam(T_WCj_vo(:,:,2:end), 2, 'red');
+    plotCam(T_WCj_vo(:,:,1), 0.2, 'black');
+    plotCam(T_WCj_vo(:,:,2:end), 0.2, 'red');
 end
 
 end

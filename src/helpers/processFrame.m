@@ -53,20 +53,16 @@ if params.cont.figures
 end
 
 %% Find correspondences between new and prev image
-[query_keypoints, matches] = findCorrespondeces_cont(params, img_prev, keypoints_prev_triang, img_new);
-
-% delete landmark where no matching keypoint was found
-corr_ldk_matches = matches(matches > 0);
-Ci_corresponding_landmarks = Ci_landmarks_prev(:,corr_ldk_matches);
-
-% filter query and database keypoints
-[~, matched_query_indices, matched_database_indices] = find(matches);
-matched_query_keypoints = query_keypoints(:,matched_query_indices);
-matched_database_keypoints = keypoints_prev_triang(:,matched_database_indices);
+[query_keypoints, matched_query_indices, matched_query_keypoints, Ci_corresponding_landmarks] = ...
+    findCorrespondeces_cont(params, img_prev, keypoints_prev_triang, img_new, Ci_landmarks_prev);
 
 % check for consistent correspondences
-assert(size(matched_query_keypoints,2) == length(corr_ldk_matches) && ...
-       size(matched_database_keypoints,2) == length(corr_ldk_matches));
+assert(size(matched_query_keypoints,2) == size(Ci_corresponding_landmarks,2));
+
+% display fraction of matched keypoints/landmarks
+updateConsole(params,...
+              sprintf('  Number of new keypoints matched with prev keypoints by descriptor or klt: %i (%0.2f perc.)\n',...
+              size(matched_query_keypoints,2),100*size(matched_query_keypoints,2)/size(keypoints_prev_triang,2)));
 
 % display matched keypoints
 if (params.cont.figures && params.localization_ransac.show_matched_keypoints)
@@ -104,15 +100,22 @@ T_CjCi = tf2invtf(T_CiCj);
 
 %% Candiate Keypoint tracker
 T_WCj = T_WCi * T_CiCj;
-kp_tracks_updated = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, query_keypoints, T_WCj);
+unmatched_query_kp = query_keypoints;
+unmatched_query_kp(:,matched_query_indices>0) = [];
+kp_tracks_updated = updateKpTracks(params, kp_tracks_prev, img_prev, img_new, unmatched_query_kp, T_WCj);
 
 %% Triangulate new landmarks & update landmarks and keypoint list
-[Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated] =...
-    triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj);
+nr_landmarks = size(Ci_corresponding_inlier_landmarks, 2);
+if params.kp_tracker.min_nr_landmarks > nr_landmarks
+    [Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated] =...
+        triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj, nr_landmarks);
+else
+    Cj_P_hom_new_inliers = [];
+    p_candidates_j_inliers = [];
+end
 
 % append used candidate keypoints to p_new_matched_triang
-% rounding because of integer operations in describeKeypoints()
-p_new_matched_triang = [p_new_matched_triang, round(p_candidates_j_inliers)];
+p_new_matched_triang = [p_new_matched_triang, p_candidates_j_inliers];
 
 Cj_P_hom_inliers = [];
 if localized % otherwise index error since Ci_corresponding_inlier_landmarks = []
@@ -135,4 +138,4 @@ updateConsole(params,...
               sprintf('  Number of landmarks (total/new): %i / %i\n',...
               size(Cj_new_landmarks,2), size(Cj_P_hom_new_inliers,2)));
 
-end
+ end

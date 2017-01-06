@@ -1,5 +1,5 @@
 function plotCircles(keypoints, style, radius)
-% Plots circles at 2D points.
+% Plots circles at 2D keypoints.
 % 
 % Input:
 %  - keypoints(2xN) : 2D points, each [v,u]

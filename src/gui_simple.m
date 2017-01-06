@@ -212,6 +212,8 @@ axis off;
 % clear trajectory axes
 axes(handles.ax_trajectory);
 cla(handles.ax_trajectory);
+handles.plot_gt = plot(0, 0, 'k-');
+hold on;
 handles.plot_trajectory = plot(0, 0, '.-');
 hold on;
 handles.plot_local_cloud = plot(0, 0, 'k.');
@@ -239,7 +241,7 @@ handles.params = loadParameters();
 % set general parameters
 handles.params.perf.profiling = false;
 handles.params.compare_against_groundthruth = false;
-handles.params.run_on_first_x_images = 100; % 0 for all images
+handles.params.run_on_first_x_images = 0; % 0 for all images
 handles.params.show_map_and_cams = false;
 handles.params.through_gui = true;
 % disable debug figures
@@ -256,7 +258,6 @@ handles.plot_bar.XData = 0;
 handles.plot_bar.YData = 0;
 handles.plot_bar.LineWidth = 2;
 
-xlim([0 200]); % todo: parametrize?
 axis equal;
 axis off;
 
