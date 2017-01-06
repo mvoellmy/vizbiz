@@ -27,7 +27,7 @@ function [ W_P_refined, T_WC_refined ] = bundleAdjust(params, W_P, p, T_WC, K, f
 
 updateConsole(params, '  bundle adjust points...\n');
 
-nr_of_cams = size(p, 1)/2;
+nr_of_cams = size(T_WC, 3);
 nr_of_keypoints = size(p,2);
 
 % vector containing camera_ids
@@ -42,9 +42,9 @@ end
 orientations = cell(nr_of_cams, 1);
 locations = cell(nr_of_cams, 1);
 
-for i=1:4:4*nr_of_cams % todo: might be possible to remove for loop
-    orientations((i-1)/4 + 1) = {T_WC(i:i+2, 1:3)};
-    locations((i-1)/4 + 1) = {T_WC(i:i+2, 4)'};
+for i=1:nr_of_cams % todo: might be possible to remove for loop
+    orientations(i) = {T_WC(1:3, 1:3, i)'};
+    locations(i) = {T_WC(1:3, 4, i)'};
 end
 
 cameraPoses = table;
@@ -53,13 +53,13 @@ cameraPoses.Orientation = orientations;
 cameraPoses.Location = locations;
 cameraParams = cameraParameters('IntrinsicMatrix', K');
 
-[W_P_refined, refinedPoses] = bundleAdjustment(W_P', point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', fixed_cams );
+[W_P_refined, refinedPoses] = bundleAdjustment(W_P', point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', fixed_cams); %, 'PointsUndistorted', true
 
 W_P_refined = W_P_refined';
 T_WC_refined = zeros(size(T_WC));
 
 for i=1:nr_of_cams % todo: pretty sure this can be indexed nicer and potentially done without a for loop
-    T_WC_refined(1+(i-1)*4:4+(i-1)*4,1:4) = [cell2mat(refinedPoses.Orientation(i)), cell2mat(refinedPoses.Location(i))';
+    T_WC_refined(1:4, 1:4, i) = [cell2mat(refinedPoses.Orientation(i))', cell2mat(refinedPoses.Location(i))';
            zeros(1,3),       1];
 end
     

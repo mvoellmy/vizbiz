@@ -85,19 +85,39 @@ else
     M1 = K*T_C1C1(1:3,:);
     M2 = K*T_C2C1(1:3,:);
     C1_P_hom_init = linearTriangulation(p_hom_inlier_i1_uv, p_hom_inlier_i2_uv, M1, M2);
+    W_P_hom_init = T_WC1*C1_P_hom_init;
     
     if params.init.use_BA
-        
-        
-        [P_init, T_refined] = bundleAdjust(params, C1_P_hom_init(1:3,:), [p_hom_inlier_i1_uv(1:2,:); p_hom_inlier_i2_uv(1:2,:)], [T_WC1; T_WC2], K, 1);
-        C1_P_hom_init(1:3,:) = P_init;
+         if params.init.show_BA_comp && params.init.figures
+            figure('name','BundleaAdjustment Comparison');
+            subplot(1,2,1)
+            plotLandmarks(W_P_hom_init(1:3,:),'z','up');
+            hold on
+            plotCam(T_WC1,20,'black');
+            plotCam(T_WC2,20,'red');
+            title('Before BA');
+        end
+        [W_P_init, T_WC_refined] = bundleAdjust(params, W_P_hom_init(1:3,:), [p_hom_inlier_i1_uv(1:2,:); p_hom_inlier_i2_uv(1:2,:)], cat(3, T_WC1, T_WC2), K, 1);
+        W_P_hom_init = [W_P_init;ones(1, size(W_P_init, 2))];
         
         % update homogeneous transformations
-        T_WC1 = T_refined(1:4,1:4);
-        T_WC2 = T_refined(5:8,1:4);
+        T_WC1 = T_WC_refined(1:4,1:4, 1);
+        T_WC2 = T_WC_refined(1:4,1:4, 2);
         T_C1W = tf2invtf(T_WC1);
         T_C1C2 = T_C1W*T_WC2;
         T_C2C1 = tf2invtf(T_C1C2);
+        
+        C1_P_hom_init = T_C1W*W_P_hom_init;
+        
+        if params.init.show_BA_comp && params.init.figures
+            subplot(1,2,2)
+            plotLandmarks(W_P_hom_init(1:3,:),'z','up');
+            hold on
+            plotCam(T_WC1,20,'black');
+            plotCam(T_WC2,20,'red');
+            title('After BA');
+        end
+
     end
     
     % discard landmarks not contained in spherical neighborhood
