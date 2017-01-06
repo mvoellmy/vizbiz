@@ -20,7 +20,6 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = i
 %  - T_C1C2(4x4) : homogeneous transformation matrix C2 to C1
 %  - kp_tracks_init(struct) : TODO
 
-
 global fig_init gui_handles;
 
 % create container for keypoint tracker (new keypoints with no landmarks)
@@ -124,7 +123,7 @@ else
         end
     end
     
-    % 
+    % check which scale normalization is required
     if(nargin < 6)
         % reInit mode
         % normalize scale with ground truth using precalculated scale
@@ -141,8 +140,7 @@ else
             [C1_P_init, T_C1C2] = normalizeScale(params, C1_P_hom_init(1:3,:), T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
         end
     end
-    
-    
+        
     C1_P_hom_init = [C1_P_init; ones(1,size(C1_P_init,2))];
     
     % discard landmarks not contained in spherical neighborhood

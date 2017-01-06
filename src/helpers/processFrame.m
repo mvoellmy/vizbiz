@@ -9,7 +9,7 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, reI
 %  - img_new(size) : current frame
 %  - img_prev(size) : previous frame
 %  - img_reInit(size) : image for reinit
-%  - T_WCinit : Transformation world to Cinit
+%  - T_WCinit (4x4) : Transformation world to Cinit
 %  - keypoints_prev_triang (2xN) : 2D points, [v u] which have
 %    corresponding Landmarks
 %  - kp_tracks_old : struct container for tracking keypoints (no associated
@@ -26,7 +26,7 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, reI
 %    landmarks)
 %  - Cj_new_landmarks (3xN) : 3D points in frame Cj
 %    verified inliers by ransac + new triangulated landmarks
-%  - reInitFlag : Flag true when reInit was performed
+%  - reInitFlag (bool) : Flag true when reInit was performed
 % todo
 
 global fig_cont fig_kp_tracks fig_kp_triangulate gui_handles;
@@ -153,10 +153,9 @@ else
         
         % set flag
         reInitFlag = true;
-        % copy of initPipeline
-        % [img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks] = ...
-        %     initPipeline(params, img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2, K, T_WC1, ground_truth);
-        [~, keypoints_reInit, Cj_landmarks_reInit, T_CinitCj, kp_tracks_reInit] = initPipeline(params, img_reInit, img_new, K, T_WCinit);
+        % reinit pipeline
+        [~, keypoints_reInit, Cj_landmarks_reInit, T_CinitCj, kp_tracks_reInit] =...
+            initPipeline(params, img_reInit, img_new, K, T_WCinit);
         kp_tracks_updated = kp_tracks_reInit;
         Cj_new_landmarks = Cj_landmarks_reInit; 
         p_new_matched_triang = keypoints_reInit;

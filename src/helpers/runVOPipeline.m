@@ -186,22 +186,24 @@ if params.run_continous
             
             % choose img for reinit
             reInitFrameNr = max( [1, frame_idx - params.cont.reinit.deltaFrames] );
-            if params.ds == 0
-                img_reInit = imread([params.kitti_path '/00/image_0/' ...
-                    sprintf('%06d.png',reInitFrameNr)]);
-            elseif params.ds == 1
-                images = dir([params.malaga_path ...
-                    '/malaga-urban-dataset-extract-07_rectified_800x600_Images']);
-                left_images = images(3:2:end);
-                img_reInit = rgb2gray(imread([params.malaga_path ...
-                    '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
-                left_images(reInitFrameNr).name]));
-            elseif params.ds == 2
-                img_reInit = rgb2gray(imread([params.parking_path ...
-                sprintf('/images/img_%05d.png',reInitFrameNr)]));
-            else
-                assert(false);
-            end
+            img_reInit = getFrame(params, reInitFrameNr);
+            
+%             if params.ds == 0
+%                 img_reInit = imread([params.kitti_path '/00/image_0/' ...
+%                     sprintf('%06d.png',reInitFrameNr)]);
+%             elseif params.ds == 1
+%                 images = dir([params.malaga_path ...
+%                     '/malaga-urban-dataset-extract-07_rectified_800x600_Images']);
+%                 left_images = images(3:2:end);
+%                 img_reInit = rgb2gray(imread([params.malaga_path ...
+%                     '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
+%                 left_images(reInitFrameNr).name]));
+%             elseif params.ds == 2
+%                 img_reInit = rgb2gray(imread([params.parking_path ...
+%                 sprintf('/images/img_%05d.png',reInitFrameNr)]));
+%             else
+%                 assert(false);
+%             end
             
             % create bootstrap idx
             bootstepIdx.first = reInitFrameNr;
@@ -209,8 +211,7 @@ if params.run_continous
             
             % save Pose for reInit
             T_WCinit = T_WCj_vo(:,:,reInitFrameNr);
-            
-            
+                        
             % process newest image
             [T_CiCj, keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new, reInitFlag] =...
                 processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
@@ -220,13 +221,10 @@ if params.run_continous
                 
                 % check if reinitialization before enough steps performed
                 assert ((reInitFrameNr - 1) > 0);
-                % replace last Poses with none Transformation
-                % T_WCj_vo(:,:,reInitFrameNr:frame_idx) = repmat(T_WCj_vo(:,:,reInitFrameNr - 1),[1, params.cont.reinit.deltaFrames]) ;
                 for idx = reInitFrameNr:frame_idx
                     T_WCj_vo(:,:,idx) = T_WCj_vo(:,:,reInitFrameNr - 1);
                     T_CiCj_vo_j(:,:,idx) = eye(4);
                 end
-                % T_CiCj_vo_j(:,:,reInitFrameNr:frame_idx) = eye(4);
             end
             % append last pose
             T_CiCj_vo_j(:,:,frame_idx) = T_CiCj;

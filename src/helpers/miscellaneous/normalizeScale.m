@@ -9,13 +9,11 @@ function [C2_landmarks_init, T_C1C2] = normalizeScale(params, C2_landmarks_init,
 %  - W_ground_truth(2xM)        : ground thruth positions in world frame
 %  - bootstrap_frame_1_idx(1x1) : dataset image index of img0
 %  - bootstrap_frame_2_idx(1x1) : dataset image index of img1
-%  - scale                      : optional argument to skip scale calc
+%  - scale (1x1)                : optional argument to skip scale calc
 %
 % Output:
 %  - C2_landmarks_init(3xN)     : list of 3D Points in C2
 %  - T_C1C2(4X4)                : transformation matrix from C2 to C1
-
-
     
 if (nargin ~= 7)
     x_truth = ground_truth(bootstrap_frame_idx_2, 1) - ground_truth(bootstrap_frame_idx_1, 1);
