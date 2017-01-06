@@ -26,6 +26,7 @@
 *.fot
 *.cb
 *.cb2
+*.dvi
 
 ## Build tool auxiliary files
 *.synctex

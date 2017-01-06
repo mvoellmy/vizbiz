@@ -19,9 +19,11 @@
 \usepackage[english]{babel}
 \usepackage{hyperref}
 \usepackage[latin1]{inputenc}
-\usepackage{tikz}
-\usetikzlibrary{shapes,arrows}
+%\usepackage{tikz}
+%\usetikzlibrary{shapes,arrows}
 \usepackage{cleveref}
+\usepackage{paralist}
+\usepackage{caption}
 
 %setup url
 \hypersetup{
@@ -29,6 +31,9 @@
     urlcolor  = blue,           % color of external links
     linkcolor = black
 }
+
+%no indentation
+\setlength\parindent{0pt}
 
 %setup header
 \pagestyle{fancy}
@@ -62,6 +67,9 @@
 
 %setup graphics directory
 \graphicspath{{./graphics/}}
+
+%inline code format
+\newcommand{\code}[1]{\texttt{#1}}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
