@@ -44,10 +44,6 @@ if params.init.use_KITTI_precalculated_init % todo: still needed?
     
     T_C1C2 = eye(4);
     
-%     T_C1C2 = [9.999978e-01 5.272628e-04 -2.066935e-03 -4.690294e-02;
-%              -5.296506e-04 9.999992e-01 -1.154865e-03 -2.839928e-02;
-%               2.066324e-03 1.155958e-03 9.999971e-01 8.586941e-01;
-%               zeros(1,3)                                1       ];
     kp_tracks_init = kp_tracks;
 else
     % assign second image as initialization image
@@ -59,7 +55,6 @@ else
     % find 2D correspondences (sorted)
     [p_i1_uv, p_i2_uv, unmatched_query_kp_vu] = findCorrespondeces(params,I_i1,I_i2);
 
-    
     % homogenize keypoints
     p_hom_i1_uv = [p_i1_uv; ones(1,length(p_i1_uv))];
     p_hom_i2_uv = [p_i2_uv; ones(1,length(p_i2_uv))];    
@@ -182,7 +177,12 @@ else
                   size(keypoints_init,2), size(C2_landmarks_init,2)));
     
 	% initialise keypoint tracker
-    kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, unmatched_query_kp_vu, T_WC2);    
+    kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, unmatched_query_kp_vu, T_WC2);
+    
+    % update gui keypoints % todo: move to initPipeline()
+    if params.through_gui && params.gui.show_all_features
+        gui_updateKeypoints(kp_tracks_init.candidate_kp, gui_handles.ax_current_frame, 'r.');
+    end
 end
 
 % check for same number of keypoints and landmarks
