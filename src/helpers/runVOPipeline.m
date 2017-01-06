@@ -95,7 +95,7 @@ T_WC1 = [1      0           0       0;
 
 % initialize pipeline with bootstrap images
 [img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks] = ...
-    initPipeline(params, img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2, K, T_WC1, ground_truth);
+    initPipeline(params, img0, img1, K, T_WC1, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame, C1 to C1
@@ -203,6 +203,10 @@ if params.run_continous
                 assert(false);
             end
             
+            % create bootstrap idx
+            bootstepIdx.first = reInitFrameNr;
+            bootstepIdx.second = frame_idx;
+            
             % save Pose for reInit
             T_WCinit = T_WCj_vo(:,:,reInitFrameNr);
             
@@ -213,6 +217,9 @@ if params.run_continous
             
             % check if reInit was performed
             if (reInitFlag)
+                
+                % check if reinitialization before enough steps performed
+                assert ((reInitFrameNr - 1) > 0);
                 % replace last Poses with none Transformation
                 % T_WCj_vo(:,:,reInitFrameNr:frame_idx) = repmat(T_WCj_vo(:,:,reInitFrameNr - 1),[1, params.cont.reinit.deltaFrames]) ;
                 for idx = reInitFrameNr:frame_idx

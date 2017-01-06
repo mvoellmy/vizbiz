@@ -85,7 +85,7 @@ end
     p3pRansac(params, matched_query_keypoints, Ci_corresponding_landmarks, K);
 
 % check number of inlier landmarks
-if (size(Ci_corresponding_inlier_landmarks,2) > params.cont.reinit.inlier_th)
+if (size(Ci_corresponding_inlier_landmarks,2) > params.cont.reinit.inlier_th )
     
     reInitFlag = false;
 
@@ -154,7 +154,8 @@ else
         % set flag
         reInitFlag = true;
         % copy of initPipeline
-        % [img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks] = initPipeline(params, img0, img1, K, T_WC1);
+        % [img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks] = ...
+        %     initPipeline(params, img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2, K, T_WC1, ground_truth);
         [~, keypoints_reInit, Cj_landmarks_reInit, T_CinitCj, kp_tracks_reInit] = initPipeline(params, img_reInit, img_new, K, T_WCinit);
         kp_tracks_updated = kp_tracks_reInit;
         Cj_new_landmarks = Cj_landmarks_reInit; 

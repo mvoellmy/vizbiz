@@ -1,4 +1,4 @@
-function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = initPipeline(params, I_i1, I_i2, bootstrap_frame_idx_1, bootstrap_frame_idx_2, K, T_WC1, ground_truth)
+function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = initPipeline(params, I_i1, I_i2, K, T_WC1, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2)
 % Returns initialization image and corresponding sorted keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.
@@ -19,6 +19,7 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = i
 %  - C2_landmarks_init(3xN) : C2-referenced triangulated 3D points
 %  - T_C1C2(4x4) : homogeneous transformation matrix C2 to C1
 %  - kp_tracks_init(struct) : TODO
+
 
 global fig_init gui_handles;
 
@@ -123,10 +124,24 @@ else
         end
     end
     
-    % normalize scale with ground truth
-    if params.init.normalize_scale
-        [C1_P_init, T_C1C2] = normalizeScale(params, C1_P_hom_init(1:3,:), T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+    % 
+    if(nargin < 6)
+        % reInit mode
+        % normalize scale with ground truth using precalculated scale
+        if params.init.normalize_scale
+            % read scale from parameter
+            scale = params.init.scale;
+            % pass fake arguments
+            [C1_P_init, T_C1C2] = normalizeScale(params, C1_P_hom_init(1:3,:), T_C1C2, 1, 1, 1, scale);
+        end
+    else
+        % bootstrap Init mode
+        % normalize scale with ground truth by calculate scale
+        if params.init.normalize_scale
+            [C1_P_init, T_C1C2] = normalizeScale(params, C1_P_hom_init(1:3,:), T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+        end
     end
+    
     
     C1_P_hom_init = [C1_P_init; ones(1,size(C1_P_init,2))];
     

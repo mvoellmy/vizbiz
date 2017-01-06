@@ -7,7 +7,7 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = true;
 params.compare_against_groundthruth = true;
@@ -53,6 +53,7 @@ params.init.show_BA_comp = true;
 params.init.landmarks_cutoff = 200; % --------------------------------------
 
 params.init.normalize_scale = true;
+params.init.scale = 1; % get changed by program
 
 % correspondence parameters initialisation
 params.init.corr.harris_patch_size = 9; % 9 [pixels]
