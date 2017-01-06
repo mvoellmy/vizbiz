@@ -13,7 +13,7 @@ function [ kp_tracks_updated ] = updateKpTracks(params, kp_tracks_prev, img_prev
 %  - query_keypoints (2xN) : [v u]
 %  - T_WCj(4x4) : Trasnformation matrix 
 
-global fig_kp_tracks;
+global fig_kp_tracks gui_handles;
 
 % variable init - assume no matches
 matches_untriang = zeros(1,size(query_keypoints,2));
@@ -134,6 +134,11 @@ if (params.cont.figures && params.kp_tracker.show_matches)
     end
     plotPoints(kp_tracks_updated.candidate_kp,'y.');
     title('Previous kp (red), Updated kp (yellow)');
+end
+
+% update gui keypoints
+if params.through_gui && params.gui.show_all_features
+    gui_updateKeypoints(kp_tracks_updated.candidate_kp, gui_handles.ax_current_frame, 'r.');
 end
 
 end
