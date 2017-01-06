@@ -12,6 +12,7 @@ params.auto_bootstrap = true;
 params.perf.profiling = false;
 params.run_continous = true;
 params.run_on_first_x_images = 70; % 0 for all images
+
 params.compare_against_groundthruth = true;
 params.show_map_and_cams = true;
 params.through_gui = false;
@@ -23,7 +24,7 @@ params.gui.show_all_features = false;
 params.gui.show_inlier_features = false;
 params.gui.show_triang_features = false;
 
-% bootstrap parameters
+% auto bootstrap parameters
 params.boot.figures = true; % on/off figure
 params.boot.use_bearing_angle = true; % approach: 2
 params.boot.num_keypoints = 1000;
