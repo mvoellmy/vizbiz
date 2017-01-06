@@ -5,36 +5,23 @@ Todo: @Miro
 
 \subsubsection{Bootstraping}
 In order to pick reasonable image pairs for initialization an automatic procedure was implemented.\\
-Since a good initialization relies heavily on the number of inlier keypoints a hard constrained on their minimum number of \code{min\_num\_inlier\_kp} = $600$ was set.\\
+Since a good initialization relies heavily on the number of inlier keypoints a hard constrain on their minimum number of \code{min\_num\_inlier\_kp} = $600$ was set.\\
 
 Two approaches were investigated:
 \begin{compactitem}
 	\item \textit{SSD matching + Baseline/Depth}:\\
-	correspondence search via SSD on Harris features \& 8-point-Ransac for outlier rejection \& baseline/depth-ratio\\
+	correspondence search via SSD on Harris features \& 8-point-Ransac for outlier rejection \& baseline/depth-ratio (as proposed in the lecture)\\
 	\begin{equation}
 		\frac{C1\_baseline}{C1\_av\_depth} \geqslant min\_b2dratio = 0.1
 	\end{equation}\\
 	
-	\item \textit{KLT + Bearing angle}:\\
-	correspondence search and inlier selection via KLT tracking on Harris features \& minimum average bearing angle\\
+	\item \textit{KLT + bearing angle}:\\
+	correspondence search and inlier selection via KLT tracking on query Harris corners \& minimum average bearing angle\\
 	\begin{equation}
 		av\_bearing\_angle\_deg \geqslant min\_av\_angle\_deg = 10
 	\end{equation}\\
 
 \end{compactitem}
-
-The comparison showed a massively higher performance of the KLT tracker approach, this being orders of magnitude faster and yielding many more feature correspondences also over large distances. \cref{tab_boot_idx} depicts the index tuples retrieved through the second approach.
-\begin{center}
-	\begin{tabular}{ c | l | c  c  c }
-		approach &				index &				Kitti &		Malaga &	Parking\\
-  		\hline
- \multirow{2}{*}{\textit{KLT + Bearing angle}} &	\textit{first} &	1 & 		1 & 		1\\
-  		 & 						\textit{second} &	4 & 		6 & 		5\\
-  		\hline  
-	\end{tabular}
-	\captionof{table}{Bootstrapping pair indices for different datasets}
-	\label{tab_boot_idx}
-\end{center}
 
 
 \subsubsection{? findCorrespondences()}
