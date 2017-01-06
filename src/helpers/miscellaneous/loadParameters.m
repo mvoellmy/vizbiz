@@ -87,7 +87,7 @@ params.localization_ransac.show_inlier_matches = true;
 params.localization_ransac.use_p3p = true;
 params.localization_ransac.num_iterations_pnp = 2000; % 2000 fix?
 params.localization_ransac.num_iterations_DLT = 200;
-params.localization_ransac.pixel_tolerance = 3; % 10 [pixels]  % --------------------------------------
+params.localization_ransac.pixel_tolerance = 3; % 10 [pixels]  % -------------------------------------
 params.localization_ransac.show_iterations = false;
 
 params.kp_tracker.use_KLT = true;  % --------------------------------------
