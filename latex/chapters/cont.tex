@@ -4,12 +4,16 @@ Continuous operation of the VO pipeline is implemented in the ``process frame'' 
 
 \subsubsection{Conventions}
 \begin{itemize}
-	\item Index of previous image: $i$
-	\item Index of current image: $j$
-	\item Pose difference between previous to current image: $T_{C_iC_j}$
+	\item Index of previous frame: $i$
+	\item Index of current frame: $j$
+	\item Pose difference between previous to current frame: $T_{C_iC_j}$
 \end{itemize}
 
-\subsubsection{Overview}
+\subsubsection{p3p\_dlt\_Ransac oder Pose difference estimation}
+To estimate the pose difference $T_{C_iC_j}$ from frame $i$ to $j$ we use the p3p ransac algorithm also used in exercise 5. If wished the ransac can also use dlt pose estimation. Using these ransac algorithm ensures to remove outliers from our landmarks. We don't use DLT refinement after the p3p ransac since the best guess from p3p often gave better results.
+
+
+
 
 \begin{figure}[ht]
 	\centering
