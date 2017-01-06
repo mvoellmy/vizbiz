@@ -81,6 +81,13 @@ end
 [R_CiCj, Ci_t_CiCj, p_new_matched_triang, Ci_corresponding_inlier_landmarks] = ...
     p3pRansac(params, matched_query_keypoints, Ci_corresponding_landmarks, K);
 
+% Check Reinitialization
+if (params.cont.reinit.do_reinit)
+    if (size(Ci_corresponding_inlier_landmarks) < params.cont.reinit.inlier_th)
+        % TODO reinit
+    end
+end
+
 % set flag
 localized = false;
 
