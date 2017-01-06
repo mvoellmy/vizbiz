@@ -196,8 +196,9 @@ if params.run_continous
             % extract current camera pose
             T_WCi = T_WCj_vo(:,:,frame_idx-1);
             
+            
             % choose img for reinit
-            reInitFrameNr = frame_idx - params.cont.reinit.deltaFrames;
+            reInitFrameNr = max( [1, frame_idx - params.cont.reinit.deltaFrames] );
             if params.ds == 0
                 img_reInit = imread([params.kitti_path '/00/image_0/' ...
                     sprintf('%06d.png',reInitFrameNr)]);
@@ -215,12 +216,27 @@ if params.run_continous
                 assert(false);
             end
             
+            % save Pose for reInit
             T_WCinit = T_WCj_vo(:,:,reInitFrameNr);
             
             
             % process newest image
-            [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new] =...
+            [T_CiCj, keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new, reInitFlag] =...
                 processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
+            
+            % check if reInit was performed
+            if (reInitFlag)
+                % replace last Poses with none Transformation
+                % T_WCj_vo(:,:,reInitFrameNr:frame_idx) = repmat(T_WCj_vo(:,:,reInitFrameNr - 1),[1, params.cont.reinit.deltaFrames]) ;
+                for idx = reInitFrameNr:frame_idx
+                    T_WCj_vo(:,:,idx) = T_WCj_vo(:,:,reInitFrameNr - 1);
+                    T_CiCj_vo_j(:,:,idx) = eye(4);
+                end
+                % T_CiCj_vo_j(:,:,reInitFrameNr:frame_idx) = eye(4);
+            end
+            % append last pose
+            T_CiCj_vo_j(:,:,frame_idx) = T_CiCj;
+            
             
             % add super title with frame number
             if params.cont.figures

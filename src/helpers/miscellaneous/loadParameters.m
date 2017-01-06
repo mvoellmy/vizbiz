@@ -7,7 +7,7 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = true;
 params.compare_against_groundthruth = true;
@@ -78,7 +78,7 @@ params.cont.corr.descriptor_radius = 9; % [pixels]
 params.cont.corr.match_lambda = 6; % 5 % --------------------------------------
 
 % Reinitialization parameters
-params.cont.reinit.do_reinit = false;
+params.cont.reinit.do_reinit = true;
 params.cont.reinit.inlier_th = 100;
 params.cont.reinit.deltaFrames = 5;
 
@@ -92,8 +92,8 @@ params.localization_ransac.show_iterations = false;
 
 params.kp_tracker.use_KLT = true;  % --------------------------------------
 params.kp_tracker.min_nr_landmarks = 400;
-params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 170;
-params.kp_tracker.bearing_angle_multiplicator = 2.5;
+params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 200;
+params.kp_tracker.bearing_angle_multiplicator = 1.75;
 params.kp_tracker.max_nr_candidates = 500;  % --------------------------------------
 params.kp_tracker.nr_best_candidates = 100;
 params.kp_tracker.show_matches = true;
