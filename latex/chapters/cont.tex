@@ -1,18 +1,18 @@
 \subsection{Continuous Operation}
 \label{sec_cont_op}
-Continuous operation of the VO pipeline is implemented in the 'process frame' function. It tracks keypoints with corresponding landmarks over several frames while estimating the pose difference between successive frames. Further, a keypoint tracker finds new candidate keypoints which will become new landmarks if a candidate keypoint was tracked far enough and achieved 'good' trianguability. This ensures to never run out of landmarks and keypoints if the image changes over time.
+Continuous operation of the VO pipeline is implemented in the 'process frame' function. It tracks keypoints with corresponding landmarks over several frames while estimating the pose difference between successive frames. Further, a keypoint tracker finds new candidate keypoints which will become new landmarks if a candidate keypoint was tracked far enough and achieved 'good' trianguability. This ensures to never run out of landmarks and keypoints if the image changes over time. The routines of the continuous operation shown in \cref{img_flow_cont} are described below.
 
 \subsubsection{Relative pose estimation} \label{ransac_cont}
 To estimate the pose difference $T_{C_iC_j}$ from frame $i$ to $j$ we use the p3p-RANSAC algorithm also used in exercise 5. If wished the RANSAC can also use DLT pose estimation. Using these RANSAC algorithm ensures to remove outliers from our landmarks. We don't use DLT refinement after the p3p RANSAC since the best guess from p3p often gave better results.
 
-\subsubsection{find\_correspondences\_cont}
+\subsubsection{find\_correspondences\_cont()}
 Tracking keypoints with existing landmarks from frame $i$ to frame $j$ is achieved by the function $find\_correspondences\_cont$. The user can choose whether to use a KLT or Harris matcher. As a by-product, the generated query keypoints are saved to be used by the candidate keypoint tracker in a successive step so they don't have to be generated twice which saves computation time. The number of generated query keypoints is adjustable by a parameter. In case the KLT tracker is active (which does not return query keypoints by default) new query keypoints are generated using Harris features. The amount of newly generated keypoints is the difference of remaining and wished candidate keypoints.
 
-\subsubsection{updateKpTracks}
+\subsubsection{updateKpTracks()}
 In every frame, candidate keypoints from previous frames are tracked to $j$-frame. Every candidate keypoint track consists of the following entries: $\left\{\left[u/v\right]_j, \left[u/v\right]_{first}, T_{WC_{first}}, nr\_trackings\right\}$. After successive tracking, $[u/v]_j$ as well as the number of successful successive trackings are updated. The user can choose whether to use a KLT or a Harris matcher.
 In case a candidate keypoint could not be tracked it's whole track gets removed from the tracker. If there are less candidate keypoints in the tracker then desired, newly generated keypoints (generated in find\_correspondences\_cont) are added to the tracker. Every newly added keypoint is stored together with the current pose $T_{WC_{first}}$.
 
-\subsubsection{triangulateNewLandmarks} \label{triang_cont}
+\subsubsection{triangulateNewLandmarks()} \label{triang_cont}
 In order to localize correctly (see \cref{ransac_cont}), a sufficient number of landmarks is required. If the number of landmarks in the current frame drops below a certain threshold, the 'triangulateNewLandmarks' function is called to generate new landmarks from the candidate keypoint tracks. To check, whether a candidate keypoint is ready for triangulation the bearing angle between it's first and it's current observation is calculated. This is done for every keypoint candidate. If the bearing angle of a candidate keypoint exceeds a certain threshold, it is removed from the keypoint tracker and a new landmark gets triangulated with the algorithm developed in exercise 4. The bearing angle threshold is adaptive to the number of remaining landmarks. The higher the number of remaining landmarks the higher the threshold. This ensures generation of new landmarks in case the filter starts to run out of landmarks but improves triangulation results once enough landmarks are in the pipeline.
 To filter outliers within the newly generated landmarks (e.g. from image noise) two checks are implemented:
 \begin{compactenum}
