@@ -17,6 +17,9 @@ if params.boot.figures
     fig_boot = figure('name','Bootstrapping');
 end
 
+number_of_boot_kp = NaN;
+prev_number_of_boot_kp = 0;
+
 if params.auto_bootstrap
     bootstrap_frame_1_idx = 1;
 
@@ -38,12 +41,12 @@ if params.auto_bootstrap
     end
     
     % compute harris scores for database image
-    img1_harris = harris(img1, params.corr.harris_patch_size, params.corr.harris_kappa);
+    img1_harris = harris(img1, params.init.corr.harris_patch_size, params.init.corr.harris_kappa);
     % compute keypoints for database image
-    img1_keypoints = selectKeypoints(img1_harris, params.boot.num_keypoints, params.corr.nonmaximum_supression_radius);
+    img1_keypoints = selectKeypoints(img1_harris, params.boot.num_keypoints, params.init.corr.nonmaximum_supression_radius);
 
     %% search for second bootstrapping image
-    app = 2; % todo: which is best?
+    app = 2; % approach 2 more accurate, more efficient
     
     if app == 1 % approach: matchDescriptors + eightPointRansac + averageDepth
         bootstrap_pair_found = false;
@@ -88,7 +91,7 @@ if params.auto_bootstrap
 
             % extract baseline distance
             T_C1C2 = tf2invtf(T_C2C1);
-            C1_baseline = abs(T_C1C2(3,4)); % todo: correct? better norm of T_C1C2(1:3,4)?
+            C1_baseline = abs(T_C1C2(3,4)); % todo: better norm of T_C1C2(1:3,4)?
 
             % triangulate a point cloud using the final transformation (R,t)
             M1 = K*T_C1C1(1:3,:);
@@ -100,6 +103,8 @@ if params.auto_bootstrap
             % filter corresponding keypoints
             p_hom_inlier_i1(:,outFOV_idx) = [];
             p_hom_inlier_i2(:,outFOV_idx) = [];
+            
+            number_of_boot_kp = size(p_hom_inlier_i2,2);
             
             % show inlier and filtered matches
             if (params.boot.figures && params.boot.show_keypoints && params.boot.show_inlier_matches)
@@ -129,7 +134,7 @@ if params.auto_bootstrap
                           bootstrap_frame_1_idx, candidate_frame_idx, 100*C1_baseline/C1_avg_depth));
 
             % check for sufficient number of bootstrap inlier matches
-            if (nnz(inliers) > params.boot.min_num_inlier_kps)
+            if (number_of_boot_kp > params.boot.min_num_inlier_kps)
                 % decide wether candidate is suited as bootstrap image
                 if (C1_baseline/C1_avg_depth >= params.boot.min_b2dratio)
                    bootstrap_frame_2_idx = candidate_frame_idx;
@@ -158,21 +163,18 @@ if params.auto_bootstrap
             % read in candidate image
             img_candidate = getFrame(params, candidate_frame_idx);
 
-            % update gui image
-            if params.through_gui
-                gui_updateImage(img_candidate, gui_handles.ax_current_frame);
-            end
-
-            % create a point tracker
-            klt_tracker = vision.PointTracker('NumPyramidLevels', 4, 'MaxBidirectionalError', 2);
+            % create a point tracker, many layers for large motion
+            klt_tracker = vision.PointTracker('NumPyramidLevels', 6, 'MaxBidirectionalError', 2);
 
             % initialize tracker with the query kp locations
             initialize(klt_tracker, flipud(img1_keypoints)', img1);
 
             % track keypoints
-            [candidate_tracked, validIdx, ~] = step(klt_tracker, img_candidate); % todo: use validity scores?
+            [candidate_tracked, validIdx, ~] = step(klt_tracker, img_candidate);
             img1_inlier_keypoints = img1_keypoints(:,validIdx); % [v u]
             candidate_inlier_keypoints = flipud(candidate_tracked(validIdx,:)'); % [v u]
+            
+            number_of_boot_kp = size(candidate_inlier_keypoints,2);
             
             % display fraction of inlier matches
             updateConsole(params,...
@@ -188,11 +190,6 @@ if params.auto_bootstrap
                 title('Filtered inlier keypoint matches');
             end
             
-            % update filtered inlier gui keypoints
-            if params.through_gui && params.gui.show_inlier_features
-                gui_updateKeypoints(candidate_inlier_keypoints, gui_handles.ax_current_frame, 'g.');
-            end
-            
             % calculate bearing angles
             bearing_angles_deg = calcBearingAngle(img1_inlier_keypoints, candidate_inlier_keypoints, K);
             av_bearing_angle_deg = mean(bearing_angles_deg);
@@ -201,7 +198,7 @@ if params.auto_bootstrap
                           bootstrap_frame_1_idx, candidate_frame_idx, av_bearing_angle_deg));
             
             % check for sufficient number of bootstrap inlier matches
-            if (size(candidate_inlier_keypoints,2) > params.boot.min_num_inlier_kps)
+            if number_of_boot_kp > params.boot.min_num_inlier_kps
                 % decide wether candidate is suited as bootstrap image
                 if av_bearing_angle_deg > params.boot.min_av_angle_deg
                     bootstrap_frame_2_idx = candidate_frame_idx;
@@ -209,10 +206,25 @@ if params.auto_bootstrap
                     bootstrap_pair_found = true;
                 end
             else
+                number_of_boot_kp = prev_number_of_boot_kp;
                 bootstrap_frame_2_idx = max([candidate_frame_idx - 1, bootstrap_frame_1_idx + 1]);
                 img2 = getFrame(params, bootstrap_frame_2_idx);
                 bootstrap_pair_found = true;
+            end            
+            
+            % update gui image with previous image
+            if params.through_gui
+                gui_updateImage(img_old_candidate, gui_handles.ax_current_frame);
             end
+            
+            % update filtered inlier gui keypoints
+            if params.through_gui && params.gui.show_inlier_features
+                gui_updateKeypoints(old_candidate_inlier_keypoints, gui_handles.ax_current_frame, 'g.');
+            end
+            
+            img_old_candidate = img2;
+            old_candidate_inlier_keypoints = candidate_inlier_keypoints;
+            prev_number_of_boot_kp = number_of_boot_kp;
             
             % allow plots to refresh
             pause(0.01);
@@ -225,8 +237,7 @@ else
     bootstrap_frame_1_idx = 1;
     bootstrap_frame_2_idx = bootstrapFrames(params.ds, 'second');
     
-    if params.ds == 0
-        
+    if params.ds == 0        
         if params.init.use_KITTI_precalculated_init
             bootstrap_frame_2_idx = 1;
         end
@@ -254,7 +265,7 @@ else
         assert(false);
     end
     
-    if (params.boot.figures && params.show_boot_images)
+    if params.boot.figures
         figure(fig_boot);
         subplot(2,1,1);
         imshow(img1);
@@ -276,8 +287,12 @@ end
 
 % display frames chosen
 updateConsole(params,...
-    sprintf(['  Bootstrap image 1 index: %i\n',...
-             '  Bootstrap image 2 index: %i\n'],...
-             bootstrap_frame_1_idx, bootstrap_frame_2_idx));
+              sprintf(['  Bootstrap image 1 index: %i\n',...
+                       '  Bootstrap image 2 index: %i\n'],...
+                       bootstrap_frame_1_idx, bootstrap_frame_2_idx));
+         
+% display number of bootstrapping keypoints
+updateConsole(params,...
+              sprintf('  Number of bootstrap keypoints: %i\n', number_of_boot_kp));
 
 end

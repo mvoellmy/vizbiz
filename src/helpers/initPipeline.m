@@ -106,7 +106,7 @@ else
     
     % assign initialization entities
     keypoints_init = flipud(p_hom_inlier_i2(1:2,:));
-    C2_P_hom_init = T_C2C1*C1_P_hom_init;
+    C2_P_hom_init = T_C2C1 * C1_P_hom_init;
     C2_landmarks_init = C2_P_hom_init(1:3,:);
 
     % show inlier and filtered matches

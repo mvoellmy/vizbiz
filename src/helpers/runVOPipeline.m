@@ -56,17 +56,8 @@ pause(1);
 %% Bootstraping
 updateConsole(params, 'setup boostrapping...\n');
 
-tic;
-
 % set bootstrap frames
 [img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = getBootstrapFrames(params, K);
-
-deltaT = toc;
-
-% update gui metrics
-if params.through_gui
-    gui_updateMetrics(deltaT, gui_handles.text_RT_value);
-end
 
 updateConsole(params, '...boostrapping done.\n\n');
 

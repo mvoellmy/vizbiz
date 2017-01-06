@@ -18,19 +18,19 @@ function [matched_database_keypoints, matched_query_keypoints] = ...
 global fig_boot gui_handles;
 
 % compute harris scores for query image
-query_harris = harris(query_image,params.corr.harris_patch_size,params.corr.harris_kappa);
+query_harris = harris(query_image,params.init.corr.harris_patch_size,params.init.corr.harris_kappa);
 
 % compute keypoints for query image
-query_keypoints = selectKeypoints(query_harris,params.boot.num_keypoints,params.corr.nonmaximum_supression_radius);
+query_keypoints = selectKeypoints(query_harris,params.boot.num_keypoints,params.init.corr.nonmaximum_supression_radius);
 
 % descripe query keypoints
-query_descriptors = describeKeypoints(query_image,query_keypoints,params.corr.descriptor_radius);
+query_descriptors = describeKeypoints(query_image,query_keypoints,params.init.corr.descriptor_radius);
 
 % describe database keypoints
-database_descriptors = describeKeypoints(database_image,database_keypoints,params.corr.descriptor_radius);
+database_descriptors = describeKeypoints(database_image,database_keypoints,params.init.corr.descriptor_radius);
 
 % match descriptors
-matches = matchDescriptors(query_descriptors,database_descriptors,params.corr.match_lambda);
+matches = matchDescriptors(query_descriptors,database_descriptors,params.init.corr.match_lambda);
 
 % display fraction of matched keypoints
 updateConsole(params,...

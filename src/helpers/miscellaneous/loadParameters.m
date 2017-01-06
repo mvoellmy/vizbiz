@@ -7,7 +7,7 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = true;
 params.perf.profiling = false;
 params.run_continous = false;
@@ -23,13 +23,13 @@ params.gui.show_triang_features = false;
 
 % bootstrap parameters
 params.boot.figures = true; % on/off figure
-params.boot.num_keypoints = 600;
+params.boot.num_keypoints = 1000;
 params.boot.show_keypoints = true;
 params.boot.show_matches = true;
 params.boot.show_inlier_matches = true;
-params.boot.landmarks_cutoff = 100;
+params.boot.landmarks_cutoff = 500;
 params.boot.show_landmarks = false;
-params.boot.min_num_inlier_kps = 100;
+params.boot.min_num_inlier_kps = 600;
 params.boot.min_b2dratio = 0.2;
 params.boot.min_av_angle_deg = 10; % [deg]
 
@@ -42,7 +42,7 @@ params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
 params.init.use_BA = false;
-params.init.landmarks_cutoff = 100; % --------------------------------------
+params.init.landmarks_cutoff = 500; % high because normalization not accurate for Malaga --------------------------------------
 params.init.normalize_scale = true;
 
 % correspondence parameters initialisation
