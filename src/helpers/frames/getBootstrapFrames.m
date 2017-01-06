@@ -45,10 +45,8 @@ if params.auto_bootstrap
     % compute keypoints for database image
     img1_keypoints = selectKeypoints(img1_harris, params.boot.num_keypoints, params.init.corr.nonmaximum_supression_radius);
 
-    %% search for second bootstrapping image
-    app = 2; % approach 2 more accurate, more efficient
-    
-    if app == 1 % approach: matchDescriptors + eightPointRansac + averageDepth
+    %% search for second bootstrapping image  
+    if ~params.boot.use_bearing_angle % approach: matchDescriptors + eightPointRansac + averageDepth
         bootstrap_pair_found = false;
         candidate_frame_idx = bootstrap_frame_1_idx;
 
@@ -91,7 +89,7 @@ if params.auto_bootstrap
 
             % extract baseline distance
             T_C1C2 = tf2invtf(T_C2C1);
-            C1_baseline = abs(T_C1C2(3,4)); % todo: better norm of T_C1C2(1:3,4)?
+            C1_baseline = sqrt(T_C1C2(1,4)^2 + T_C1C2(3,4)^2);
 
             % triangulate a point cloud using the final transformation (R,t)
             M1 = K*T_C1C1(1:3,:);
@@ -153,7 +151,7 @@ if params.auto_bootstrap
             updateConsole(params, '\n');
         end
         
-    elseif app == 2 % approach: KLT tracking + averageBearingAngle
+    else % approach: KLT tracking + averageBearingAngle
         bootstrap_pair_found = false;
         candidate_frame_idx = bootstrap_frame_1_idx;
         

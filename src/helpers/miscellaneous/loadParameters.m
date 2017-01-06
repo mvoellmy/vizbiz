@@ -23,6 +23,7 @@ params.gui.show_triang_features = false;
 
 % bootstrap parameters
 params.boot.figures = true; % on/off figure
+params.boot.use_bearing_angle = true;
 params.boot.num_keypoints = 1000;
 params.boot.show_keypoints = true;
 params.boot.show_matches = true;
