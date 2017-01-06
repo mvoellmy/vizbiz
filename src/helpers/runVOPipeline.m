@@ -56,19 +56,10 @@ pause(1);
 %% Bootstraping
 updateConsole(params, 'setup boostrapping...\n');
 
-tic;
-
 % set bootstrap frames
 [img0, img1, bootstrap_frame_idx_1, bootstrap_frame_idx_2] = getBootstrapFrames(params, K);
 
-deltaT = toc;
-
-% update gui metrics
-if params.through_gui
-    gui_updateMetrics(deltaT, gui_handles.text_RT_value);
-end
-
-updateConsole(params, '...boostrapping done.\n');
+updateConsole(params, '...boostrapping done.\n\n');
 
 %% Setup logging variables
 % set range of images to run on
@@ -239,7 +230,7 @@ if params.run_continous
         end
 
         % allow plots to refresh
-        pause(0.01);       
+        pause(0.01);
 
         % update previous image, keypoints, landmarks and tracker
         img_prev = img_new;

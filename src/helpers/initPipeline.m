@@ -51,10 +51,11 @@ else
     I_init = I_i2;
     if params.through_gui
         gui_updateImage(I_init, gui_handles.ax_current_frame);
-    end    
+    end
     
     % find 2D correspondences (sorted)
     [p_i1_uv, p_i2_uv, unmatched_query_kp_vu] = findCorrespondeces(params,I_i1,I_i2);
+
     
     % homogenize keypoints
     p_hom_i1_uv = [p_i1_uv; ones(1,length(p_i1_uv))];
@@ -128,6 +129,7 @@ else
     % assign initialization entities
     keypoints_init = flipud(p_hom_inlier_i2_uv(1:2,:));
     C2_P_hom_init = T_C2C1*C1_P_hom_init;
+
     C2_landmarks_init = C2_P_hom_init(1:3,:);
 
     % show inlier and filtered matches

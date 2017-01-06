@@ -1,13 +1,11 @@
 \section{Implementation}
 
-\subsection{Framework}
-This pipeline was developed in MATLAB. Since the group consists of four students, a Git repository was used to be able to work on different files simultaneously, and to enable version control.
-(keywords: MATLAB, Git)
+This pipeline was developed in MATLAB. Since the group consisted of four students, a Git repository was used to be able to work on different files simultaneously, and to enable version control.
 
 \subsubsection{Coordinate Frames}
-In this mini project the coordinate frames were defined as shown in \cref{img_coord_frames}. The camera coordinates are in a way oriented, that the x-y plane lies parallel to the image plane, while the z-axis is pointing towards the scenery. The world frame however is oriented in such a way that the x-y plane is parallel to the ground and the the z-axis is pointing upwards.
+In this mini project the coordinate frames were defined as shown in \cref{img_coord_frames}. The camera coordinates are in a way oriented, that the x-y plane lies parallel to the image plane, while the z-axis is pointing towards the scenery. The world frame however is oriented in such a way that the x-y plane is parallel to the ground and the z-axis is pointing upwards. The origin of the world frame is at the same location as the origin of the first bootstrap image.
 
-The origin of the world frame is at the same location as the origin of the first boot-strap image.
+Transformation between frames are described by homogenous transformation matrices. $T_{AB}$ maps points from frame $B$ to frame $A$.
 
 \begin{figure}[ht]
 	\centering
@@ -22,14 +20,49 @@ As shown in \cref{img_flow_rough} the pipeline consists mainly of three parts, a
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics[width=0.8\textwidth]{rough_flow}
-	\caption{Rough Flow chart}
+	\includegraphics[width=0.8\textwidth]{rough_chart}
+	\caption{Overview flow chart}
 	\label{img_flow_rough}
 \end{figure}
-%\input{pipeline_overview}
-\subsubsection{Options and parameters}
-(keywords: parameter handling, GUI)
 
+%\input{pipeline_overview}
+
+\subsubsection{Conventions}
+\begin{compactitem}
+	\item Index of previous frame: $i$
+	\item Index of current frame: $j$
+	\item Index of frame for newly added keypoint: $first$
+	\item Pose difference between previous to current frame: $T_{C_iC_j}$
+	\item $\left[u/v\right]$: Pixel coordinates
+	\item Query keypoints: Keypoints newly generated in frame $j$ 
+	\item Candidate keypoint: A keypoint without associated landmark
+	\item Harris Matcher: Descriptor matching keypoint tracker (based on Harris features) developed during the lecture.
+\end{compactitem}
+
+\subsubsection{Options and parameters}
+The pipeline was designed in a modular way. Key algorithms are abstracted into self-contained functions, as described in the pipeline overview. Next to this 'functional programming' approach all the tuning variables (e.g. number of keypoints, bearing angle thresholds, etc.) were centrally aggregated in a parameter struct.\\
+For further insight please consult the function \code{loadParameters.m}.\\
+
+In order to run the visual odometry two launch procedures where implemented: For development and debug mode the main.m with default parameters can be executed. Numerous individual plots are displayed with insightful information about matching, inlier rejection and triangulation.\\
+
+Out of performance reasons a more compact and user-friendly display of the pipeline output was created with a GUI designed with the Matlab GUIDE application, see \cref{img_gui}. Only the most crucial entities, like number of triangulated keypoints, are visualized for intuitive understanding and easy handling.\\
+Please follow the steps below to run the visual odometry through the GUI environment:
+\begin{compactenum}
+	\item adapt dataset paths in \code{loadParameters.m}
+	\item type into MATLAB command window: \code{gui\_simple}
+	\item in \textit{Parameters} panel select dataset to run on and toggle respective radio buttons
+	\item hit \textit{Run} to trigger the visual odometry\\
+\end{compactenum}
+
+For more advanced parameter tuning resort to changing the default parameters in \code{loadParameters.m}.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.4\textwidth]{test}
+	\captionsetup{justification=centering}
+	\caption{Graphical user interface \\all features (red $\bullet$), inlier features (green $\bullet$), triangulated features (green $\times$)}
+	\label{img_gui}
+\end{figure}
 
 \input{chapters/init}
 \clearpage{\pagestyle{plain}\cleardoublepage}
