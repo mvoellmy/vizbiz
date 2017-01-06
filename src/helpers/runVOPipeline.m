@@ -179,16 +179,24 @@ if params.run_continous
 %     img_has_pose(bootstrap_frame_idx_2) = 1;
 %     
 
+    %---------------------------------
     % Fill first two Frames to bundleAdjust container
-%     keypoints_init = [keypoints_first_frame; keypoints_second_frame];
-%     for i=1:size(size(keypoints_second_frame, 2))
-%         
-%         ba_point_tracks = 
-%     
-%     end
+    ba_keypoints_init = [flipud(keypoints_first_frame); flipud(keypoints_second_frame)];
+    ba_view_ids = [1, 2];
+    for i=1:size(keypoints_second_frame, 2)
+        ba_p_corresponding = vec2mat(ba_keypoints_init(:,i),2);
+        ba_point_tracks(i) = pointTrack(ba_view_ids, ba_p_corresponding);
+    end
 
+    ba_orientations = cell(2);
+    ba_locations = cell(2);
 
-
+    ba_orientations(1) = {T_WC1(1:3, 1:3)'}; % This is transposed as we want the orientation of the cam in the world frame
+    ba_locations(1) = {T_WC1(1:3, 4)'};
+    ba_orientations(2) = {T_WC2(1:3, 1:3)'};
+    ba_locations(2) = {T_WC2(1:3, 4)'};
+    %---------------------------------
+    
     for img_idx = range_cont
         updateConsole(params, ['Processing frame ',num2str(img_idx),'\n']);
         
@@ -203,8 +211,17 @@ if params.run_continous
             T_WCi = T_WCj_vo(:,:,frame_idx-1); 
             
             % process newest image
-            [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new] =...
+            [T_CiCj_vo_j(:,:,frame_idx), keypoints_new_triang, Ci_corresponding_inlier_landmarks, updated_kp_tracks, Cj_landmarks_new] =...
                 processFrame(params, img_new, img_prev, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
+
+            for it=1:size(Ci_corresponding_inlier_landmarks, 2)
+                % Find corresponding Landmark
+                ba_index = find(W_landmarks_map(1,:) == Ci_corresponding_inlier_landmarks(1,it) & ...
+                     W_landmarks_map(2,:) == Ci_corresponding_inlier_landmarks(2,it) & ...
+                     W_landmarks_map(3,:) == Ci_corresponding_inlier_landmarks(3,it))
+                ba_point_tracks(ba_index).Points = [ba_point_tracks(ba_index).Points; keypoints_new_triang(2, it),  keypoints_new_triang(1, it)];
+                ba_point_tracks(ba_index).viewIDs = [ba_point_tracks(ba_index).viewIDs, frame_idx];
+            end
             
             % add super title with frame number
             if params.cont.figures
@@ -218,7 +235,20 @@ if params.run_continous
 
         % append newest Cj to W transformation
         T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1) * T_CiCj_vo_j(:,:,frame_idx);
+    
+        %----------------------------------------
+        ba_orientations(frame_idx) = {T_WCj_vo(1:3, 1:3, frame_idx)'};
+        ba_locations(frame_idx) = {T_WCj_vo(1:3, 4, frame_idx)'};
+        
+        ba_view_ids = [ba_view_ids, frame_idx];
+        cameraPoses = table;
+        cameraPoses.ViewId = uint32(ba_view_ids');
+        cameraPoses.Orientation = ba_orientations;
+        cameraPoses.Location = ba_locations;
+        cameraParams = cameraParameters('IntrinsicMatrix', K');
 
+        %----------------------------------------
+        
         % extend 2D trajectory
         W_traj =[W_traj, T_WCj_vo(1:2,4,frame_idx)];
         if params.cont.figures
