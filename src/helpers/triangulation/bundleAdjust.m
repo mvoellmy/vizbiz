@@ -1,22 +1,22 @@
-function [ P_refined, T_refined ] = bundleAdjust(params, P, p, T, K, fixed_cams )
+function [ W_P_refined, T_WC_refined ] = bundleAdjust(params, W_P, p, T_WC, K, fixed_cams )
 % Wraps our conventionally used parameters to be used with the Bundle
 % Adjust function of Matlab. See implementation in initPipeline.m
 % Attention! Inputs are NOT homogenized coordinates.
 % 
 % Input:
 %  - params(struct) : parameter struct
-%  - P(3xN)     : list of 3D Points in world-frame
+%  - W_P(3xN)     : list of 3D Points in world-frame
 %  - p(nC*2xN)  : matrix containing 2D Points sorted according to
 %  their correspondance with each other and the 3D points.
-%  - T(nC*4x4)  : stack of transformation matrices towards the individual
+%  - T_WC(nC*4x4)  : stack of transformation matrices towards the individual
 %  cameras
 %  - K(3x3) : intrinsics matrix of camera
 %  - fixed_cams(1xC) : vector with camera_ids defining which cams are fixed
 %  in world
 %
 % Output:
-%  - P_refined(3xN) : bundle adjusted 3D points in world-frame
-%  - T_refined(nC*4x4) : refined transformation matrices of cameras
+%  - W_P_refined(3xN) : bundle adjusted 3D points in world-frame
+%  - T_WC_refined(nC*4x4) : refined transformation matrices of cameras
 %
 % Definitions:
 %  - nC(int) : number of cameras
@@ -43,8 +43,8 @@ orientations = cell(nr_of_cams, 1);
 locations = cell(nr_of_cams, 1);
 
 for i=1:4:4*nr_of_cams % todo: might be possible to remove for loop
-    orientations((i-1)/4 + 1) = {T(i:i+2, 1:3)};
-    locations((i-1)/4 + 1) = {T(i:i+2, 4)'};
+    orientations((i-1)/4 + 1) = {T_WC(i:i+2, 1:3)};
+    locations((i-1)/4 + 1) = {T_WC(i:i+2, 4)'};
 end
 
 cameraPoses = table;
@@ -53,13 +53,13 @@ cameraPoses.Orientation = orientations;
 cameraPoses.Location = locations;
 cameraParams = cameraParameters('IntrinsicMatrix', K');
 
-[P_refined, refinedPoses] = bundleAdjustment(P', point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', fixed_cams );
+[W_P_refined, refinedPoses] = bundleAdjustment(W_P', point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', fixed_cams );
 
-P_refined = P_refined';
-T_refined = zeros(size(T));
+W_P_refined = W_P_refined';
+T_WC_refined = zeros(size(T_WC));
 
 for i=1:nr_of_cams % todo: pretty sure this can be indexed nicer and potentially done without a for loop
-    T_refined(1+(i-1)*4:4+(i-1)*4,1:4) = [cell2mat(refinedPoses.Orientation(i)), cell2mat(refinedPoses.Location(i))';
+    T_WC_refined(1+(i-1)*4:4+(i-1)*4,1:4) = [cell2mat(refinedPoses.Orientation(i)), cell2mat(refinedPoses.Location(i))';
            zeros(1,3),       1];
 end
     

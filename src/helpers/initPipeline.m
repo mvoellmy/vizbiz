@@ -54,25 +54,25 @@ else
     end    
     
     % find 2D correspondences (sorted)
-    [p_i1, p_i2, unmatched_query_kp] = findCorrespondeces(params,I_i1,I_i2);
+    [p_i1_uv, p_i2_uv, unmatched_query_kp_vu] = findCorrespondeces(params,I_i1,I_i2);
     
     % homogenize keypoints
-    p_hom_i1 = [p_i1; ones(1,length(p_i1))];
-    p_hom_i2 = [p_i2; ones(1,length(p_i2))];    
+    p_hom_i1_uv = [p_i1_uv; ones(1,length(p_i1_uv))];
+    p_hom_i2_uv = [p_i2_uv; ones(1,length(p_i2_uv))];    
 
     % estimate the essential matrix E using normalized 8-point algorithm
     % and RANSAC for outlier rejection
-    [E, inliers] = eightPointRansac(params, p_hom_i1, p_hom_i2, K, K);
+    [E, inliers] = eightPointRansac(params, p_hom_i1_uv, p_hom_i2_uv, K, K);
     
     % extract inlier keypoints
-    p_hom_inlier_i1 = p_hom_i1(:,inliers);
-    p_hom_inlier_i2 = p_hom_i2(:,inliers);
+    p_hom_inlier_i1_uv = p_hom_i1_uv(:,inliers);
+    p_hom_inlier_i2_uv = p_hom_i2_uv(:,inliers);
     
     % extract the relative camera pose (R,t) from the essential matrix
     [Rots, u3] = decomposeEssentialMatrix(E);
 
     % disambiguate among the four possible configurations
-    [R_C2C1, C2_t_C2C1] = disambiguateRelativePose(Rots, u3, p_hom_inlier_i1, p_hom_inlier_i2, K, K);
+    [R_C2C1, C2_t_C2C1] = disambiguateRelativePose(Rots, u3, p_hom_inlier_i1_uv, p_hom_inlier_i2_uv, K, K);
     
     % construct C2 to W transformation
     T_C2C1 = [R_C2C1,  C2_t_C2C1;
@@ -84,10 +84,12 @@ else
     % triangulate a point cloud using the final transformation (R,t)
     M1 = K*T_C1C1(1:3,:);
     M2 = K*T_C2C1(1:3,:);
-    C1_P_hom_init = linearTriangulation(p_hom_inlier_i1, p_hom_inlier_i2, M1, M2);
+    C1_P_hom_init = linearTriangulation(p_hom_inlier_i1_uv, p_hom_inlier_i2_uv, M1, M2);
     
     if params.init.use_BA
-        [P_init, T_refined] = bundleAdjust(params, C1_P_hom_init(1:3,:), [p_hom_inlier_i1(1:2,:); p_hom_inlier_i2(1:2,:)], [T_WC1; T_WC2], K, 1);
+        
+        
+        [P_init, T_refined] = bundleAdjust(params, C1_P_hom_init(1:3,:), [p_hom_inlier_i1_uv(1:2,:); p_hom_inlier_i2_uv(1:2,:)], [T_WC1; T_WC2], K, 1);
         C1_P_hom_init(1:3,:) = P_init;
         
         % update homogeneous transformations
@@ -95,17 +97,17 @@ else
         T_WC2 = T_refined(5:8,1:4);
         T_C1W = tf2invtf(T_WC1);
         T_C1C2 = T_C1W*T_WC2;
-        T_C2C1 = tf2invtf(T_C1C1);
+        T_C2C1 = tf2invtf(T_C1C2);
     end
     
     % discard landmarks not contained in spherical neighborhood
     [C1_P_hom_init, outFOV_idx] = applySphericalFilter(params, C1_P_hom_init, params.init.landmarks_cutoff);
     % filter corresponding keypoints
-    p_hom_inlier_i1(:,outFOV_idx) = [];
-    p_hom_inlier_i2(:,outFOV_idx) = [];
+    p_hom_inlier_i1_uv(:,outFOV_idx) = [];
+    p_hom_inlier_i2_uv(:,outFOV_idx) = [];
     
     % assign initialization entities
-    keypoints_init = flipud(p_hom_inlier_i2(1:2,:));
+    keypoints_init = flipud(p_hom_inlier_i2_uv(1:2,:));
     C2_P_hom_init = T_C2C1*C1_P_hom_init;
     C2_landmarks_init = C2_P_hom_init(1:3,:);
 
@@ -114,19 +116,19 @@ else
         figure(fig_init);
         subplot(2,2,4);
         showMatchedFeatures(I_i1, I_i2,...
-                            p_hom_inlier_i1(1:2,:)',...
-                            p_hom_inlier_i2(1:2,:)', 'blend', 'PlotOptions', {'rx','gx','y-'});
+                            p_hom_inlier_i1_uv(1:2,:)',...
+                            p_hom_inlier_i2_uv(1:2,:)', 'blend', 'PlotOptions', {'rx','gx','y-'});
         title('Filtered inlier keypoint matches');
     end
     
     % update filtered inlier gui keypoints
     if params.through_gui && params.gui.show_inlier_features
-        gui_updateKeypoints(flipud(p_hom_inlier_i2(1:2,:)), gui_handles.ax_current_frame, 'g.');
+        gui_updateKeypoints(flipud(p_hom_inlier_i2_uv(1:2,:)), gui_handles.ax_current_frame, 'g.');
     end
     
     % update gui triangulated keypoints
     if params.through_gui && params.gui.show_triang_features
-        gui_updateKeypoints(flipud(p_hom_inlier_i2(1:2,:)), gui_handles.ax_current_frame, 'gx');
+        gui_updateKeypoints(flipud(p_hom_inlier_i2_uv(1:2,:)), gui_handles.ax_current_frame, 'gx');
     end
     
     % display statistics
@@ -136,7 +138,7 @@ else
                   size(keypoints_init,2), size(C2_landmarks_init,2)));
     
 	% initialise keypoint tracker
-    kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, unmatched_query_kp, T_WC2);    
+    kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, unmatched_query_kp_vu, T_WC2);    
 end
 
 % check for same number of keypoints and landmarks

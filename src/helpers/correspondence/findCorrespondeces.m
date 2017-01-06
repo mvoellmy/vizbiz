@@ -11,7 +11,7 @@ function [matched_database_keypoints, matched_query_keypoints, unmatched_query_k
 % Output:
 %  - matched_database_keypoints(2xN) : matched keypoints of first image,  each [u v]
 %  - matched_query_keypoints(2xN) : matched keypoints of second image, each  [u v]
-%  - unmatched_query_kp(2xN): All unmatched query keypoints [v u] !!!!
+%  - unmatched_query_kp_vu(2xN): All unmatched query keypoints [v u] !!!!
 
 global fig_init gui_handles;
 
