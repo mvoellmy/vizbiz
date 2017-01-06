@@ -1,6 +1,6 @@
 function [C2_landmarks_init, T_C1C2] = normalizeScale(params, C2_landmarks_init, T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2)
 % Normalize the scale such that it corresponds to the ground truth using
-% the position vector
+% the position vector.
 % 
 % Input:
 %  - params(struct)             : parameter struct
