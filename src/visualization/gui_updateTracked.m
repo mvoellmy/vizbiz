@@ -21,7 +21,7 @@ else
     set(plot_handle,'Color',[0.8 0 0]);
 end
 
-xlim([0 400]); % todo: parametrize?
+xlim([0 600]);
 axis equal;
 axis off;
 
