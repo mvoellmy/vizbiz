@@ -1,5 +1,5 @@
 clear;
-close all;
+% close all;
 clc;
 
 rng(1); % fix random seed
