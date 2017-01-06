@@ -17,7 +17,7 @@ function [C_P_hom, outFOV_idx] = applySphericalFilter(params, C_P_hom, cutoff_ra
 % - O(int) : Number of Outliers
 
 size_unfiltered_landmarks = size(C_P_hom, 2);
-outFOV_idx = any([(C_P_hom(3,:) <0); (sqrt(C_P_hom(1,:).^2 + C_P_hom(2,:).^2+ C_P_hom(3,:).^2) > cutoff_radius)],1);
+outFOV_idx = find(any([(C_P_hom(3,:) <0); (sqrt(C_P_hom(1,:).^2 + C_P_hom(2,:).^2+ C_P_hom(3,:).^2) > cutoff_radius)],1));
 
 C_P_hom(:,outFOV_idx) = [];
 size_filtered_landmarks = size(C_P_hom, 2);
