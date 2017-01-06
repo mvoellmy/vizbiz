@@ -8,7 +8,7 @@ function params = loadParameters()
 
 % general parameters
 
-params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = true;
 params.perf.profiling = false;
 params.run_continous = false;
