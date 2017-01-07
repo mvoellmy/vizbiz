@@ -1,6 +1,7 @@
 function [query_keypoints,matched_query_indices, matched_keypoints, matchedLandmarks] = ...
     findCorrespondeces_cont(params, database_image, database_keypoints, query_image, database_landmarks)
-% TODO description
+% Generates new keypoints in the query image and matches them with the
+% keypoints of the previous image.
 % 
 % Input:
 %  - params(struct) : parameter struct

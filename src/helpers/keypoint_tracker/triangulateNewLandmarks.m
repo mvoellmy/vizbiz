@@ -8,9 +8,12 @@ function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, p_candidates_first_inli
 % cleaned up keypoints tracks is returned.
 %
 % Input:
+% - params(struct) : parameter struct
+% - kp_tracks_updated : struct
 % - K: Camera calibration matrix
+% - fig_kp_triangulate : figure handle
+% - fig_kp_tracks : figure handle
 % - T_WCj (4x4): Transformation matrix
-% - fig_kp_triangulate: Figure handle
 % - nr_landmarks: Number of existing landmarks in pipeline
 %
 % Output:
@@ -20,7 +23,8 @@ function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, p_candidates_first_inli
 %   corresponding to landmarks [v u]
 % - p_candidates_j_inliers_nr_tracking [2xN]: Number of time the keypoints
 %   in j have been tracked [v u]
-% todo: describe, use global figures
+% - kp_tracks_updated : sruct
+% todo: use global figures
 
 %% Triangulate new landmarks
 % calculate bearing angle
