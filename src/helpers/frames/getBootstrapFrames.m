@@ -267,6 +267,12 @@ else
             sprintf('/images/img_%05d.png',bootstrap_frame_1_idx)]));
         img2 = rgb2gray(imread([params.parking_path ...
             sprintf('/images/img_%05d.png',bootstrap_frame_2_idx)]));
+    elseif params.ds == 3
+        img1 = imread([params.polyUp_path '/images/' sprintf('poly%04d.png',bootstrap_frame_1_idx)]);
+        img2 = imread([params.polyUp_path '/images/' sprintf('poly%04d.png',bootstrap_frame_2_idx)]);
+    elseif params.ds == 4
+        img1 = imread([params.polyDown_path '/images/' sprintf('poly%04d.png',bootstrap_frame_1_idx)]);
+        img2 = imread([params.polyDown_path '/images/' sprintf('poly%04d.png',bootstrap_frame_2_idx)]);
     else
         assert(false);
     end
