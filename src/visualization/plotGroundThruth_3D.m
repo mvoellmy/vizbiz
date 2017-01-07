@@ -8,6 +8,7 @@ function plotGroundThruth_3D (W_Pos_C, W_ground_truth)
 % Output: none
 
 %figure('name','Full 3D camera trajectory');
+clf
 hold on;
 plot(W_ground_truth(:,1),W_ground_truth(:,2),'k-');
 plot3(W_Pos_C(1,:),W_Pos_C(2,:),W_Pos_C(3,:)+10,'b.-');
