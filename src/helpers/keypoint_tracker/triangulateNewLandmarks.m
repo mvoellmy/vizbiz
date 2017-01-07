@@ -49,7 +49,7 @@ p_candidates_j = kp_tracks_updated.candidate_kp(:,idx_good_trianguable);
 p_candidates_j_nr_tracking = kp_tracks_updated.nr_trackings(idx_good_trianguable);
 
 % show matches from first and j image of keypoints
-if (params.cont.figures && params.kp_tracker.show_matches)
+if (params.cont.figures && params.kp_tracker.show_matches && params.kp_tracker.figures)
     figure(fig_kp_tracks);
     if (size(p_candidates_first,2) > 0) % 0 in first frame
         plotPoints(p_candidates_first(1:2,:),'gx');
@@ -131,7 +131,7 @@ if size(Cj_P_hom_new,2) > 0
     end
 
     % display triangulated backprojected keypoints
-    if (params.cont.figures && params.kp_tracker.show_triangulated)
+    if (params.cont.figures && params.kp_tracker.show_triangulated && params.kp_tracker.figures)
         good_idx_match = 1:size(Cj_reprojected_points_uv,2);
         figure(fig_kp_triangulate);
         if (size(p_candidates_j,2) > 0) % 0 in first frame

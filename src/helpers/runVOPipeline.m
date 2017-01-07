@@ -81,7 +81,7 @@ end
 updateConsole(params, 'initialize VO pipeline...\n');
 
 global fig_kp_tracks;
-if params.cont.figures
+if params.cont.figures && params.kp_tracker.figures
     fig_kp_tracks = figure('name','Keypoint tracker');
 end
 
@@ -94,8 +94,9 @@ T_WC1 = [1      0           0       0;
                  zeros(1,3)         1];
 
 % initialize pipeline with bootstrap images
-[img_init, keypoints_first_frame, keypoints_second_frame, C2_landmarks_init, T_C1C2, kp_tracks] = ...
-    initPipeline(params, img0, img1, K, T_WC1, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+[img_init, keypoints_first_frame, keypoints_second_frame, C2_landmarks_init, T_C1C2, kp_tracks, norm_scale] = ...
+    initPipeline(params, img0, img1, K, T_WC1, 1, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame, C1 to C1
@@ -160,8 +161,9 @@ if params.run_continous
         if params.localization_ransac.show_iterations
             fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
         end
-
-        fig_kp_triangulate = figure('name', 'triangulate');   
+        if params.kp_tracker.figures
+            fig_kp_triangulate = figure('name', 'triangulate');   
+        end
         fig_debug_traj = figure('name','Trajectory');
     end
     
@@ -219,7 +221,8 @@ if params.run_continous
                         
             % process newest image
             [T_CiCj, keypoints_new_triang, updated_kp_tracks, Cj_landmarks_j, p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking, reInitFlag] =...
-                processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
+                processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K, norm_scale);
+
             
             % check if reInit was performed
             if (reInitFlag)
@@ -296,7 +299,6 @@ if params.run_continous
                         ba_index = min_ba_index;
                     end
                     
-                    disp(ba_point_tracks(ba_index).Points);
                     ba_point_tracks(ba_index).Points = [ba_point_tracks(ba_index).Points; keypoints_new_triang(2, it),  keypoints_new_triang(1, it)];
                     ba_point_tracks(ba_index).ViewIds = [ba_point_tracks(ba_index).ViewIds, frame_idx];
                     idx_of_matched_in_map = [idx_of_matched_in_map, ba_index];
@@ -304,19 +306,20 @@ if params.run_continous
                     missed_landmarks_count = missed_landmarks_count+1;
                 end
             end
-        end
-        
         updateConsole(params, sprintf(' ---->%i landmarks where not matched again!', missed_landmarks_count));
-        
-        for it = 1:nr_new_landmarks
-            ba_point_tracks(size(ba_point_tracks, 2) + 1) = pointTrack([frame_idx-p_candidates_j_inliers_nr_tracking(it), frame_idx],...
-                [p_candidates_first_inliers(2, it)           , p_candidates_first_inliers(1, it);...
-                 keypoints_new_triang(2, nr_old_landmarks+it), keypoints_new_triang(1, nr_old_landmarks+it)]);
+            
+            % add new landmarks to tracking
+            for it = 1:nr_new_landmarks
+                ba_point_tracks(size(ba_point_tracks, 2) + 1) = pointTrack([frame_idx-p_candidates_j_inliers_nr_tracking(it), frame_idx],...
+                    [p_candidates_first_inliers(2, it)           , p_candidates_first_inliers(1, it);...
+                     keypoints_new_triang(2, nr_old_landmarks+it), keypoints_new_triang(1, nr_old_landmarks+it)]);
+            end
+            
+            map_size = size(W_landmarks_map, 2);
+            idx_of_matched_in_map = [idx_of_matched_in_map, map_size + 1:map_size + nr_new_landmarks];       
         end
         
         % update map
-        map_size = size(W_landmarks_map, 2);
-        idx_of_matched_in_map = [idx_of_matched_in_map, map_size + 1:map_size + nr_new_landmarks];       
         W_landmarks_map = [W_landmarks_map, W_P_hom_j(1:3, nr_old_landmarks+1:end)];
  
         if params.cont.use_BA  

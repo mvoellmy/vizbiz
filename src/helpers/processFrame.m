@@ -1,5 +1,5 @@
 function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking, reInitFlag] =...
-    processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K)
+    processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K, norm_scale)
 % Estimates pose transformation T_CiCj between two images.
 % Tracks potential new keypoints and triangulates new landmarks if
 % trianguability is good.
@@ -17,6 +17,7 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, p_c
 %  - Ci_landmarks_prev(3xN) : 3D points
 %  - T_WCi : (4x4) Current transformation world to Ci
 %  - K(3x3) : camera intrinsics matrix
+%  - norm_scale(1x1): Scale of dataset to be used during reinit
 %
 % Output:
 %  - T_CiCj(4x4) : transformation Cj to Ci
@@ -31,7 +32,6 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, p_c
 %  - p_candidates_j_inliers_nr_tracking [2xN]: Number of time the keypoints
 %   in j have been tracked [v u]
 %  - reInitFlag (bool) : Flag true when reInit was performed
-% todo
 
 global fig_cont fig_kp_tracks fig_kp_triangulate gui_handles;
 
@@ -45,14 +45,14 @@ if (params.cont.figures && params.cont.show_new_image)
 end
 
 % show current frame
-if params.cont.figures
+if (params.cont.figures && params.kp_tracker.figures)
     figure(fig_kp_tracks);
     imshow(img_new);
     hold on;
 end
 
 % show current frame
-if params.cont.figures
+if (params.cont.figures && params.kp_tracker.figures)
     figure(fig_kp_triangulate);
     clf;
     imshow(img_new);
@@ -172,8 +172,9 @@ else
         % set flag
         reInitFlag = true;
         % reinit pipeline
+
         [~, p_candidates_first_inliers, keypoints_reInit, Cj_landmarks_reInit, T_CinitCj, kp_tracks_reInit] = ...
-            initPipeline(params, img_reInit, img_new, K, T_WCinit);
+            initPipeline(params, img_reInit, img_new, K, T_WCinit, norm_scale);
         p_candidates_j_inliers_nr_tracking = ones(1, size(p_candidates_first_inliers, 2)) * params.cont.reinit.deltaFrames;
         kp_tracks_updated = kp_tracks_reInit;
         Cj_new_landmarks = Cj_landmarks_reInit; 

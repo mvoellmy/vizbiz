@@ -107,7 +107,7 @@ guidata(hObject, handles);
 
 function radio_use_BA_Callback(hObject, eventdata, handles)
 
-handles.params.init.use_BA = get(hObject,'Value');
+handles.params.cont.use_BA = get(hObject,'Value');
 guidata(hObject, handles);
 
 function radio_run_continuous_Callback(hObject, eventdata, handles)

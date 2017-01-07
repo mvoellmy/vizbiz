@@ -63,12 +63,16 @@ if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         query_harris = harris(img_new,params.cont.corr.harris_patch_size,params.cont.corr.harris_kappa);
 
         % compute keypoints for query image
-        nr_new_candidates = max([0, params.kp_tracker.max_nr_candidates - size(kp_tracks_updated.candidate_kp,2)]); % maybe todo min number increase
-        nr_new_potential_candidates = max(nr_new_candidates, params.kp_tracker.nr_best_candidates);
-        query_keypoints = selectKeypoints(query_harris, nr_new_potential_candidates, params.cont.corr.nonmaximum_supression_radius);
-        % random picking of potential candidates
-        idx_new_kp = randi(size(query_keypoints,2), 1, nr_new_candidates);
-        new_kp = query_keypoints(:,idx_new_kp);
+        nr_new_candidates = max([10, params.kp_tracker.max_nr_candidates - size(kp_tracks_updated.candidate_kp,2)]); % maybe todo min number increase
+        if params.kp_tracker.rand_pick
+            nr_new_potential_candidates = max(nr_new_candidates, params.kp_tracker.nr_best_candidates);
+            query_keypoints = selectKeypoints(query_harris, nr_new_potential_candidates, params.cont.corr.nonmaximum_supression_radius);
+            % random picking of potential candidates
+            idx_new_kp = randi(size(query_keypoints,2), 1, nr_new_candidates);
+            new_kp = query_keypoints(:,idx_new_kp);
+        else
+            new_kp = selectKeypoints(query_harris, nr_new_candidates, params.cont.corr.nonmaximum_supression_radius);
+        end
     else
         % descripe query keypoints
         query_descriptors = describeKeypoints(img_new,query_keypoints,params.cont.corr.descriptor_radius);
@@ -126,7 +130,7 @@ updateConsole(params,...
               size(kp_tracks_updated.candidate_kp,2), size(new_kp,2))); 
 
 % display matched keypoint tracks
-if (params.cont.figures && params.kp_tracker.show_matches)
+if (params.cont.figures && params.kp_tracker.show_matches && params.kp_tracker.figures)
     figure(fig_kp_tracks);
     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         plotPoints(kp_tracks_prev.candidate_kp,'r.');
