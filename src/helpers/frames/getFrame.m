@@ -20,6 +20,10 @@ elseif params.ds == 1
 elseif params.ds == 2
     img = im2uint8(rgb2gray(imread([params.parking_path ...
         sprintf('/images/img_%05d.png',idx)])));
+elseif params.ds == 3
+    img = imread([params.polyUp_path '/images/' sprintf('poly%04d.png',idx)]);
+elseif params.ds == 4
+    img = imread([params.polyDown_path '/images/' sprintf('poly%04d.png',idx)]);
 else
     assert(false);
 end

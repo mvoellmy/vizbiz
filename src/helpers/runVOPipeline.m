@@ -47,6 +47,26 @@ elseif params.ds == 2
     last_frame = 598;
     K = load([params.parking_path '/K.txt']);
     updateConsole(params, 'load PARKING dataset...\n');
+elseif params.ds == 3
+    params.polyUp_path = '../datasets/poly_up';
+    assert(isfield(params, 'polyUp_path') ~= 0);
+    ground_truth = load([params.polyUp_path '/poses.txt']);
+    ground_truth = ground_truth(:, [end-8 end]);
+    last_frame = 602;
+    K = [1851.1 0   560.1;
+         0   1848.4  924.1;
+         0   0         1];
+    updateConsole(params, 'load POLY-UP dataset...\n');
+elseif params.ds == 4
+    params.polyDown_path = '../datasets/poly_down';
+    assert(isfield(params, 'polyDown_path') ~= 0);
+    ground_truth = load([params.polyDown_path '/poses.txt']);
+    ground_truth = ground_truth(:, [end-8 end]);
+    last_frame = 599;
+    K = [1851.1 0   560.1;
+         0   1848.4  924.1;
+         0   0         1];
+    updateConsole(params, 'load POLY-DOWN dataset...\n');
 else
     assert(false);
 end
