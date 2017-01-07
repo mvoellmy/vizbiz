@@ -176,7 +176,7 @@ if params.run_continous
     if params.cont.use_BA
         ba_keypoints_init = [flipud(keypoints_first_frame); flipud(keypoints_second_frame)];
         ba_view_ids = [1, 2];   % View ids for init
-        for i=1:size(keypoints_second_frame, 2)
+        for i=1:size(keypoints_second_frame, 2) % todo: pretty sure this can be indexed
             ba_p_corresponding = vec2mat(ba_keypoints_init(:,i),2);
             ba_point_tracks(i) = pointTrack(ba_view_ids, ba_p_corresponding);
         end
@@ -232,10 +232,8 @@ if params.run_continous
                 
                 % check if reinitialization before enough steps performed
                 assert ((reInitFrameNr - 1) > 0);
-                for idx = reInitFrameNr:frame_idx
-                    T_WCj_vo(:,:,idx) = T_WCj_vo(:,:,reInitFrameNr - 1);
-                    T_CiCj_vo_j(:,:,idx) = eye(4);
-                end
+                T_WCj_vo(:,:,reInitFrameNr:frame_idx) = T_WCj_vo(:,:,reInitFrameNr - 1);
+                T_CiCj_vo_j(:,:,reInitFrameNr:frame_idx) = eye(4);                
                 
                 % set parameter, such that the frame will be bundleadjusted
                 frames_since_ba = -1;
@@ -297,17 +295,11 @@ if params.run_continous
                     if size(ba_index, 2) > 1
                         % if landmark correspond to multiple landmarks on
                         % the map. Match it to the closest one.
-                        min_error = inf;
-                        for jt=1:size(ba_index, 2)
-                            error = sqrt((Cj_P_hom_visible(1,ba_index(jt)) - Cj_landmarks_j(1,it))^2 + ...
-                                         (Cj_P_hom_visible(2,ba_index(jt)) - Cj_landmarks_j(2,it))^2 + ...
-                                         (Cj_P_hom_visible(3,ba_index(jt)) - Cj_landmarks_j(3,it))^2);
-                            if error < min_error
-                                min_error = error;
-                                min_ba_index = ba_index(jt);
-                            end
-                        end
-                        ba_index = min_ba_index;
+                        error = sqrt((Cj_P_hom_visible(1,ba_index(1:size(ba_index, 2))) - Cj_landmarks_j(1,it)).^2 + ...
+                                     (Cj_P_hom_visible(2,ba_index(1:size(ba_index, 2))) - Cj_landmarks_j(2,it)).^2 + ...
+                                     (Cj_P_hom_visible(3,ba_index(1:size(ba_index, 2))) - Cj_landmarks_j(3,it)).^2);
+                        [~, min_idx] = min(error);
+                        ba_index = ba_index(min_idx);
                     end
                     
                     ba_point_tracks(ba_index).Points = [ba_point_tracks(ba_index).Points; keypoints_new_triang(2, it),  keypoints_new_triang(1, it)];
@@ -353,11 +345,11 @@ if params.run_continous
                 W_landmarks_map = W_landmarks_map'; % transposed because of MATLAB function interface/output
 
                 % append to trajectory
-                for i=refinedPoses.ViewId' % todo: pretty sure this can be indexed nicer and potentially done without a for loop
-                    T_WCj_vo(1:4, 1:4, i) = [cell2mat(refinedPoses.Orientation(i))', cell2mat(refinedPoses.Location(i))';
-                                             zeros(1,3)                            , 1                                  ;];
-                end
-
+                T_WCj_vo(1:3,1:3,refinedPoses.ViewId') = reshape(cell2mat(refinedPoses.Orientation(refinedPoses.ViewId'))',3,3,length(refinedPoses.ViewId));
+                T_WCj_vo(1:3,4,refinedPoses.ViewId') = reshape(cell2mat(refinedPoses.Location(refinedPoses.ViewId'))',1,3,length(refinedPoses.ViewId));
+                T_WCj_vo(4,1:3,refinedPoses.ViewId') = zeros(1,3,length(refinedPoses.ViewId));
+                T_WCj_vo(4,4,refinedPoses.ViewId') = ones(1,1,length(refinedPoses.ViewId));
+                
                 % update landmarks current frame
                 W_landmarks_last_frame = W_landmarks_map(:, idx_of_matched_in_map);            
                 Cj_P_hom_j = tf2invtf(T_WCj_vo(1:4, 1:4, frame_idx)) * [W_landmarks_last_frame; ones(1,size(W_landmarks_last_frame,2))];
