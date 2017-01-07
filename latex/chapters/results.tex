@@ -1,42 +1,46 @@
 \section{Results}
 
 \subsection{Bootstrapping methods}
-The comparison showed a massively higher performance of the KLT tracker approach, this being orders of magnitude faster and yielding many more feature correspondences also over large distances. \cref{tab_boot_idx} depicts the index tuples retrieved through the second approach with \code{min\_num\_inlier\_kp} = $600$ being set.
+The comparison showed a significantly higher performance of the KLT tracker approach, this being orders of magnitude faster and yielding many more feature correspondences also over large distances. \cref{tab_boot_idx} depicts the index tuples retrieved through the second approach with \code{min\_num\_inlier\_kp} = $600$ being required.
 \begin{center}
 	\begin{tabular}{ c | l | c  c  c }
 		approach &				 &				Kitti &		Malaga &	Parking\\
   		\hline
- \multirow{2}{*}{\textit{KLT + Bearing angle}} &	\textit{first idx} &	1 & 		1 & 		1\\
-  		 & 						\textit{second idx} &	4 & 		6 & 		5\\
+ \multirow{2}{*}{\textit{KLT + Bearing angle}} &	first idx &	1 & 		1 & 		1\\
+  		 & 						second idx &	4 & 		6 & 		5\\
   		& 						\# keypoints & 				600 & 		600 & 		600\\
-  		&						angle [deg] & 				x &			x &			x\\
+  		&						angle [deg] & 				1.37 &			4.59 &			4.07\\
   		\hline
 	\end{tabular}
-	\captionof{table}{Bootstrapping pair indices for different datasets with min. keypoint inliers}
+	\captionof{table}{Bootstrapping pair indices for different datasets with minimum keypoint inliers}
 	\label{tab_boot_idx}
 \end{center}
-\cref{tab_boot_idx} depicts the index tuples retrieved through the second approach with \code{min\_num\_inlier\_kp} = $600$ being set, where a maximal angle of xx degrees was attained.\\
 
-Relaxing the minimum number of inlier keypoints allowed to reach the desired baseline/depth ratio of $0.1$ for the first and the $10$ degrees for the second bootstrapping approach as shown in \cref{tab_relaxed_boot_idx}.
+When relaxing the minimum number of inlier keypoints allowed to reach the desired baseline/depth ratio of $10$ \% for the first and the $10$ degrees for the second bootstrapping approach results are shown in \cref{tab_relaxed_boot_idx}.
 \begin{center}
 	\begin{tabular}{ c | l | c  c  c }
 		approach &				 &				Kitti &		Malaga &	Parking\\
   		\hline
- \multirow{4}{*}{\textit{SSD Harris desc. + baseline/depth ratio}} &	\textit{first idx} &	1 & 		1 & 		1\\
-  		 & 						\textit{second idx} &	4 & 		6 & 		5\\
-  		& 						\# keypoints & 		x & 		x & 		x\\
-  		&						ratio	 & 			0.1 &		0.1 &		0.1\\
+ \multirow{4}{*}{\textit{SSD Harris desc. + baseline/depth ratio}} 
+ 		&						first idx &			1 & 		1 & 		1\\
+  		& 						second idx &		6 & 		10 & 		7\\
+  		& 						\# keypoints & 		34 & 		39 & 		54\\
+  		&						ratio [\%] & 		10.1 &		10.9 &		11.5\\
   		\hline
-  \multirow{4}{*}{\textit{KLT + bearing angle}} &	\textit{first idx} &	1 & 		1 & 		1\\
-  		 & 						\textit{second idx} &	4 & 		6 & 		5\\
-  		& 						\# keypoints & 		x & 		x & 		x\\
-  		&						angle [deg] & 		10 &		10 &		10\\
+  \multirow{4}{*}{\textit{KLT + bearing angle}} 
+  		&						first idx &			- & 		1 & 		1\\
+  		& 						second idx &		- & 		16 & 		17\\
+  		& 						\# keypoints & 		- & 		99 & 		74\\
+  		&						angle [deg] & 		- &			10.4 &		10.55\\
   		\hline
 	\end{tabular}
 	\captionof{table}{Bootstrapping pair indices for different datasets and no keypoint number constraint}
 	\label{tab_relaxed_boot_idx}
 \end{center}
 
+We observed that the first approach yields far too few keypoints, due to the matchDescriptor() method. Furthermore, the pure lateral camera motion of dataset Parking suits well this baseline/depth bootstrapping approach, which confirms our intuition given the 'triangulability condition' described in \cref{sec_boot}.\\
+
+Deploying the second approach on the Kitti dataset evidently fails due to the straight camera motion, inhibiting angles ($[0.5, 3.7]$ deg) to reach the desired 10 degrees. As soon as there is a distinctive rotational movement involved, e.g. in Malaga and Parking, a useful bootstrapping is performed.
 
 
 \subsection{Overall performance}
