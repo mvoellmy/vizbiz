@@ -1,6 +1,9 @@
 function [R_CiCj, Ci_t_CiCj, matched_query_inlier_keypoints, Ci_corresponding_inlier_landmarks] = ...
     p3pRansac(params, matched_query_keypoints, Ci_corresponding_landmarks, K)
-% Todo: description
+% Estimate pose transformation between two images by comparing the landmarks of
+% the previous frame with the matching keypoints of the current frame.using
+% p3pRANSAC. This routine also returns the query inlier keypoints and the 
+% corresponding inlier landmarks.
 %
 % Inputs:
 %  - params(struct) : parameter struct

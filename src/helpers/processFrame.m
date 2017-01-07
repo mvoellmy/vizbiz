@@ -12,7 +12,7 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, p_c
 %  - T_WCinit (4x4) : Transformation world to Cinit
 %  - keypoints_prev_triang (2xN) : 2D points, [v u] which have
 %    corresponding Landmarks
-%  - kp_tracks_old : struct container for tracking keypoints (no associated
+%  - kp_tracks_prev : struct container for tracking keypoints (no associated
 %    landmarks)
 %  - Ci_landmarks_prev(3xN) : 3D points
 %  - T_WCi : (4x4) Current transformation world to Ci
@@ -23,7 +23,7 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, p_c
 %  - T_CiCj(4x4) : transformation Cj to Ci
 %  - p_new_matched_triang(2xN) : newly matched keypoints with 
 %    corresponding landmarks, [v u] 
-%  - updated_kp_tracks : struct updated container for tracking keypoints (no associated
+%  - kp_tracks_updated : struct updated container for tracking keypoints (no associated
 %    landmarks)
 %  - Cj_new_landmarks (3xN) : 3D points in frame Cj
 %    verified inliers by ransac + new triangulated landmarks
