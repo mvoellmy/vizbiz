@@ -56,11 +56,10 @@ cameraParams = cameraParameters('IntrinsicMatrix', K');
 [W_P_refined, refinedPoses] = bundleAdjustment(W_P', point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', fixed_cams); %, 'PointsUndistorted', true
 
 W_P_refined = W_P_refined';
-T_WC_refined = zeros(size(T_WC));
 
-for i=1:nr_of_cams % todo: pretty sure this can be indexed nicer and potentially done without a for loop
-    T_WC_refined(1:4, 1:4, i) = [cell2mat(refinedPoses.Orientation(i))', cell2mat(refinedPoses.Location(i))';
-                                 zeros(1,3)                            , 1                                  ;];
-end
+T_WC_refined(1:3,1:3,1:nr_of_cams) = reshape(cell2mat(refinedPoses.Orientation(1:nr_of_cams))',3,3,nr_of_cams);
+T_WC_refined(1:3,4,1:nr_of_cams) = reshape(cell2mat(refinedPoses.Location(1:nr_of_cams))',1,3,nr_of_cams);
+T_WC_refined(4,1:3,1:nr_of_cams) = zeros(1,3,nr_of_cams);
+T_WC_refined(4,4,1:nr_of_cams) = ones(1,1,nr_of_cams);
     
 end
