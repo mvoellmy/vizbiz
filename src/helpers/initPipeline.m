@@ -1,4 +1,4 @@
-function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = initPipeline(params, I_i1, I_i2, K, T_WC1, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2)
+function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init, norm_scale] = initPipeline(params, I_i1, I_i2, K, T_WC1, scale_in, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2)
 % Returns initialization image and corresponding sorted keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.
@@ -7,18 +7,20 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init] = i
 %  - params(struct) : parameter struct
 %  - I_i1(size) : first image
 %  - I_i2(size) : second image
-%  - bootstrap_frame_1_idx(1x1) : dataset image index of I_i1
-%  - bootstrap_frame_2_idx(1x1) : dataset image index of I_i2
 %  - K(3x3) : camera calibration matrix
 %  - T_WC1(4x4) : fixed transformation from C1 to W
-%  - ground_truth(2xM) : ground thruth positions in world frame
+%  - scale_in : Precalculated scale of dataset (use 1 for first first call)
+%  - ground_truth(2xM) : ground thruth positions in world frame (optional)
+%  - bootstrap_frame_1_idx(1x1) : dataset image index of I_i1 (optional)
+%  - bootstrap_frame_2_idx(1x1) : dataset image index of I_i2 (optional)
 %
 % Output:
 %  - I_init(size) : initialization image
 %  - keypoints_init(2xN) : matched keypoints from image pair, each [v,u]
 %  - C2_landmarks_init(3xN) : C2-referenced triangulated 3D points
 %  - T_C1C2(4x4) : homogeneous transformation matrix C2 to C1
-%  - kp_tracks_init(struct) : TODO
+%  - kp_tracks_init(struct) : struct containing the first candidate keypoints
+%  - norm_scale(1x1) : calculated scale during init
 
 global fig_init gui_handles;
 
@@ -56,8 +58,8 @@ else
     [p_i1_uv, p_i2_uv, unmatched_query_kp_vu] = findCorrespondeces(params,I_i1,I_i2);
 
     % homogenize keypoints
-    p_hom_i1_uv = [p_i1_uv; ones(1,length(p_i1_uv))];
-    p_hom_i2_uv = [p_i2_uv; ones(1,length(p_i2_uv))];    
+    p_hom_i1_uv = [p_i1_uv; ones(1,size(p_i1_uv,2))];
+    p_hom_i2_uv = [p_i2_uv; ones(1,size(p_i2_uv,2))];    
 
     % estimate the essential matrix E using normalized 8-point algorithm
     % and RANSAC for outlier rejection
@@ -119,20 +121,18 @@ else
     end
     
     % check which scale normalization is required
-    if(nargin < 6)
+    if(nargin < 7)
         % reInit mode
         % normalize scale with ground truth using precalculated scale
         if params.init.normalize_scale
-            % read scale from parameter
-            scale = params.init.scale;
             % pass fake arguments
-            [C1_P_init, T_C1C2] = normalizeScale(params, C1_P_hom_init(1:3,:), T_C1C2, 1, 1, 1, scale);
+            [C1_P_init, T_C1C2] = normalizeScale(params, C1_P_hom_init(1:3,:), T_C1C2, 1, 1, 1, scale_in);
         end
     else
         % bootstrap Init mode
         % normalize scale with ground truth by calculate scale
         if params.init.normalize_scale
-            [C1_P_init, T_C1C2] = normalizeScale(params, C1_P_hom_init(1:3,:), T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+            [C1_P_init, T_C1C2, norm_scale] = normalizeScale(params, C1_P_hom_init(1:3,:), T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
         end
     end
         

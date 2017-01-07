@@ -1,5 +1,5 @@
 function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, reInitFlag] =...
-    processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K)
+    processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K, norm_scale)
 % Estimates pose transformation T_CiCj between two images.
 % Tracks potential new keypoints and triangulates new landmarks if
 % trianguability is good.
@@ -17,6 +17,7 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, reI
 %  - Ci_landmarks_prev(3xN) : 3D points
 %  - T_WCi : (4x4) Current transformation world to Ci
 %  - K(3x3) : camera intrinsics matrix
+%  - norm_scale(1x1): Scale of dataset to be used during reinit
 %
 % Output:
 %  - T_CiCj(4x4) : transformation Cj to Ci
@@ -27,7 +28,6 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, reI
 %  - Cj_new_landmarks (3xN) : 3D points in frame Cj
 %    verified inliers by ransac + new triangulated landmarks
 %  - reInitFlag (bool) : Flag true when reInit was performed
-% todo
 
 global fig_cont fig_kp_tracks fig_kp_triangulate gui_handles;
 
@@ -41,14 +41,14 @@ if (params.cont.figures && params.cont.show_new_image)
 end
 
 % show current frame
-if params.cont.figures
+if (params.cont.figures && params.kp_tracker.figures)
     figure(fig_kp_tracks);
     imshow(img_new);
     hold on;
 end
 
 % show current frame
-if params.cont.figures
+if (params.cont.figures && params.kp_tracker.figures)
     figure(fig_kp_triangulate);
     clf;
     imshow(img_new);
@@ -155,7 +155,7 @@ else
         reInitFlag = true;
         % reinit pipeline
         [~, keypoints_reInit, Cj_landmarks_reInit, T_CinitCj, kp_tracks_reInit] =...
-            initPipeline(params, img_reInit, img_new, K, T_WCinit);
+            initPipeline(params, img_reInit, img_new, K, T_WCinit, norm_scale);
         kp_tracks_updated = kp_tracks_reInit;
         Cj_new_landmarks = Cj_landmarks_reInit; 
         p_new_matched_triang = keypoints_reInit;
