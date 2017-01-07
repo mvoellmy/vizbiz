@@ -1,4 +1,4 @@
-function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated ] =...
+function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking, kp_tracks_updated ] =...
     triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj, nr_landmarks)
 % Checks which candiate keypoints have good trianguability (bearing vector)
 % and then triangulates a new landmark.
@@ -16,15 +16,15 @@ function [ Cj_P_hom_new_inliers, p_candidates_j_inliers, kp_tracks_updated ] =..
 % Output:
 % - Cj_P_hom_new_inliers [4xN]: New landmarks filtered homogenized
 % - p_candidates_j_inliers [2xN]: Keypoints corresponding to landmarks [v u]
+% - p_candidates_first_inliers [2xN]: First time observed keypoints
+%   corresponding to landmarks [v u]
+% - p_candidates_j_inliers_nr_tracking [2xN]: Number of time the keypoints
+%   in j have been tracked [v u]
 % todo: describe, use global figures
 
 %% Triangulate new landmarks
 % calculate bearing angle
 bearing_angle_deg = calcBearingAngle(kp_tracks_updated.first_obs_kp, kp_tracks_updated.candidate_kp, K);
-% vector_first = [(kp_tracks_updated.first_obs_kp); repmat(K(1,1),[1, size(kp_tracks_updated.first_obs_kp,2)])];
-% vector_j = [kp_tracks_updated.candidate_kp; repmat(K(1,1),[1, size(kp_tracks_updated.candidate_kp,2)])];
-% 
-% bearing_angle_deg = atan2d(twoNormMatrix(cross(vector_j,vector_first)), dot(vector_j,vector_first));
 
 % adapt bearing angle threshhold to landmarks remaining for triangulation
 if nr_landmarks < params.kp_tracker.min_nr_landmarks_bearing_angle_adapt
@@ -46,6 +46,7 @@ idx_good_trianguable = ((bearing_angle_deg > bearing_angle_low_thr)...
 p_candidates_first = kp_tracks_updated.first_obs_kp(:,idx_good_trianguable);
 p_candidates_first_pose = kp_tracks_updated.first_obs_pose(:,idx_good_trianguable);
 p_candidates_j = kp_tracks_updated.candidate_kp(:,idx_good_trianguable);
+p_candidates_j_nr_tracking = kp_tracks_updated.nr_trackings(idx_good_trianguable);
 
 % show matches from first and j image of keypoints
 if (params.cont.figures && params.kp_tracker.show_matches && params.kp_tracker.figures)
@@ -64,10 +65,6 @@ p_hom_candidates_j_uv = [flipud(p_candidates_j); ones(1,size(p_candidates_j,2))]
 % variable initialization
 Cfirst_P_hom_new = zeros(4,size(p_candidates_first,2));
 Cj_P_hom_new = zeros(4,size(p_candidates_first,2));
-
-updateConsole(params,...
-              sprintf('  Number of trianguable keypoint candidates: %i\n',...
-              nnz(idx_good_trianguable)));
 
     for i=1:size(p_candidates_first,2)
         T_WCfirst = reshape(p_candidates_first_pose(:,i), [4,4]);
@@ -90,20 +87,27 @@ kp_tracks_updated.first_obs_kp = kp_tracks_updated.first_obs_kp(:,~idx_good_tria
 kp_tracks_updated.first_obs_pose = kp_tracks_updated.first_obs_pose(:,~idx_good_trianguable);
 kp_tracks_updated.nr_trackings = kp_tracks_updated.nr_trackings(~idx_good_trianguable);
 
+updateConsole(params,...
+              sprintf('  Number of trianguable keypoint candidates: %i\n',...
+              nnz(idx_good_trianguable)));
 %% Filter landmarks with spherical and reprojection filter
 Cj_reprojected_points_uv = [];
 Cj_P_hom_new_inliers = [];
 p_candidates_j_inliers = [];
+p_candidates_j_inliers_nr_tracking = [];
+p_candidates_first_inliers = [];
 
 if size(Cj_P_hom_new,2) > 0 
     [Cj_P_hom_new_neigb, outFOV_idx] = applySphericalFilter(params, Cj_P_hom_new, params.cont.landmarks_cutoff);
     %fprintf('  -> Apply spherical filter to new Landmarks: (%i/%i) inside Sphere\n',size(Cj_P_hom_new_neigb, 2) , size(outFOV_idx, 2)+size(Cj_P_hom_new_neigb, 2));
 
     % remove unrealistic landmarks and corresponding keypoints
-    if (size(outFOV_idx)<size(Cj_P_hom_new,2)) % some Landmarks were in neigbourhood
+    if (size(outFOV_idx) < size(Cj_P_hom_new, 2)) % some Landmarks were in neigbourhood
         Cj_P_hom_new = Cj_P_hom_new_neigb;
-        p_candidates_j(:,outFOV_idx)=[];
-        p_candidates_first_pose(:,outFOV_idx)=[];
+        p_candidates_first_pose(:, outFOV_idx) = [];
+        p_candidates_j(:, outFOV_idx) = [];
+        p_candidates_first(: ,outFOV_idx) = [];
+        p_candidates_j_nr_tracking(:, outFOV_idx) = [];
 
         % reproject realistic landmarks to remove outliers
         Cj_reprojected_points_uv = projectPoints(Cj_P_hom_new(1:3,:), K);
@@ -112,7 +116,9 @@ if size(Cj_P_hom_new,2) > 0
         reproj_inliers = errors < params.kp_tracker.max_reproj_error^2;
 
         Cj_P_hom_new_inliers = Cj_P_hom_new(:, reproj_inliers);
+        p_candidates_first_inliers = p_candidates_first(:, reproj_inliers);
         p_candidates_j_inliers = p_candidates_j(:, reproj_inliers);
+        p_candidates_j_inliers_nr_tracking = p_candidates_j_nr_tracking(reproj_inliers);
         assert(size(Cj_P_hom_new_inliers,2) == size(p_candidates_j_inliers,2));
 
         updateConsole(params,...

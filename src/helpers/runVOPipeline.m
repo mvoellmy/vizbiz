@@ -94,8 +94,9 @@ T_WC1 = [1      0           0       0;
                  zeros(1,3)         1];
 
 % initialize pipeline with bootstrap images
-[img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks, norm_scale] = ...
+[img_init, keypoints_first_frame, keypoints_second_frame, C2_landmarks_init, T_C1C2, kp_tracks, norm_scale] = ...
     initPipeline(params, img0, img1, K, T_WC1, 1, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame, C1 to C1
@@ -124,7 +125,7 @@ if params.through_gui
     gui_updateMetrics(deltaT, gui_handles.text_RT_value);
     
     % update tracking metric
-    gui_updateTracked(params, size(keypoints_init,2),...
+    gui_updateTracked(params, size(keypoints_second_frame,2),...
                       gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
 
     % update ground truth
@@ -168,19 +169,42 @@ if params.run_continous
     
 	% hand-over initialization variables
 	img_prev = img_init;
-    keypoints_prev_triang = keypoints_init;
-    Ci_landmarks_prev = C2_landmarks_init;
+    keypoints_prev_triang = keypoints_second_frame;
+    Ci_landmarks_prev = C2_landmarks_init;    
+
+    % fill first two frames to bundleAdjust container
+    if params.cont.use_BA
+        ba_keypoints_init = [flipud(keypoints_first_frame); flipud(keypoints_second_frame)];
+        ba_view_ids = [1, 2];   % View ids for init
+        for i=1:size(keypoints_second_frame, 2)
+            ba_p_corresponding = vec2mat(ba_keypoints_init(:,i),2);
+            ba_point_tracks(i) = pointTrack(ba_view_ids, ba_p_corresponding);
+        end
+
+        ba_orientations = cell(2,1);
+        ba_locations = cell(2,1);
+        ba_orientations(1) = {T_WC1(1:3, 1:3)'}; % This is transposed as we want the orientation of the cam in the world frame
+        ba_locations(1) = {T_WC1(1:3, 4)'};
+        ba_orientations(2) = {T_WC2(1:3, 1:3)'};
+        ba_locations(2) = {T_WC2(1:3, 4)'};
+    end
     
-    for j = range_cont
-        updateConsole(params, ['Processing frame ',num2str(j),'\n']);
+    for img_idx = range_cont
+        updateConsole(params, ['Processing frame ',num2str(img_idx),'\n']);
         
         tic;
         
         % pick current frame, due to initialization +2
-        frame_idx = j - bootstrap_frame_idx_2 + 2;
-        img_new = getFrame(params, j);
+        frame_idx = img_idx - bootstrap_frame_idx_2 + 2;
+        img_new = getFrame(params, img_idx);
         
-        if (size(keypoints_prev_triang,2) > 6) % todo: minimum number?            
+        if (size(keypoints_prev_triang,2) > 6 && size(Ci_landmarks_prev, 2) > 6) % todo: minimum number?
+            % Continuity check
+            if (size(keypoints_prev_triang, 2) ~= size(Ci_landmarks_prev, 2))
+                updateConsole(params, 'keypoints and landmarks have different dimensions!! Break continuous operation loop - Terminating...');
+                break;
+            end
+            
             % extract current camera pose
             T_WCi = T_WCj_vo(:,:,frame_idx-1);
             
@@ -196,8 +220,9 @@ if params.run_continous
             T_WCinit = T_WCj_vo(:,:,reInitFrameNr);
                         
             % process newest image
-            [T_CiCj, keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new, reInitFlag] =...
+            [T_CiCj, keypoints_new_triang, updated_kp_tracks, Cj_landmarks_j, p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking, reInitFlag] =...
                 processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K, norm_scale);
+
             
             % check if reInit was performed
             if (reInitFlag)
@@ -211,8 +236,7 @@ if params.run_continous
             end
             % append last pose
             T_CiCj_vo_j(:,:,frame_idx) = T_CiCj;
-            
-            
+                        
             % add super title with frame number
             if params.cont.figures
                 figure(fig_cont);
@@ -222,31 +246,124 @@ if params.run_continous
             updateConsole(params, 'Too few keypoints left!! Break continuous operation loop - Terminating...');
             break;
         end
-
+        if size(Cj_landmarks_j, 2) == 0
+            updateConsole(params, 'No landmarks left!! Break continuous operation loop - Terminating...');
+            break;
+        end
+                  
         % append newest Cj to W transformation
         T_WCj_vo(:,:,frame_idx) = T_WCj_vo(:,:,frame_idx-1) * T_CiCj_vo_j(:,:,frame_idx);
+    
+        W_P_hom_j = T_WCj_vo(:,:,frame_idx) * [Cj_landmarks_j; ones(1, size(Cj_landmarks_j, 2))];
 
+        % Add keypoints to corresponding landmarks
+        nr_matched_landmarks = size(W_P_hom_j, 2);
+        nr_new_landmarks = size(p_candidates_j_inliers_nr_tracking, 2);
+        nr_old_landmarks = nr_matched_landmarks - nr_new_landmarks;
+              
+        if params.cont.use_BA
+            % todo: yeah it's not very efficient.
+            % Ideally we would be storing the indeces of the landmarks
+            % which were mapped, then would would have to do 0 search.
+            % However I don't think we have time/the framework for that atm.
+
+            % matching to ba_tracking
+            tolerance = 10^-6;
+            missed_landmarks_count = 0;
+            % indices of the current frame landmarks within the map, used
+            % to find the current frame landmarks after BA.
+            idx_of_matched_in_map = [];
+            
+            for it=1:nr_old_landmarks
+                % Find corresponding Landmark indices
+                ba_index = find(...
+                    abs(W_landmarks_map(1,:) - W_P_hom_j(1,it)) < tolerance & ...
+                    abs(W_landmarks_map(2,:) - W_P_hom_j(2,it)) < tolerance & ...
+                    abs(W_landmarks_map(3,:) - W_P_hom_j(3,it)) < tolerance);
+
+                if ba_index > 0
+                    if size(ba_index, 2) > 1
+                        % if landmark correspond to multiple landmarks on
+                        % the map. Match it to the closest one.
+                        min_error = inf;
+                        for jt=1:size(ba_index, 2)
+                            error = sqrt(...
+                                (W_landmarks_map(1,ba_index(jt)) - W_P_hom_j(1,it))^2 + ...
+                                (W_landmarks_map(2,ba_index(jt)) - W_P_hom_j(2,it))^2 + ...
+                                (W_landmarks_map(3,ba_index(jt)) - W_P_hom_j(3,it))^2);
+                            if error < min_error
+                                min_error = error;
+                                min_ba_index = ba_index(jt);
+                            end
+                        end
+                        ba_index = min_ba_index;
+                    end
+                    
+                    ba_point_tracks(ba_index).Points = [ba_point_tracks(ba_index).Points; keypoints_new_triang(2, it),  keypoints_new_triang(1, it)];
+                    ba_point_tracks(ba_index).ViewIds = [ba_point_tracks(ba_index).ViewIds, frame_idx];
+                    idx_of_matched_in_map = [idx_of_matched_in_map, ba_index];
+                else
+                    missed_landmarks_count = missed_landmarks_count+1;
+                end
+            end
+        updateConsole(params, sprintf(' ---->%i landmarks where not matched again!', missed_landmarks_count));
+            
+            % add new landmarks to tracking
+            for it = 1:nr_new_landmarks
+                ba_point_tracks(size(ba_point_tracks, 2) + 1) = pointTrack([frame_idx-p_candidates_j_inliers_nr_tracking(it), frame_idx],...
+                    [p_candidates_first_inliers(2, it)           , p_candidates_first_inliers(1, it);...
+                     keypoints_new_triang(2, nr_old_landmarks+it), keypoints_new_triang(1, nr_old_landmarks+it)]);
+            end
+            
+            map_size = size(W_landmarks_map, 2);
+            idx_of_matched_in_map = [idx_of_matched_in_map, map_size + 1:map_size + nr_new_landmarks];       
+        end
+        
+        % update map
+        W_landmarks_map = [W_landmarks_map, W_P_hom_j(1:3, nr_old_landmarks+1:end)];
+ 
+        if params.cont.use_BA  
+            % fill BA-container with poses
+            ba_orientations(frame_idx) = {T_WCj_vo(1:3, 1:3, frame_idx)'};
+            ba_locations(frame_idx) = {T_WCj_vo(1:3, 4, frame_idx)'};
+
+            ba_view_ids = [ba_view_ids, frame_idx];
+            cameraPoses = table;
+            cameraPoses.ViewId = uint32(ba_view_ids');
+            cameraPoses.Orientation = ba_orientations;
+            cameraPoses.Location = ba_locations;
+            cameraParams = cameraParameters('IntrinsicMatrix', K');
+
+            [W_landmarks_map, refinedPoses] = bundleAdjustment(W_landmarks_map', ba_point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', 1);
+
+            W_landmarks_map = W_landmarks_map'; % transposed because of MATLAB function interface/output
+
+            % append to trajectory
+            for i=1:frame_idx % todo: pretty sure this can be indexed nicer and potentially done without a for loop
+                T_WCj_vo(1:4, 1:4, i) = [cell2mat(refinedPoses.Orientation(i))', cell2mat(refinedPoses.Location(i))';
+                                         zeros(1,3)                            , 1                                  ;];
+            end
+            
+            % update landmarks current frame
+            W_landmarks_last_frame = W_landmarks_map(:, idx_of_matched_in_map);            
+            Cj_P_hom_j = tf2invtf(T_WCj_vo(1:4, 1:4, frame_idx)) * [W_landmarks_last_frame; ones(1,size(W_landmarks_last_frame,2))];
+            Cj_landmarks_j = Cj_P_hom_j(1:3,:);
+            
+        end
+        
         % extend 2D trajectory
         W_traj =[W_traj, T_WCj_vo(1:2,4,frame_idx)];
         if params.cont.figures
             figure(fig_debug_traj);
             plotGroundThruth_3D(squeeze(T_WCj_vo(1:3,end,1:frame_idx)), ground_truth);
         end
-        
-        % update map with new landmarks
-        W_landmarks_new = [];
-        if size(Cj_landmarks_new,2)>0
-            W_P_hom_new = T_WCj_vo(:,:,frame_idx) * [Cj_landmarks_new; ones(1, size(Cj_landmarks_new,2))];
-            W_landmarks_new = W_P_hom_new(1:3,:);
-        end
-        W_landmarks_map = [W_landmarks_map, W_landmarks_new];
-        
+
         if params.through_gui
             % update tracking metric
             gui_updateTracked(params, size(keypoints_new_triang,2),...
                               gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
             % update gui local cloud
-            gui_updateLocalCloud(W_landmarks_new, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
+            gui_updateLocalCloud(W_P_hom_j, gui_handles.ax_trajectory, gui_handles.plot_local_cloud);
             % update gui trajectory
             gui_updateTrajectory(W_traj, gui_handles.ax_trajectory, gui_handles.plot_trajectory);            
         end
@@ -257,7 +374,7 @@ if params.run_continous
         % update previous image, keypoints, landmarks and tracker
         img_prev = img_new;
         keypoints_prev_triang = keypoints_new_triang;
-        Ci_landmarks_prev = Cj_landmarks_new;
+        Ci_landmarks_prev = Cj_landmarks_j;
         kp_tracks = updated_kp_tracks;
 
         updateConsole(params, ' \n');
@@ -289,5 +406,4 @@ if params.show_map_and_cams
     plotCam(T_WCj_vo(:,:,1), 0.2, 'black');
     plotCam(T_WCj_vo(:,:,2:end), 0.2, 'red');
 end
-
 end

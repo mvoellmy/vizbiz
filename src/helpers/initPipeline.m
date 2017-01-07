@@ -1,4 +1,4 @@
-function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init, norm_scale] = initPipeline(params, I_i1, I_i2, K, T_WC1, scale_in, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2)
+function [I_init,keypoints_first_frame , keypoints_second_frame, C2_landmarks_init, T_C1C2, kp_tracks_init, norm_scale] = initPipeline(params, I_i1, I_i2, K, T_WC1, scale_in, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2)
 % Returns initialization image and corresponding sorted keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.
@@ -16,7 +16,8 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init, nor
 %
 % Output:
 %  - I_init(size) : initialization image
-%  - keypoints_init(2xN) : matched keypoints from image pair, each [v,u]
+%  - keypoints_first_frame(2xN) : matched keypoints from first image , each [v,u]
+%  - keypoints_second_frame(2xN) : matched keypoints from second image, each [v,u]
 %  - C2_landmarks_init(3xN) : C2-referenced triangulated 3D points
 %  - T_C1C2(4x4) : homogeneous transformation matrix C2 to C1
 %  - kp_tracks_init(struct) : struct containing the first candidate keypoints
@@ -41,7 +42,7 @@ if params.init.use_KITTI_precalculated_init % todo: still needed?
     end
     
     % load precalculated keypoints and landmarks
-    keypoints_init = load('../datasets/kitti/precalculated/keypoints.txt')';
+    keypoints_second_frame = load('../datasets/kitti/precalculated/keypoints.txt')';
     C2_landmarks_init = load('../datasets/kitti/precalculated/landmarks.txt')';
     
     T_C1C2 = eye(4);
@@ -145,7 +146,8 @@ else
     p_hom_inlier_i2_uv(:,outFOV_idx) = [];
     
     % assign initialization entities
-    keypoints_init = flipud(p_hom_inlier_i2_uv(1:2,:));
+    keypoints_first_frame = flipud(p_hom_inlier_i1_uv(1:2,:));
+    keypoints_second_frame = flipud(p_hom_inlier_i2_uv(1:2,:));
     C2_P_hom_init = T_C2C1*C1_P_hom_init;
 
     C2_landmarks_init = C2_P_hom_init(1:3,:);
@@ -174,7 +176,7 @@ else
     updateConsole(params,...
                   sprintf(['  Number of initialization keypoints: %i\n',...
                   '  Number of initialization landmarks: %i\n'],...
-                  size(keypoints_init,2), size(C2_landmarks_init,2)));
+                  size(keypoints_second_frame,2), size(C2_landmarks_init,2)));
     
 	% initialise keypoint tracker
     kp_tracks_init = updateKpTracks(params, kp_tracks,I_i1, I_i2, unmatched_query_kp_vu, T_WC2);
@@ -186,6 +188,7 @@ else
 end
 
 % check for same number of keypoints and landmarks
-assert(size(keypoints_init,2) == size(C2_landmarks_init,2));
+assert(size(keypoints_second_frame,2) == size(C2_landmarks_init,2));
+assert(size(keypoints_first_frame,2) == size(C2_landmarks_init,2));
 
 end
