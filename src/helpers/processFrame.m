@@ -1,4 +1,4 @@
-function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks,p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking, reInitFlag] =...
+function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking, reInitFlag] =...
     processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K)
 % Estimates pose transformation T_CiCj between two images.
 % Tracks potential new keypoints and triangulates new landmarks if
@@ -26,6 +26,10 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks,p_ca
 %    landmarks)
 %  - Cj_new_landmarks (3xN) : 3D points in frame Cj
 %    verified inliers by ransac + new triangulated landmarks
+%  - p_candidates_first_inliers [2xN]: First time observed keypoints
+%   corresponding to landmarks [v u]
+%  - p_candidates_j_inliers_nr_tracking [2xN]: Number of time the keypoints
+%   in j have been tracked [v u]
 %  - reInitFlag (bool) : Flag true when reInit was performed
 % todo
 
@@ -62,12 +66,12 @@ end
 % check for consistent correspondences
 assert(size(matched_query_keypoints,2) == size(Ci_corresponding_landmarks,2));
 if size(matched_query_keypoints, 2) < 6
-   T_CiCj = T_WCi;
-   p_new_matched_triang= [];
-   kp_tracks_updated=[];
-   Cj_new_landmarks=[];
-   p_candidates_first_inliers=[];
-   p_candidates_j_inliers_nr_tracking=[];
+   T_CiCj = eye(4);
+   p_new_matched_triang = [];
+   kp_tracks_updated = [];
+   Cj_new_landmarks = [];
+   p_candidates_first_inliers = [];
+   p_candidates_j_inliers_nr_tracking = [];
    updateConsole(params, 'To few corresponding landmarks/keypoints!! Break continuous operation loop - Terminating...');
    return 
 end
@@ -127,13 +131,13 @@ if (size(Ci_corresponding_inlier_landmarks,2) > params.cont.reinit.inlier_th )
     %% Triangulate new landmarks & update landmarks and keypoint list
     nr_landmarks = size(Ci_corresponding_inlier_landmarks, 2);
     if params.kp_tracker.min_nr_landmarks > nr_landmarks
-    [Cj_P_hom_new_inliers, p_candidates_j_inliers,p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking, kp_tracks_updated] =...
-            triangulateNewLandmarks(params, kp_tracks_updated, K , fig_kp_triangulate, fig_kp_tracks, T_WCj, nr_landmarks);
+        [Cj_P_hom_new_inliers, p_candidates_j_inliers, p_candidates_first_inliers, p_candidates_j_inliers_nr_tracking, kp_tracks_updated] =...
+                triangulateNewLandmarks(params, kp_tracks_updated, K, fig_kp_triangulate, fig_kp_tracks, T_WCj, nr_landmarks);
     else
         Cj_P_hom_new_inliers = [];
         p_candidates_j_inliers = [];
-    p_candidates_j_inliers_nr_tracking = [];
-    p_candidates_first_inliers = [];
+        p_candidates_j_inliers_nr_tracking = [];
+        p_candidates_first_inliers = [];
     end
 
     % append used candidate keypoints to p_new_matched_triang
@@ -168,13 +172,13 @@ else
         % set flag
         reInitFlag = true;
         % reinit pipeline
-        [~, p_candidates_first_inliers,keypoints_reInit, Cj_landmarks_reInit, T_CinitCj, kp_tracks_reInit] =...
+        [~, p_candidates_first_inliers, keypoints_reInit, Cj_landmarks_reInit, T_CinitCj, kp_tracks_reInit] = ...
             initPipeline(params, img_reInit, img_new, K, T_WCinit);
-        p_candidates_j_inliers_nr_tracking = ones(1, size(p_candidates_first_inliers, 2))*params.cont.reinit.deltaFrames;
+        p_candidates_j_inliers_nr_tracking = ones(1, size(p_candidates_first_inliers, 2)) * params.cont.reinit.deltaFrames;
         kp_tracks_updated = kp_tracks_reInit;
         Cj_new_landmarks = Cj_landmarks_reInit; 
         p_new_matched_triang = keypoints_reInit;
-        T_CiCj = T_CinitCj;
+        T_CiCj = T_CinitCj;   
     end
 end
 
