@@ -130,7 +130,7 @@ updateConsole(params,...
               size(kp_tracks_updated.candidate_kp,2), size(new_kp,2))); 
 
 % display matched keypoint tracks
-if (params.cont.figures && params.kp_tracker.show_matches)
+if (params.cont.figures && params.kp_tracker.show_matches && params.kp_tracker.figures)
     figure(fig_kp_tracks);
     if (size(kp_tracks_prev.candidate_kp,2) > 0) % 0 in first frame
         plotPoints(kp_tracks_prev.candidate_kp,'r.');

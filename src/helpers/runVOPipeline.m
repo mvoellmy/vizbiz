@@ -81,7 +81,7 @@ end
 updateConsole(params, 'initialize VO pipeline...\n');
 
 global fig_kp_tracks;
-if params.cont.figures
+if params.cont.figures && params.kp_tracker.figures
     fig_kp_tracks = figure('name','Keypoint tracker');
 end
 
@@ -94,8 +94,8 @@ T_WC1 = [1      0           0       0;
                  zeros(1,3)         1];
 
 % initialize pipeline with bootstrap images
-[img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks] = ...
-    initPipeline(params, img0, img1, K, T_WC1, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
+[img_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks, norm_scale] = ...
+    initPipeline(params, img0, img1, K, T_WC1, 1, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2);
 
 % assign first two poses
 T_CiCj_vo_j(:,:,1) = eye(4); % world frame, C1 to C1
@@ -160,8 +160,9 @@ if params.run_continous
         if params.localization_ransac.show_iterations
             fig_RANSAC_debug = figure('name','p3p / DLT estimation RANSAC');
         end
-
-        fig_kp_triangulate = figure('name', 'triangulate');   
+        if params.kp_tracker.figures
+            fig_kp_triangulate = figure('name', 'triangulate');   
+        end
         fig_debug_traj = figure('name','Trajectory');
     end
     
@@ -196,7 +197,7 @@ if params.run_continous
                         
             % process newest image
             [T_CiCj, keypoints_new_triang, updated_kp_tracks, Cj_landmarks_new, reInitFlag] =...
-                processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K);
+                processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks, Ci_landmarks_prev, T_WCi, K, norm_scale);
             
             % check if reInit was performed
             if (reInitFlag)

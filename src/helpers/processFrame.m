@@ -1,5 +1,5 @@
 function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, reInitFlag] =...
-    processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K)
+    processFrame(params, img_new, img_prev, img_reInit, T_WCinit, keypoints_prev_triang, kp_tracks_prev, Ci_landmarks_prev, T_WCi, K, norm_scale)
 % Estimates pose transformation T_CiCj between two images.
 % Tracks potential new keypoints and triangulates new landmarks if
 % trianguability is good.
@@ -41,14 +41,14 @@ if (params.cont.figures && params.cont.show_new_image)
 end
 
 % show current frame
-if params.cont.figures
+if (params.cont.figures && params.kp_tracker.figures)
     figure(fig_kp_tracks);
     imshow(img_new);
     hold on;
 end
 
 % show current frame
-if params.cont.figures
+if (params.cont.figures && params.kp_tracker.figures)
     figure(fig_kp_triangulate);
     clf;
     imshow(img_new);
@@ -155,7 +155,7 @@ else
         reInitFlag = true;
         % reinit pipeline
         [~, keypoints_reInit, Cj_landmarks_reInit, T_CinitCj, kp_tracks_reInit] =...
-            initPipeline(params, img_reInit, img_new, K, T_WCinit);
+            initPipeline(params, img_reInit, img_new, K, T_WCinit, norm_scale);
         kp_tracks_updated = kp_tracks_reInit;
         Cj_new_landmarks = Cj_landmarks_reInit; 
         p_new_matched_triang = keypoints_reInit;

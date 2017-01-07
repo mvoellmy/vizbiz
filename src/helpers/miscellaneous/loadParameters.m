@@ -7,7 +7,7 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 % general parameters
-params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.run_continous = true;
@@ -22,7 +22,7 @@ params.gui.show_inlier_features = false;
 params.gui.show_triang_features = false;
 
 % auto bootstrap parameters
-params.boot.figures = true; % on/off figure
+params.boot.figures = false; % on/off figure
 params.boot.use_bearing_angle = true; % approach: 2
 params.boot.num_keypoints = 1000;
 params.boot.show_keypoints = true;
@@ -47,7 +47,6 @@ params.init.show_BA_comp = true;
 params.init.landmarks_cutoff = 200; % --------------------------------------
 
 params.init.normalize_scale = true;
-params.init.scale = 1; % get changed by init pipeline (in bootstrap mode)
 
 % correspondence parameters initialisation
 params.init.corr.harris_patch_size = 9; % 9 [pixels]
@@ -70,7 +69,7 @@ params.cont.show_new_keypoints = true;
 params.cont.use_KLT = true;   % --------------------------------------
 params.cont.show_matches = true;
 params.cont.show_inlier_matches = true;
-params.cont.landmarks_cutoff = 400;  % --------------------------------------
+params.cont.landmarks_cutoff = 200;  % --------------------------------------
 params.cont.plot_new_landmarks = false;
 
 % correspondence parameters continiuous
@@ -94,19 +93,20 @@ params.localization_ransac.num_iterations_DLT = 150; % 200;
 params.localization_ransac.pixel_tolerance = 15; % 10 [pixels]  % -------------------------------------
 params.localization_ransac.show_iterations = false;
 
+params.kp_tracker.figures = false;
 params.kp_tracker.use_KLT = true;  % --------------------------------------
 params.kp_tracker.min_nr_landmarks = 500;
 params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 230;
 params.kp_tracker.bearing_angle_multiplicator = 1.75;
 params.kp_tracker.max_nr_candidates = 700;  % --------------------------------------
-params.kp_tracker.rand_pick = true;
+params.kp_tracker.rand_pick = false;
 params.kp_tracker.nr_best_candidates = 100; % for randomized picking
 params.kp_tracker.show_matches = true;
 params.kp_tracker.show_triangulated = true;
-params.kp_tracker.bearing_low_thr = 2.5; % [deg]  % --------------------------------------
+params.kp_tracker.bearing_low_thr = 5.5; % [deg]  % --------------------------------------
 params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
 params.kp_tracker.min_nr_trackings = 2; % 3
 params.kp_tracker.max_nr_trackings = 20;
-params.kp_tracker.max_reproj_error = 10; % 12 [pixels]  % --------------------------------------
+params.kp_tracker.max_reproj_error = 5; % 12 [pixels]  % --------------------------------------
 
 end

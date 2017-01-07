@@ -1,4 +1,4 @@
-function [C2_landmarks_init, T_C1C2] = normalizeScale(params, C2_landmarks_init, T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2, scale)
+function [C2_landmarks_init, T_C1C2, scale_factor] = normalizeScale(params, C2_landmarks_init, T_C1C2, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2, scale_in)
 % Normalize the scale such that it corresponds to the ground truth using
 % the position vector.
 % 
@@ -16,6 +16,8 @@ function [C2_landmarks_init, T_C1C2] = normalizeScale(params, C2_landmarks_init,
 %  - T_C1C2(4X4)                : transformation matrix from C2 to C1
     
 if (nargin ~= 7)
+    updateConsole(params,...
+                  sprintf('  normalizing scale gets newly calculated!'));
     x_truth = ground_truth(bootstrap_frame_idx_2, 1) - ground_truth(bootstrap_frame_idx_1, 1);
     z_truth = ground_truth(bootstrap_frame_idx_2, 2) - ground_truth(bootstrap_frame_idx_1, 2);
 
@@ -23,10 +25,10 @@ if (nargin ~= 7)
     z_estimated = T_C1C2(3,4);
 
     scale_factor = sqrt(x_truth^2 + z_truth^2)/sqrt(x_estimated^2 + z_estimated^2);
-    % write scale to parameter
-    params.init.scale = scale_factor;
 else
-    scale_factor = scale;
+    updateConsole(params,...
+                  sprintf('  normalizing scale with precalculated scale!'));
+    scale_factor = scale_in;
 end
 
 updateConsole(params,...
