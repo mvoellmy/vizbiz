@@ -1,4 +1,5 @@
-function [I_init,keypoints_first_frame , keypoints_second_frame, C2_landmarks_init, T_C1C2, kp_tracks_init, norm_scale] = initPipeline(params, I_i1, I_i2, K, T_WC1, scale_in, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2)
+function [I_init,keypoints_first_frame , keypoints_second_frame, C2_landmarks_init, T_C1C2, kp_tracks_init, norm_scale] =...
+    initPipeline(params, I_i1, I_i2, K, T_WC1, scale_in, ground_truth, bootstrap_frame_idx_1, bootstrap_frame_idx_2)
 % Returns initialization image and corresponding sorted keypoints and landmarks
 % after checking for valid correspondences between a bootstrap image pair.
 % Optionally, precalculated outputs are loaded.

@@ -11,7 +11,10 @@ function [ kp_tracks_updated ] = updateKpTracks(params, kp_tracks_prev, img_prev
 %  - img_prev : last image
 %  - img_new : current image
 %  - query_keypoints (2xN) : [v u]
-%  - T_WCj(4x4) : Trasnformation matrix 
+%  - T_WCj(4x4) : Trasnformation matrix
+%
+% Output:
+%  - kp_tracks_updated : struct
 
 global fig_kp_tracks gui_handles;
 
