@@ -140,10 +140,14 @@ if params.auto_bootstrap
                    bootstrap_pair_found = true;
                 end
             else
+                number_of_boot_kp = prev_number_of_boot_kp;
                 bootstrap_frame_2_idx = max([candidate_frame_idx - 1, bootstrap_frame_1_idx + 1]);
                 img2 = getFrame(params, bootstrap_frame_2_idx);
                 bootstrap_pair_found = true;
             end
+            
+            % update
+            prev_number_of_boot_kp = number_of_boot_kp;
             
             % allow plots to refresh
             pause(0.01);
