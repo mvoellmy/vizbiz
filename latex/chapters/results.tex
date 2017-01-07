@@ -1,4 +1,5 @@
 \section{Results}
+\label{sec_results}
 
 \subsection{Bootstrapping methods}
 The comparison showed a significantly higher performance of the KLT tracker approach, this being orders of magnitude faster and yielding many more feature correspondences also over large distances. \cref{tab_boot_idx} depicts the index tuples retrieved through the second approach with \code{min\_num\_inlier\_kp} = $600$ being required.
@@ -16,7 +17,7 @@ The comparison showed a significantly higher performance of the KLT tracker appr
 	\label{tab_boot_idx}
 \end{center}
 
-When relaxing the minimum number of inlier keypoints allowed to reach the desired baseline/depth ratio of $10$ \% for the first and the $10$ degrees for the second bootstrapping approach results are shown in \cref{tab_relaxed_boot_idx}.
+When relaxing the minimum number of inlier keypoints allowed to reach the desired baseline/depth ratio of $10$ \% for the first and a bearing angle of $10$ degrees for the second bootstrapping approach results are shown in \cref{tab_relaxed_boot_idx}.
 \begin{center}
 	\begin{tabular}{ c | l | c  c  c }
 		approach &				 &				Kitti &		Malaga &	Parking\\
