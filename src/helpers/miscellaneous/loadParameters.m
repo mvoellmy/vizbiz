@@ -155,21 +155,21 @@ elseif params.ds == 1
 elseif params.ds == 2
     params.init.landmarks_cutoff = 200; % --------------------------------------
     
-    params.cont.reinit.inlier_th = 120; % when to reinit
+    params.cont.reinit.inlier_th = 80; % when to reinit
     params.cont.reinit.deltaFrames = 3;
     
     params.cont.landmarks_cutoff = 370;  % --------------------------------------
     
-    params.localization_ransac.num_iterations_pnp = 700; % 2000 fix?
+    params.localization_ransac.num_iterations_pnp = 400; % 2000 fix?
     params.localization_ransac.pixel_tolerance = 2; % 10 [pixels]  % -------------------------------------
     
     params.kp_tracker.min_nr_landmarks = 500; % this is the number desired
-    params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 300;
+    params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 230;
     params.kp_tracker.bearing_angle_multiplicator = 2.5;
     params.kp_tracker.max_nr_candidates = 1300;  % --------------------------------------
     params.kp_tracker.rand_pick = false;
     params.kp_tracker.nr_best_candidates = 100; % for randomized picking
-    params.kp_tracker.bearing_low_thr = 2.7; % [deg]  % --------------------------------------
+    params.kp_tracker.bearing_low_thr = 3.7; % [deg]  % --------------------------------------
     params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
     params.kp_tracker.min_nr_trackings = 3; % 3
     params.kp_tracker.max_nr_trackings = 25;
