@@ -155,15 +155,15 @@ elseif params.ds == 1
 elseif params.ds == 2
     params.init.landmarks_cutoff = 200; % --------------------------------------
     
-    params.cont.reinit.inlier_th = 170; % when to reinit
+    params.cont.reinit.inlier_th = 120; % when to reinit
     params.cont.reinit.deltaFrames = 3;
     
     params.cont.landmarks_cutoff = 340;  % --------------------------------------
     
-    params.localization_ransac.num_iterations_pnp = 1000; % 2000 fix?
+    params.localization_ransac.num_iterations_pnp = 700; % 2000 fix?
     params.localization_ransac.pixel_tolerance = 2; % 10 [pixels]  % -------------------------------------
     
-    params.kp_tracker.min_nr_landmarks = 600;
+    params.kp_tracker.min_nr_landmarks = 500;
     params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 350;
     params.kp_tracker.bearing_angle_multiplicator = 1.75;
     params.kp_tracker.max_nr_candidates = 1300;  % --------------------------------------
