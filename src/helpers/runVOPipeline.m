@@ -52,7 +52,7 @@ elseif params.ds == 3
     assert(isfield(params, 'polyUp_path') ~= 0);
     ground_truth = load([params.polyUp_path '/poses.txt']);
     ground_truth = ground_truth(:, [end-8 end]);
-    last_frame = 753;
+    last_frame = 602;
     K = [1851.1 0   560.1;
          0   1848.4  924.1;
          0   0         1];

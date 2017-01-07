@@ -19,7 +19,7 @@ elseif strcmp(frame_number,'second')
     elseif dataset == 2 % PARKING
         frame_idx = 5;
     elseif dataset == 3 % POLY-UP
-        frame_idx = 3;
+        frame_idx = 5;
     elseif dataset == 4 % POLY-DOWN
         frame_idx = 3;
     else
