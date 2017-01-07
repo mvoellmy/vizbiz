@@ -76,9 +76,10 @@ params.cont.plot_new_landmarks = false;
 
 % bundle adjustment
 params.cont.use_BA = true;
-params.cont.ba.frequency = 5;
+params.cont.ba.frequency = 10;
 params.cont.ba.fix_view_ids = false;
- 
+params.cont.ba.window_size = 15;
+
 % correspondence parameters continiuous
 params.cont.corr.harris_patch_size = 9; % 9 [pixels]
 params.cont.corr.harris_kappa = 0.08;
