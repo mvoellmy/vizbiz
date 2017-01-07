@@ -4,6 +4,7 @@ Todo: @Miro
 %short intro
 
 \subsubsection{Bootstraping}
+\label{sec_boot}
 In order to pick reasonable image pairs for initialization an automatic procedure was implemented.\\
 Since a good initialization relies heavily on the number of inlier keypoints a hard constrain on their minimum number of \code{min\_num\_inlier\_kp} = $600$ was set.\\
 
@@ -18,10 +19,11 @@ Two approaches were investigated:
 	\item \textit{KLT + bearing angle}:\\
 	correspondence search and inlier selection via KLT tracking on query Harris corners \& minimum average bearing angle\\
 	\begin{equation}
-		av\_bearing\_angle\_deg \geqslant min\_av\_angle\_deg = 10
-	\end{equation}\\
-
+		av\_bearing\_angle\_deg \geqslant min\_av\_angle\_deg = 10 deg
+	\end{equation}
 \end{compactitem}
+
+As elaborated in \cref{sec_results} the second approach outperformed the other and is selected as auto-bootstrapping method.
 
 
 \subsubsection{? findCorrespondences()}

@@ -7,9 +7,9 @@ function params = loadParameters()
 %  - params(struct) : parameter struct
 
 
-
 %% general parameters
-params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
+% general parameters
+params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.run_continous = true;
@@ -32,7 +32,7 @@ params.boot.show_matches = true;
 params.boot.show_inlier_matches = true;
 params.boot.landmarks_cutoff = 500;
 params.boot.show_landmarks = false;
-params.boot.min_num_inlier_kps = 600;
+params.boot.min_num_inlier_kps = 600; % 600
 params.boot.min_b2dratio = 0.1;
 params.boot.min_av_angle_deg = 10; % [deg]
 
