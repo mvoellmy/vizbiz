@@ -73,7 +73,7 @@ params.cont.use_KLT = true;   % --------------------------------------
 params.cont.show_matches = true;
 params.cont.show_inlier_matches = true;
 params.cont.plot_new_landmarks = false;
-params.cont.use_BA = false;
+params.cont.use_BA = true;
 
 % correspondence parameters continiuous
 params.cont.corr.harris_patch_size = 9; % 9 [pixels]
@@ -103,7 +103,7 @@ params.kp_tracker.use_KLT = true;  % --------------------------------------
 if params.ds == 0
     params.init.landmarks_cutoff = 200; % --------------------------------------
     
-    params.cont.reinit.inlier_th = 130; % when to reinit
+    params.cont.reinit.inlier_th = 50; % when to reinit
     params.cont.reinit.deltaFrames = 3;
     
     params.cont.landmarks_cutoff = 100;  % --------------------------------------

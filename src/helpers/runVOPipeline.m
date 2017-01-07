@@ -273,13 +273,18 @@ if params.run_continous
             % indices of the current frame landmarks within the map, used
             % to find the current frame landmarks after BA.
             idx_of_matched_in_map = [];
+                        
+            Cj_P_hom_map = tf2invtf(T_WCj_vo(:,:,frame_idx))*[W_landmarks_map; ones(1, size(W_landmarks_map, 2))];
+            visible_landmarks = Cj_P_hom_map(3,:) > 0;
+            updateConsole(params, sprintf('Searching through %i map landmarks \n', nnz(visible_landmarks)));
+            Cj_P_hom_visible = Cj_P_hom_map.*visible_landmarks;
             
             for it=1:nr_old_landmarks
                 % Find corresponding Landmark indices
                 ba_index = find(...
-                    abs(W_landmarks_map(1,:) - W_P_hom_j(1,it)) < tolerance & ...
-                    abs(W_landmarks_map(2,:) - W_P_hom_j(2,it)) < tolerance & ...
-                    abs(W_landmarks_map(3,:) - W_P_hom_j(3,it)) < tolerance);
+                    abs(Cj_P_hom_visible(1,:) - Cj_landmarks_j(1,it)) < tolerance & ...
+                    abs(Cj_P_hom_visible(2,:) - Cj_landmarks_j(2,it)) < tolerance & ...
+                    abs(Cj_P_hom_visible(3,:) - Cj_landmarks_j(3,it)) < tolerance);
 
                 if ba_index > 0
                     if size(ba_index, 2) > 1
@@ -288,9 +293,9 @@ if params.run_continous
                         min_error = inf;
                         for jt=1:size(ba_index, 2)
                             error = sqrt(...
-                                (W_landmarks_map(1,ba_index(jt)) - W_P_hom_j(1,it))^2 + ...
-                                (W_landmarks_map(2,ba_index(jt)) - W_P_hom_j(2,it))^2 + ...
-                                (W_landmarks_map(3,ba_index(jt)) - W_P_hom_j(3,it))^2);
+                                (Cj_P_hom_visible(1,ba_index(jt)) - Cj_landmarks_j(1,it))^2 + ...
+                                (Cj_P_hom_visible(2,ba_index(jt)) - Cj_landmarks_j(2,it))^2 + ...
+                                (Cj_P_hom_visible(3,ba_index(jt)) - Cj_landmarks_j(3,it))^2);
                             if error < min_error
                                 min_error = error;
                                 min_ba_index = ba_index(jt);
@@ -306,7 +311,8 @@ if params.run_continous
                     missed_landmarks_count = missed_landmarks_count+1;
                 end
             end
-        updateConsole(params, sprintf(' ---->%i landmarks where not matched again!', missed_landmarks_count));
+%         updateConsole(params, sprintf(' ---->%i landmarks where not matched again!', missed_landmarks_count));
+% for debugging purposes
             
             % add new landmarks to tracking
             for it = 1:nr_new_landmarks
