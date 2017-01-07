@@ -56,8 +56,8 @@ else
     [p_i1_uv, p_i2_uv, unmatched_query_kp_vu] = findCorrespondeces(params,I_i1,I_i2);
 
     % homogenize keypoints
-    p_hom_i1_uv = [p_i1_uv; ones(1,length(p_i1_uv))];
-    p_hom_i2_uv = [p_i2_uv; ones(1,length(p_i2_uv))];    
+    p_hom_i1_uv = [p_i1_uv; ones(1,size(p_i1_uv,2))];
+    p_hom_i2_uv = [p_i2_uv; ones(1,size(p_i2_uv,2))];    
 
     % estimate the essential matrix E using normalized 8-point algorithm
     % and RANSAC for outlier rejection
