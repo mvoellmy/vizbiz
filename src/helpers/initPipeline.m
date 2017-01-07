@@ -7,18 +7,20 @@ function [I_init, keypoints_init, C2_landmarks_init, T_C1C2, kp_tracks_init, nor
 %  - params(struct) : parameter struct
 %  - I_i1(size) : first image
 %  - I_i2(size) : second image
-%  - bootstrap_frame_1_idx(1x1) : dataset image index of I_i1
-%  - bootstrap_frame_2_idx(1x1) : dataset image index of I_i2
 %  - K(3x3) : camera calibration matrix
 %  - T_WC1(4x4) : fixed transformation from C1 to W
-%  - ground_truth(2xM) : ground thruth positions in world frame
+%  - scale_in : Precalculated scale of dataset (use 1 for first first call)
+%  - ground_truth(2xM) : ground thruth positions in world frame (optional)
+%  - bootstrap_frame_1_idx(1x1) : dataset image index of I_i1 (optional)
+%  - bootstrap_frame_2_idx(1x1) : dataset image index of I_i2 (optional)
 %
 % Output:
 %  - I_init(size) : initialization image
 %  - keypoints_init(2xN) : matched keypoints from image pair, each [v,u]
 %  - C2_landmarks_init(3xN) : C2-referenced triangulated 3D points
 %  - T_C1C2(4x4) : homogeneous transformation matrix C2 to C1
-%  - kp_tracks_init(struct) : TODO
+%  - kp_tracks_init(struct) : struct containing the first candidate keypoints
+%  - norm_scale(1x1) : calculated scale during init
 
 global fig_init gui_handles;
 

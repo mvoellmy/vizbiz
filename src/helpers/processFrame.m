@@ -17,6 +17,7 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, reI
 %  - Ci_landmarks_prev(3xN) : 3D points
 %  - T_WCi : (4x4) Current transformation world to Ci
 %  - K(3x3) : camera intrinsics matrix
+%  - norm_scale(1x1): Scale of dataset to be used during reinit
 %
 % Output:
 %  - T_CiCj(4x4) : transformation Cj to Ci
@@ -27,7 +28,6 @@ function [T_CiCj, p_new_matched_triang, kp_tracks_updated, Cj_new_landmarks, reI
 %  - Cj_new_landmarks (3xN) : 3D points in frame Cj
 %    verified inliers by ransac + new triangulated landmarks
 %  - reInitFlag (bool) : Flag true when reInit was performed
-% todo
 
 global fig_cont fig_kp_tracks fig_kp_triangulate gui_handles;
 
