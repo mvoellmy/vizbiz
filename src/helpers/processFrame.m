@@ -154,15 +154,22 @@ if (size(Ci_corresponding_inlier_landmarks,2) > params.cont.reinit.inlier_th )
         Cj_new_landmarks = Cj_P_hom(1:3,:);
     end
 
-    % update gui triangulated keypoints
-    if params.through_gui && params.gui.show_triang_features
-        gui_updateKeypoints(p_new_matched_triang, gui_handles.ax_current_frame, 'gx');
+    
+    if params.through_gui
+        % update tracking metric
+        gui_updateTracked(params, size(Cj_P_hom_new_inliers,2),...
+                        gui_handles.text_value_tracked, gui_handles.ax_tracked, gui_handles.plot_bar);
+        if params.gui.show_triang_features
+            % update gui triangulated keypoints
+            gui_updateKeypoints(p_new_matched_triang, gui_handles.ax_current_frame, 'gx');
+        end
     end
 
     % display statistics
     updateConsole(params,...
                   sprintf('  Number of landmarks (total/new): %i / %i\n',...
-                  size(Cj_new_landmarks,2), size(Cj_P_hom_new_inliers,2)));
+                  size(Cj_new_landmarks,2), size(Cj_P_hom_new_inliers,2)));              
+    
 else
     % do reinitialization
     if (params.cont.reinit.do_reinit)

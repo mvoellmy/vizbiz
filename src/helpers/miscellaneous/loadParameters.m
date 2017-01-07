@@ -112,6 +112,7 @@ if params.ds == 0
     params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]  % -------------------------------------
     
     params.kp_tracker.min_nr_landmarks = 500;
+    params.kp_tracker.min_nr_new_landmarks = 200;
     params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 230;
     params.kp_tracker.bearing_angle_multiplicator = 1.75;
     params.kp_tracker.max_nr_candidates = 1100;  % --------------------------------------
@@ -136,6 +137,7 @@ elseif params.ds == 1
     params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]  % -------------------------------------
     
     params.kp_tracker.min_nr_landmarks = 500;
+    params.kp_tracker.min_nr_new_landmarks = 200;
     params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 230;
     params.kp_tracker.bearing_angle_multiplicator = 1.75;
     params.kp_tracker.max_nr_candidates = 1100;  % --------------------------------------
@@ -160,6 +162,7 @@ elseif params.ds == 2
     params.localization_ransac.pixel_tolerance = 7; % 10 [pixels]  % -------------------------------------
     
     params.kp_tracker.min_nr_landmarks = 500;
+    params.kp_tracker.min_nr_new_landmarks = 200;
     params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 250;
     params.kp_tracker.bearing_angle_multiplicator = 1.75;
     params.kp_tracker.max_nr_candidates = 1300;  % --------------------------------------
