@@ -13,7 +13,7 @@ params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.run_continous = true;
-params.run_on_first_x_images = 300; % 0 for all images
+params.run_on_first_x_images = 0; % 0 for all images
 
 params.compare_against_groundthruth = true;
 params.show_map_and_cams = true;
@@ -73,8 +73,12 @@ params.cont.use_KLT = true;   % --------------------------------------
 params.cont.show_matches = true;
 params.cont.show_inlier_matches = true;
 params.cont.plot_new_landmarks = false;
-params.cont.use_BA = false;
 
+% bundle adjustment
+params.cont.use_BA = true;
+params.cont.ba.frequency = 5;
+params.cont.ba.fix_view_ids = false;
+ 
 % correspondence parameters continiuous
 params.cont.corr.harris_patch_size = 9; % 9 [pixels]
 params.cont.corr.harris_kappa = 0.08;
@@ -103,7 +107,7 @@ params.kp_tracker.use_KLT = true;  % --------------------------------------
 if params.ds == 0
     params.init.landmarks_cutoff = 200; % --------------------------------------
     
-    params.cont.reinit.inlier_th = 130; % when to reinit
+    params.cont.reinit.inlier_th = 50; % when to reinit
     params.cont.reinit.deltaFrames = 3;
     
     params.cont.landmarks_cutoff = 100;  % --------------------------------------

@@ -187,6 +187,9 @@ if params.run_continous
         ba_locations(1) = {T_WC1(1:3, 4)'};
         ba_orientations(2) = {T_WC2(1:3, 1:3)'};
         ba_locations(2) = {T_WC2(1:3, 4)'};
+        
+        frames_since_ba = -1; % this variable keeps count of when we last bundle adjusted. -1 means we should do it the next time we can.
+        ba_fixed_view_ids = 1;
     end
     
     for img_idx = range_cont
@@ -233,6 +236,9 @@ if params.run_continous
                     T_WCj_vo(:,:,idx) = T_WCj_vo(:,:,reInitFrameNr - 1);
                     T_CiCj_vo_j(:,:,idx) = eye(4);
                 end
+                
+                % set parameter, such that the frame will be bundleadjusted
+                frames_since_ba = -1;
             end
             % append last pose
             T_CiCj_vo_j(:,:,frame_idx) = T_CiCj;
@@ -274,23 +280,28 @@ if params.run_continous
             % to find the current frame landmarks after BA.
             idx_of_matched_in_map = [];
             
+            % apply spherical filter on map to search through for matching
+            Cj_P_hom_map = tf2invtf(T_WCj_vo(:,:,frame_idx)) * [W_landmarks_map; ones(1, size(W_landmarks_map, 2))];
+            [~, outFOV_idx] = applySphericalFilter(params, Cj_P_hom_map, 2*params.cont.landmarks_cutoff);
+            Cj_P_hom_visible = Cj_P_hom_map;
+            Cj_P_hom_visible(:,outFOV_idx) = zeros(4,nnz(outFOV_idx));
+            updateConsole(params, sprintf('Searching through %i map landmarks \n', nnz(Cj_P_hom_visible(1,:))));
+            
             for it=1:nr_old_landmarks
                 % Find corresponding Landmark indices
-                ba_index = find(...
-                    abs(W_landmarks_map(1,:) - W_P_hom_j(1,it)) < tolerance & ...
-                    abs(W_landmarks_map(2,:) - W_P_hom_j(2,it)) < tolerance & ...
-                    abs(W_landmarks_map(3,:) - W_P_hom_j(3,it)) < tolerance);
+                ba_index = find(abs(Cj_P_hom_visible(1,:) - Cj_landmarks_j(1,it)) < tolerance & ...
+                                abs(Cj_P_hom_visible(2,:) - Cj_landmarks_j(2,it)) < tolerance & ...
+                                abs(Cj_P_hom_visible(3,:) - Cj_landmarks_j(3,it)) < tolerance);
 
-                if ba_index > 0
+                if nnz(ba_index) > 0
                     if size(ba_index, 2) > 1
                         % if landmark correspond to multiple landmarks on
                         % the map. Match it to the closest one.
                         min_error = inf;
                         for jt=1:size(ba_index, 2)
-                            error = sqrt(...
-                                (W_landmarks_map(1,ba_index(jt)) - W_P_hom_j(1,it))^2 + ...
-                                (W_landmarks_map(2,ba_index(jt)) - W_P_hom_j(2,it))^2 + ...
-                                (W_landmarks_map(3,ba_index(jt)) - W_P_hom_j(3,it))^2);
+                            error = sqrt((Cj_P_hom_visible(1,ba_index(jt)) - Cj_landmarks_j(1,it))^2 + ...
+                                         (Cj_P_hom_visible(2,ba_index(jt)) - Cj_landmarks_j(2,it))^2 + ...
+                                         (Cj_P_hom_visible(3,ba_index(jt)) - Cj_landmarks_j(3,it))^2);
                             if error < min_error
                                 min_error = error;
                                 min_ba_index = ba_index(jt);
@@ -306,7 +317,8 @@ if params.run_continous
                     missed_landmarks_count = missed_landmarks_count+1;
                 end
             end
-        updateConsole(params, sprintf(' ---->%i landmarks where not matched again!', missed_landmarks_count));
+        updateConsole(params, sprintf(' ---->%i landmarks where not matched again!\n', missed_landmarks_count));
+% for debugging purposes
             
             % add new landmarks to tracking
             for it = 1:nr_new_landmarks
@@ -333,22 +345,31 @@ if params.run_continous
             cameraPoses.Orientation = ba_orientations;
             cameraPoses.Location = ba_locations;
             cameraParams = cameraParameters('IntrinsicMatrix', K');
+            
+            if frames_since_ba >= params.cont.ba.frequency || frames_since_ba == -1
+                [W_landmarks_map, refinedPoses] = bundleAdjustment(W_landmarks_map', ba_point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', ba_fixed_view_ids);
+                refined_frames_string = sprintf('%d ', refinedPoses.ViewId);
+                updateConsole(params, sprintf(' bundle-adjusted poses and landmarks in frames %s \n', refined_frames_string));
+                W_landmarks_map = W_landmarks_map'; % transposed because of MATLAB function interface/output
 
-            [W_landmarks_map, refinedPoses] = bundleAdjustment(W_landmarks_map', ba_point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', 1);
+                % append to trajectory
+                for i=refinedPoses.ViewId' % todo: pretty sure this can be indexed nicer and potentially done without a for loop
+                    T_WCj_vo(1:4, 1:4, i) = [cell2mat(refinedPoses.Orientation(i))', cell2mat(refinedPoses.Location(i))';
+                                             zeros(1,3)                            , 1                                  ;];
+                end
 
-            W_landmarks_map = W_landmarks_map'; % transposed because of MATLAB function interface/output
-
-            % append to trajectory
-            for i=1:frame_idx % todo: pretty sure this can be indexed nicer and potentially done without a for loop
-                T_WCj_vo(1:4, 1:4, i) = [cell2mat(refinedPoses.Orientation(i))', cell2mat(refinedPoses.Location(i))';
-                                         zeros(1,3)                            , 1                                  ;];
+                % update landmarks current frame
+                W_landmarks_last_frame = W_landmarks_map(:, idx_of_matched_in_map);            
+                Cj_P_hom_j = tf2invtf(T_WCj_vo(1:4, 1:4, frame_idx)) * [W_landmarks_last_frame; ones(1,size(W_landmarks_last_frame,2))];
+                Cj_landmarks_j = Cj_P_hom_j(1:3,:);
+                frames_since_ba = 0;
+                
+                % fix bundleadjusted poses
+                if params.cont.ba.fix_view_ids
+                    ba_fixed_view_ids = refinedPoses.ViewId';
+                end
             end
-            
-            % update landmarks current frame
-            W_landmarks_last_frame = W_landmarks_map(:, idx_of_matched_in_map);            
-            Cj_P_hom_j = tf2invtf(T_WCj_vo(1:4, 1:4, frame_idx)) * [W_landmarks_last_frame; ones(1,size(W_landmarks_last_frame,2))];
-            Cj_landmarks_j = Cj_P_hom_j(1:3,:);
-            
+            frames_since_ba = frames_since_ba + 1;
         end
         
         % extend 2D trajectory
