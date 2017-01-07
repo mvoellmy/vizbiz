@@ -264,7 +264,7 @@ handles = guidata(hObject);  % Get the version updated!
 
 % update radio inputs
 handles.params.auto_bootstrap = get(handles.radio_use_bootstrapping,'Value');
-handles.params.init.use_BA = get(handles.radio_use_BA,'Value');
+handles.params.cont.use_BA = get(handles.radio_use_BA,'Value');
 handles.params.run_continous = get(handles.radio_run_continuous,'Value');
 handles.params.gui.show_all_features = get(handles.radio_all_features,'Value');
 handles.params.gui.show_inlier_features = get(handles.radio_inlier_features,'Value');
