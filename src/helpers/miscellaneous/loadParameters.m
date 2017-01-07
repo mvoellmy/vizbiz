@@ -158,14 +158,14 @@ elseif params.ds == 2
     params.cont.reinit.inlier_th = 120; % when to reinit
     params.cont.reinit.deltaFrames = 3;
     
-    params.cont.landmarks_cutoff = 340;  % --------------------------------------
+    params.cont.landmarks_cutoff = 370;  % --------------------------------------
     
     params.localization_ransac.num_iterations_pnp = 700; % 2000 fix?
     params.localization_ransac.pixel_tolerance = 2; % 10 [pixels]  % -------------------------------------
     
-    params.kp_tracker.min_nr_landmarks = 500;
-    params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 350;
-    params.kp_tracker.bearing_angle_multiplicator = 1.75;
+    params.kp_tracker.min_nr_landmarks = 500; % this is the number desired
+    params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 300;
+    params.kp_tracker.bearing_angle_multiplicator = 2.5;
     params.kp_tracker.max_nr_candidates = 1300;  % --------------------------------------
     params.kp_tracker.rand_pick = false;
     params.kp_tracker.nr_best_candidates = 100; % for randomized picking
@@ -173,7 +173,7 @@ elseif params.ds == 2
     params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
     params.kp_tracker.min_nr_trackings = 3; % 3
     params.kp_tracker.max_nr_trackings = 25;
-    params.kp_tracker.max_reproj_error = 3; % 12 [pixels]  % -------------------------------------- 
+    params.kp_tracker.max_reproj_error = 2; % 12 [pixels]  % -------------------------------------- 
 
 else
     error('!!!!! Wrong dataset parameter !!!!!!')
