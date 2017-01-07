@@ -9,10 +9,10 @@ function params = loadParameters()
 
 %% general parameters
 % general parameters
-params.ds = 4; % 0: KITTI, 1: Malaga, 2: Parking, 3: Poly-up, 4: Poly-down
+params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking, 3: Poly-up, 4: Poly-down
 params.auto_bootstrap = false;
 params.perf.profiling = false;
-params.run_continous = false;
+params.run_continous = true;
 params.run_on_first_x_images = 70; % 0 for all images
 
 params.compare_against_groundthruth = true;
