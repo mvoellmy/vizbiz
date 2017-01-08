@@ -1,8 +1,12 @@
 # !!!FOR TEACHING ASSISTANTS!!!
 Please download the tuned datasets from their respective branches:
+
 https://github.com/mvoellmy/vizbiz/tree/Kitti_Tuned
+
 https://github.com/mvoellmy/vizbiz/tree/malaga_tune_v3
+
 https://github.com/mvoellmy/vizbiz/tree/Parking_tuned_v3
+
 https://github.com/mvoellmy/vizbiz/tree/poly-both_tuned_v2
 
 # vizbiz
