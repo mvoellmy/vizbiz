@@ -356,9 +356,8 @@ if params.run_continous
  
         if params.cont.use_BA  
             % fill BA-container with poses
-            ba_orientations(frame_idx) = {T_WCj_vo(1:3, 1:3, frame_idx)'};
-            ba_locations(frame_idx) = {T_WCj_vo(1:3, 4, frame_idx)'};
-
+            ba_orientations(end+1) = {T_WCj_vo(1:3, 1:3, frame_idx)'};
+            ba_locations(end+1) = {T_WCj_vo(1:3, 4, frame_idx)'};
             ba_view_ids = [ba_view_ids, frame_idx];
             cameraPoses = table;
             cameraPoses.ViewId = uint32(ba_view_ids');
@@ -367,15 +366,38 @@ if params.run_continous
             cameraParams = cameraParameters('IntrinsicMatrix', K');
             
             if frames_since_ba >= params.cont.ba.frequency || frames_since_ba == -1
+                % flush Bundle Adjust containers
+                start_frame = frame_idx - params.cont.ba.window_size;
+                if start_frame < 1
+                    start_frame = 1;
+                end
+                
+                ba_fixed_view_ids = start_frame;
+                
+                poses_to_delete = cameraPoses.ViewId < start_frame;
+                cameraPoses(poses_to_delete,:) = [];
+                ba_view_ids(poses_to_delete) = [];
+                ba_orientations(poses_to_delete) = [];
+                ba_locations(poses_to_delete) = [];
+                
+                for i=1:size(ba_point_tracks, 2)
+                    outdated_frames = ba_point_tracks(i).ViewIds(:) < start_frame;
+                    ba_point_tracks(i).ViewIds(outdated_frames) = [];
+                    ba_point_tracks(i).Points(outdated_frames, :) = [];
+                end
+                
+                
                 [W_landmarks_map, refinedPoses] = bundleAdjustment(W_landmarks_map', ba_point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', ba_fixed_view_ids);
                 refined_frames_string = sprintf('%d ', refinedPoses.ViewId);
                 updateConsole(params, sprintf(' bundle-adjusted poses and landmarks in frames %s \n', refined_frames_string));
                 W_landmarks_map = W_landmarks_map'; % transposed because of MATLAB function interface/output
 
                 % append to trajectory
+                count = 1;
                 for i=refinedPoses.ViewId' % todo: pretty sure this can be indexed nicer and potentially done without a for loop
-                    T_WCj_vo(1:4, 1:4, i) = [cell2mat(refinedPoses.Orientation(i))', cell2mat(refinedPoses.Location(i))';
+                    T_WCj_vo(1:4, 1:4, i) = [cell2mat(refinedPoses.Orientation(count))', cell2mat(refinedPoses.Location(count))';
                                              zeros(1,3)                            , 1                                  ;];
+                    count = count + 1;
                 end
 
                 % update landmarks current frame
@@ -384,10 +406,12 @@ if params.run_continous
                 Cj_landmarks_j = Cj_P_hom_j(1:3,:);
                 frames_since_ba = 0;
                 
+                
                 % fix bundleadjusted poses
                 if params.cont.ba.fix_view_ids
                     ba_fixed_view_ids = refinedPoses.ViewId';
                 end
+     
             end
             frames_since_ba = frames_since_ba + 1;
         end
