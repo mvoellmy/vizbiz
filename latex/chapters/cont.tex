@@ -2,19 +2,19 @@
 \label{sec_cont_op}
 Continuous operation of the VO pipeline is implemented in the 'process frame' function. It tracks keypoints with corresponding landmarks over several frames while estimating the pose difference between successive frames. Further, a keypoint tracker finds new candidate keypoints which will become new landmarks if a candidate keypoint was tracked far enough and achieved 'good' trianguability. This ensures to never run out of landmarks and keypoints if the image changes over time. Optionally, a bundle adjustment can be triggered. The routines of the continuous operation shown in \cref{img_flow_cont} are described below.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 	\centering
 	\includegraphics[width=0.6\textwidth]{cont/cont_chart}
 	\caption{Continuous operation flow chart}
 	\label{img_flow_cont}
 \end{figure}
 
-\subsubsection{Relative pose estimation}
+\subsubsection{p3pRansac()}
 \label{ransac_cont}
 To estimate the pose difference $T_{C_iC_j}$ from frame $i$ to $j$ we use the p3p-RANSAC algorithm also used in exercise 5. If wished the RANSAC can also use DLT pose estimation. Using these RANSAC algorithm ensures to remove outliers from our landmarks. We don't use DLT refinement after the p3p RANSAC since the best guess from p3p often gave better results.
 
-\subsubsection{find\_correspondences\_cont()}
-Tracking keypoints with existing landmarks from frame $i$ to frame $j$ is achieved by the function $find\_correspondences\_cont$. The user can choose whether to use a KLT or Harris matcher. As a by-product, the generated query keypoints are saved to be used by the candidate keypoint tracker in a successive step so they don't have to be generated twice which saves computation time. The number of generated query keypoints is adjustable by a parameter. In case the KLT tracker is active (which does not return query keypoints by default) new query keypoints are generated using Harris features. The amount of newly generated keypoints is the difference of remaining and wished candidate keypoints.
+\subsubsection{findCorrespondences\_cont()}
+Tracking keypoints with existing landmarks from frame $i$ to frame $j$ is achieved by the function\\ '$findCorrespondences\_cont$'. The user can choose whether to use a KLT or Harris matcher. As a by-product, the generated query keypoints are saved to be used by the candidate keypoint tracker in a successive step so they don't have to be generated twice which saves computation time. The number of generated query keypoints is adjustable by a parameter. In case the KLT tracker is active (which does not return query keypoints by default) new query keypoints are generated using Harris features. The amount of newly generated keypoints is the difference of remaining and wished candidate keypoints.
 
 \subsubsection{updateKpTracks()}
 In every frame, candidate keypoints from previous frames are tracked to $j$-frame. Every candidate keypoint track consists of the following entries: $\left\{\left[u/v\right]_j, \left[u/v\right]_{first}, T_{WC_{first}}, nr\_trackings\right\}$. After successive tracking, $[u/v]_j$ as well as the number of successful successive trackings are updated. The user can choose whether to use a KLT or a Harris matcher.
@@ -31,7 +31,7 @@ In order to localize correctly (see \cref{ransac_cont}), a sufficient number of 
 \end{compactenum}
 Landmarks and their corresponding keypoints which passed these two filters are appended to the existing landmarks and keypoints vectors and will be used during the next localization iteration.
 
-\subsubsection{Bundle Adjustment}
+\subsubsection{bundleAdjustment()}
 \label{ba_cont}
 After the new landmarks have been generated bundle adjustment occurs. The bundle adjustment has been implemented in a sliding window fashion. The bundle adjustment occurs at a set frequency over the frames within the sliding window. As depicted in \cref{fig:ba_concept} can both the size of the sliding window and the frequency of the bundle adjustment be adjusted according to the dataset. The pose of the first frame of the sliding window is fixed in order to keep the the trajectory continuous.
 
@@ -46,10 +46,3 @@ The only exception regarding the keyframes occurs if the pipeline has crashed. T
 
 \subsubsection{Reinitialization}
 The quality of the transformation matrix estimated by the p3p-RANSAC depends on the number of inlier landmarks. If there are enough inlier landmarks, the pose found by the p3p-RANSAC is a good estimation. However, if there are too few inlier landmarks, the estimated pose can be considered as too inaccurate for a further use. The fact that too few landmarks were found is a sign that the last few poses weren't good enough. It is therefore a good idea to discard some of the previous poses. The reinitialization discards the last \begin{math} n \end{math} poses and reinitializes the pipeline with the current image \begin{math} j \end{math} and the image \begin{math} j-(n+1) \end{math}. Then the pipline continous with these newly generated landmarks from pose $T_{WC_{j-n(1)}}$. The keypoint tracker is reinitialized as well and all old (and probably inacurate) candidate keypoints are discarded.
-
-\begin{figure}[ht]
-	\centering
-	\includegraphics[width=0.8\textwidth]{cont/cont_chart}
-	\caption{Cont Flow chart}
-	\label{img_flow_cont}
-\end{figure}

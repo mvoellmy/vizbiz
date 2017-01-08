@@ -1,27 +1,22 @@
 \section{Discussion}
 
-\subsubsection{Correspondence search}
+\subsection{Bundle Adjustment}
+While the approach described in \cref{ba_cont} was implemented the results did not meet our expectations. Even after thoroughly evaluating and improving the code for dozens of hours no satisfying results were obtained with bundle adjustment enabled.
 
-KLT vs Harris matching
-
-\subsubsection{Bundle Adjust}
-While the approach described in \cref{ba_cont} was implemented the results did not meet our expectations. Even after thorowly evaluating and improving the code for dozens of hours no satisfying results were obtained with bundle adjustment enabled.
-
-The plots in \cref{fig:ba_comp} show, that the reprojected landmarks and keypoints before and after bundle adjustment match correctly. Further testing showed that the keypoints are also tracked correctly accros the frames. 
-The various parameters such as the number of fixed frames, sliding window and the bundle adjustment frequency were tested accros the board. The results were always worse than without bundle adjustment however.
+The plots in \cref{fig:ba_comp} show, that the reprojected landmarks and keypoints before and after bundle adjustment match correctly. Further testing showed that the keypoints are also tracked correctly across the frames. 
+The various parameters such as the number of fixed frames, sliding window and the bundle adjustment frequency were tested across the board. The results were always worse than without bundle adjustment however.
 One example of strangely optimized landmarks is shown in \cref{ba_vs_wo_ba}. The landmarks all correlated into a line such that the trajectory fails.
 
 Since this bug messed up the bundle adjustment, all datasets and results are with bundle adjustment deactivated.
 
-\begin{figure}
+\begin{figure}[h!!]
 	\centering
-	\includegraphics[width=0.8\textwidth]{cont/ba_comp}
+	\includegraphics[width=0.6\textwidth]{cont/ba_comp}
 	\caption{Reprojected landmarks and corresponding keypoints before and after bundle adjustment.}
 	\label{fig:ba_comp}
 \end{figure}
 
-
-\begin{figure}
+\begin{figure}[h!!]
 \centering
    \begin{subfigure}[b]{0.55\textwidth}
    \includegraphics[width=1\linewidth]{cont/wo_ba}
@@ -33,17 +28,18 @@ Since this bug messed up the bundle adjustment, all datasets and results are wit
 \end{subfigure}
 \caption{Bundle adjusted landmarks correlate in a line.}
 \end{figure}
-\end{document}
 
-\subsubsection{Pose estimation algorithm}
+\newpage
+\subsection{Pose estimation algorithm}
 We investigated pose estimation with DLT refinement after the P3P-Guess and without refinement (using the last P3P guess from RANSAC). It turned out, that very often the P3P-guess was a lot better and especially more robust then the DLT refinement. \cref{parking_result_fig_dlt} shows the estimated trajectory with DLT refinement. It is clearly worse then the P3P estimate as shown in \cref{parking_result_fig}. That's why we used the last P3P guess in our implementation.
 \begin{figure*}[ht!]
     \centering
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
-        \includegraphics[height=2.7in]{results/trajectory_parking_dlt.eps} 
+        \includegraphics[height=2.7in]{results/trajectory_parking_dlt.eps}
         \caption{Trajectory vs. ground truth}
-    \end{subfigure} 
+    \end{subfigure}%
+    ~ 
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[height=2.7in]{results/landmarks_parking_dlt.eps}
@@ -53,5 +49,5 @@ We investigated pose estimation with DLT refinement after the P3P-Guess and with
 		\label{parking_result_fig_dlt}
 \end{figure*}
 
-\subsubsection{Reinitialization}
+\subsection{Reinitialization}
 The Reinitialization prevents the pipeline from dying of a lack of landmarks. If there are too few landmarks left, the reinitialisation interrupts the keypoint tracker and generates new landmarks. How often this happens depends on the parameters mentioned in \cref{sec_key_params} as well as on the dataset. The pipeline loses keypoints when areas with a high keypoint density are moving out of the image quickly. We could observe a small buckle of the trajectory every time the reinitialization was done. However, most of the times trajectory improved significantly after reinitialisation.

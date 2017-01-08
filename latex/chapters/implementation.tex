@@ -1,23 +1,12 @@
 \section{Implementation}
 
-This pipeline was developed in MATLAB. Since the group consisted of four students, a Git repository was used to be able to work on different files simultaneously, and to enable version control.
+This pipeline was developed in MATLAB 2016b. Since the group consisted of four students, a Git repository was used to be able to work on different files simultaneously, and to enable version control.
 
-\subsubsection{Coordinate Frames}
-In this mini project the coordinate frames were defined as shown in \cref{img_coord_frames}. The camera coordinates are in a way oriented, that the x-y plane lies parallel to the image plane, while the z-axis is pointing towards the scenery. The world frame however is oriented in such a way that the x-y plane is parallel to the ground and the z-axis is pointing upwards. The origin of the world frame is at the same location as the origin of the first bootstrap image.
-
-Transformation between frames are described by homogenous transformation matrices. $T_{AB}$ maps points from frame $B$ to frame $A$.
-
-\begin{figure}[ht]
-	\centering
-	\includegraphics[width=0.5\textwidth]{impl/coord_frames}
-	\caption{Coordinate Frames}
-	\label{img_coord_frames}
-\end{figure}
-
-\subsubsection{Pipeline overview}
-As shown in \cref{img_flow_rough} the pipeline consists of two parts:
+\subsection{Pipeline overview}
+As shown in \cref{img_flow_rough} the pipeline consists of three parts:
 \begin{compactenum}
-	\item Bootstraping \& Initialization
+	\item Bootstraping
+	\item Initialization
 	\item Continuous operation
 \end{compactenum}
 
@@ -28,19 +17,7 @@ As shown in \cref{img_flow_rough} the pipeline consists of two parts:
 	\label{img_flow_rough}
 \end{figure}
 
-\subsubsection{Conventions}
-\begin{compactitem}
-	\item Index of previous frame: $i$
-	\item Index of current frame: $j$
-	\item Index of frame for newly added candidate keypoint: $first$
-	\item Pose difference between previous to current frame: $T_{C_iC_j}$
-	\item $\left[u/v\right]$: Pixel coordinates
-	\item Query keypoints: Keypoints newly generated in frame $j$ 
-	\item Candidate keypoint: A keypoint without associated landmark
-	\item Harris Matcher: Descriptor matching keypoint tracker (based on Harris features) developed during the lecture.
-\end{compactitem}
-
-\subsubsection{Options and parameters}
+\subsection{Options and parameters}
 The pipeline was designed in a modular way. Key algorithms are abstracted into self-contained functions, as described in the pipeline overview. Next to this 'functional programming' approach all the tuning variables (e.g. number of keypoints, bearing angle thresholds, etc.) were centrally aggregated in a parameter struct.\\
 For further insight please consult the function \code{loadParameters.m}.\\
 
@@ -96,6 +73,7 @@ Using the Camera Calibration Toolbox for Matlab\footnote{\url{www.vision.caltech
 The camera intrinsics parameters together with a fourth-order polynomial approximation of the radial-tangential distortion were calculated based on the assumption of the skew being zero. The exact values and error margins are to be found on the Github repository.\\
 
 Given these calibration parameters the VO pipeline was also applied on self-generated datasets called \textit{Poly-Up} and \textit{Poly-Down}. Note, that no undistortion was performed, since testing showed it to be negligible.
+\newpage
 
 \input{chapters/init}
 \clearpage{\pagestyle{plain}\cleardoublepage}

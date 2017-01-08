@@ -1,6 +1,31 @@
 \section{Introduction}
-\textcolor[rgb]{1,0,0}{@Miro @Milan, read it trough please}
 
 During this mini project a monocular visual odometry pipeline was developed. This pipeline takes the consecutive gray-scale images of a single digital camera as input. 
 The output of the pipeline is the position of the camera in relation to its initial position for each frame.
 The pipeline is programmed in such a way that the Markov assumption is valid. This means that the current computation step is only dependent on the previous step to reduce the required computation effort.
+
+\subsection{Coordinate Frames}
+In this mini project the coordinate frames were defined as shown in \cref{img_coord_frames}. The camera coordinates are in a way oriented, that the x-y plane lies parallel to the image plane, while the z-axis is pointing towards the scenery. The world frame however is oriented in such a way that the x-y plane is parallel to the ground and the z-axis is pointing upwards. The origin of the world frame is at the same location as the origin of the first bootstrap image.
+
+Transformation between frames are described by homogenous transformation matrices. $T_{AB}$ maps points from frame $B$ to frame $A$.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.5\textwidth]{impl/coord_frames}
+	\caption{Coordinate Frames}
+	\label{img_coord_frames}
+\end{figure}
+
+
+\subsection{Conventions}
+\begin{compactitem}
+	\item Index of previous frame: $i$
+	\item Index of current frame: $j$
+	\item Index of frame for newly added candidate keypoint: $first$
+	\item Pose difference between previous to current frame: $T_{C_iC_j}$
+	\item $\left[u/v\right]$: Pixel coordinates
+	\item Query keypoints: Keypoints newly generated in frame $j$ 
+	\item Candidate keypoint: A keypoint without associated landmark
+	\item Harris Matcher: Descriptor matching keypoint tracker (based on Harris features) developed during the lecture.
+\end{compactitem}
+
