@@ -309,7 +309,7 @@ if params.run_continous
                     missed_landmarks_count = missed_landmarks_count+1;
                 end
             end
-        updateConsole(params, sprintf(' ---->%i landmarks where not matched again!\n', missed_landmarks_count));
+        updateConsole(params, sprintf(' ----> %i landmarks where not matched again!\n', missed_landmarks_count));
 % for debugging purposes
             
             % add new landmarks to tracking
