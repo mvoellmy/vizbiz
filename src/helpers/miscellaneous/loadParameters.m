@@ -107,25 +107,25 @@ params.kp_tracker.use_KLT = true;  % --------------------------------------
 if params.ds == 0
     params.init.landmarks_cutoff = 200; % --------------------------------------
     
-    params.cont.reinit.inlier_th = 50; % when to reinit
+    params.cont.reinit.inlier_th = 25; % when to reinit
     params.cont.reinit.deltaFrames = 3;
     
-    params.cont.landmarks_cutoff = 100;  % --------------------------------------
+    params.cont.landmarks_cutoff = 250;  % --------------------------------------
     
-    params.localization_ransac.num_iterations_pnp = 1500; % 2000 fix?
-    params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]  % -------------------------------------
+    params.localization_ransac.num_iterations_pnp = 1700; % 2000 fix?
+    params.localization_ransac.pixel_tolerance = 2; % 10 [pixels]  % -------------------------------------
     
-    params.kp_tracker.min_nr_landmarks = 500;
-    params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 230;
+    params.kp_tracker.min_nr_landmarks = 600;
+    params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 180;
     params.kp_tracker.bearing_angle_multiplicator = 1.75;
-    params.kp_tracker.max_nr_candidates = 1200;  % --------------------------------------
+    params.kp_tracker.max_nr_candidates = 1300;  % --------------------------------------
     params.kp_tracker.rand_pick = false;
     params.kp_tracker.nr_best_candidates = 100; % for randomized picking
-    params.kp_tracker.bearing_low_thr = 6; % [deg]  % --------------------------------------
+    params.kp_tracker.bearing_low_thr = 1.4; % [deg]  % --------------------------------------
     params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
     params.kp_tracker.min_nr_trackings = 2; % 3
-    params.kp_tracker.max_nr_trackings = 20;
-    params.kp_tracker.max_reproj_error = 7; % 12 [pixels]  % --------------------------------------
+    params.kp_tracker.max_nr_trackings = 25;
+    params.kp_tracker.max_reproj_error = 3; % 12 [pixels]  % --------------------------------------
 
 % Malaga
 elseif params.ds == 1

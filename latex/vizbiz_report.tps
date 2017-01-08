@@ -11,10 +11,10 @@ MaxPos.x=-1
 MaxPos.y=-1
 NormalPos.left=4
 NormalPos.top=26
-NormalPos.right=1562
-NormalPos.bottom=513
+NormalPos.right=1654
+NormalPos.bottom=643
 Class=LaTeXView
-Document=vizbiz_report.tex
+Document=chapters\conclusion.tex
 
 [Frame0_View0,0]
 TopLine=0
@@ -29,10 +29,10 @@ MaxPos.x=-1
 MaxPos.y=-1
 NormalPos.left=4
 NormalPos.top=26
-NormalPos.right=1562
-NormalPos.bottom=513
+NormalPos.right=1654
+NormalPos.bottom=643
 Class=LaTeXView
-Document=chapters\introduction.tex
+Document=vizbiz_report.tex
 
 [Frame1_View0,0]
 TopLine=0
@@ -47,14 +47,14 @@ MaxPos.x=-1
 MaxPos.y=-1
 NormalPos.left=4
 NormalPos.top=26
-NormalPos.right=1562
-NormalPos.bottom=513
+NormalPos.right=1654
+NormalPos.bottom=643
 Class=LaTeXView
-Document=chapters\implementation.tex
+Document=chapters\introduction.tex
 
 [Frame2_View0,0]
 TopLine=0
-Cursor=0
+Cursor=668
 
 [Frame3]
 Flags=0
@@ -65,10 +65,10 @@ MaxPos.x=-1
 MaxPos.y=-1
 NormalPos.left=4
 NormalPos.top=26
-NormalPos.right=1562
-NormalPos.bottom=513
+NormalPos.right=1654
+NormalPos.bottom=643
 Class=LaTeXView
-Document=chapters\cont.tex
+Document=chapters\implementation.tex
 
 [Frame3_View0,0]
 TopLine=0
@@ -83,10 +83,10 @@ MaxPos.x=-1
 MaxPos.y=-1
 NormalPos.left=4
 NormalPos.top=26
-NormalPos.right=1562
-NormalPos.bottom=513
+NormalPos.right=1654
+NormalPos.bottom=643
 Class=LaTeXView
-Document=chapters\init.tex
+Document=chapters\cont.tex
 
 [Frame4_View0,0]
 TopLine=0
@@ -101,10 +101,10 @@ MaxPos.x=-1
 MaxPos.y=-1
 NormalPos.left=4
 NormalPos.top=26
-NormalPos.right=1562
-NormalPos.bottom=513
+NormalPos.right=1654
+NormalPos.bottom=643
 Class=LaTeXView
-Document=chapters\results.tex
+Document=chapters\init.tex
 
 [Frame5_View0,0]
 TopLine=0
@@ -119,14 +119,14 @@ MaxPos.x=-1
 MaxPos.y=-1
 NormalPos.left=4
 NormalPos.top=26
-NormalPos.right=1562
-NormalPos.bottom=513
+NormalPos.right=1654
+NormalPos.bottom=643
 Class=LaTeXView
-Document=chapters\discussion.tex
+Document=chapters\results.tex
 
 [Frame6_View0,0]
-TopLine=0
-Cursor=403
+TopLine=60
+Cursor=4283
 
 [Frame7]
 Flags=0
@@ -137,14 +137,14 @@ MaxPos.x=-1
 MaxPos.y=-1
 NormalPos.left=4
 NormalPos.top=26
-NormalPos.right=1562
-NormalPos.bottom=513
+NormalPos.right=1654
+NormalPos.bottom=643
 Class=LaTeXView
-Document=chapters\conclusion.tex
+Document=chapters\discussion.tex
 
 [Frame7_View0,0]
 TopLine=0
-Cursor=0
+Cursor=264
 
 [SessionInfo]
 FrameCount=8
