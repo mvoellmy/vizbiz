@@ -9,7 +9,7 @@ A list of potential improvements
 Possible future work, improvements (loop closure, ...)
 
 \begin{itemize}
-\item \colorbox[rgb]{1,0,0}{bootstrapping with both information rotation through bearing angle diff and translation through baseline/depth ratio}
+\item do bootstrapping using both information about the rotation, through difference of bearing angles, and information about translatory motion, from baseline/depth ratio.
 \item Include bundle adjustment
 \item Optimize runtime e.g. use a parallel for loop for P3P-RANSAC
 \item Reinitialize depending on $T_{C_iC_j}$ instead of number of landmarks remaining. An unusually big translation or rotation $T_{C_iC_j}$ is a sign that the pipeline start diverging.
