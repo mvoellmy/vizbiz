@@ -18,7 +18,7 @@ Transformation between frames are described by homogenous transformation matrice
 
 As shown in \cref{img_flow_rough} the pipeline consists mainly of three parts, a bootstrap, the initialization and the continuous operation. In \cref{sec_init} and \cref{sec_cont_op} the initialisation and the continuous operation are described in detail.
 
-@Milan is this flowchart up to date? If yes all good. :-\)
+Milan is this flowchart up to date? If yes all good. :-)
 
 \begin{figure}[ht]
 	\centering
@@ -58,11 +58,12 @@ Please follow the steps below to run the visual odometry through the GUI environ
 
 For more advanced parameter tuning resort to changing the default parameters in \code{loadParameters.m}.
 
+%\@ Miro please add pic of gui during operation
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.4\textwidth]{test}
 	\captionsetup{justification=centering}
-	\caption{Graphical user interface \\all features (red $\bullet$), inlier features (green $\bullet$), triangulated features (green $\times$)}
+	\caption{Graphical user interface \\candidate keypoints (red $\bullet$), inlier keypoints (green $\bullet$), reprojected landmarks (green $\times$)}
 	\label{img_gui}
 \end{figure}
 
