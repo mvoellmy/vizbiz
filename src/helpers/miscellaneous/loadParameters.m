@@ -112,7 +112,7 @@ if params.ds == 0
     
     params.cont.landmarks_cutoff = 250;  % --------------------------------------
     
-    params.localization_ransac.num_iterations_pnp = 1200; % 2000 fix?
+    params.localization_ransac.num_iterations_pnp = 1300; % 2000 fix?
     params.localization_ransac.pixel_tolerance = 2; % 10 [pixels]  % -------------------------------------
     
     params.kp_tracker.min_nr_landmarks = 600;
@@ -121,7 +121,7 @@ if params.ds == 0
     params.kp_tracker.max_nr_candidates = 1300;  % --------------------------------------
     params.kp_tracker.rand_pick = false;
     params.kp_tracker.nr_best_candidates = 100; % for randomized picking
-    params.kp_tracker.bearing_low_thr = 1.65; % [deg]  % --------------------------------------
+    params.kp_tracker.bearing_low_thr = 1.7; % [deg]  % --------------------------------------
     params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
     params.kp_tracker.min_nr_trackings = 2; % 3
     params.kp_tracker.max_nr_trackings = 25;
