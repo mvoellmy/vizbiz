@@ -141,6 +141,10 @@ switch str{val}
         handles.params.ds = 1;
     case 'Parking'
         handles.params.ds = 2;
+    case 'Poly-Up'
+        handles.params.ds = 3;
+    case 'Poly-Down'
+        handles.params.ds = 4;
 end
 
 guidata(hObject, handles);
