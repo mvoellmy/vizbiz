@@ -5,6 +5,13 @@ The first step of the initialization is the bootstraping which outputs an image 
 Features are then matched across the two bootstrap images and the pose of the second camera is estimated using an 8-point-Ransac.
 Landmarks are generated using the pose and the matched features. These landmarks and the pose are then refined using bundle adjustment. To end the initialization the landmarks which are unrealistic are discarded.
 
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.6\textwidth]{init/init_chart}
+	\caption{Initialization flow chart}
+	\label{img_flow_init}
+\end{figure}
+
 \subsubsection{getBootstrapFrames()}
 \label{sec_boot}
 In order to pick reasonable image pairs for initialization an automatic procedure was implemented, as a additional degree of 'autonomy' compared to hard-coded index pairs.\\
@@ -48,11 +55,11 @@ The landmarks and transformation between the first two frames are optimized usin
 	\centering
 	\begin{minipage}{.4\textwidth}
 		\centering
-		\includegraphics[width=0.8\textwidth]{/init/withoutba}
+		\includegraphics[width=\textwidth]{/init/withoutba}
 	\end{minipage}
 	\begin{minipage}{.4\textwidth}
 		\centering
-		\includegraphics[width=0.8\textwidth]{/init/withba}
+		\includegraphics[width=\textwidth]{/init/withba}
 	\end{minipage}%
 	\caption{Initialization trajectory before (left) and after (right) bundle-adjustment}
 \end{figure}
@@ -61,10 +68,3 @@ The landmarks and transformation between the first two frames are optimized usin
 \subsubsection{applySphericalFilter()}
 \label{sub_sec_sphFilter}
 Discards all landmarks which are not within a half-sphere in front of the camera. This removes on one hand landmarks triangulated behind the camera (negative z-components) and also landmarks further away than the filter cutoff radius. With this filtering only landmarks in the neighborhood are kept, which are more reliably triangulated (smaller uncertainty cone). Note, that this absolute thresholding relies on an accurate scale estimation.
-
-\begin{figure}[ht]
-	\centering
-	\includegraphics[width=0.8\textwidth]{init/init_chart}
-	\caption{Init Flow chart}
-	\label{img_flow_init}
-\end{figure}
