@@ -16,6 +16,7 @@ https://github.com/mvoellmy/vizbiz/blob/master/latex/vizbiz_report.pdf
 # Videos
 https://drive.google.com/open?id=0B5IiBBfzxq2yaVhLYkdKR1NLUW8
 # How to run:
+The main.m file is located in the src folder.
 In order to run the visual odometry two launch procedures where implemented:
 
 * Debug Mode: For development and debug mode the main.m with default parameters can be executed. Numerous individual plots are displayed with insightful information about matching, inlier rejection and triangulation.
