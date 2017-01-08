@@ -9,7 +9,7 @@ function params = loadParameters()
 
 %% general parameters
 % general parameters
-params.ds = 2; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 1; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.run_continous = true;
@@ -75,7 +75,7 @@ params.cont.show_inlier_matches = true;
 params.cont.plot_new_landmarks = false;
 
 % bundle adjustment
-params.cont.use_BA = true;
+params.cont.use_BA = false;
 params.cont.ba.frequency = 5;
 params.cont.ba.fix_view_ids = false;
  
@@ -136,20 +136,20 @@ elseif params.ds == 1
     
     params.cont.landmarks_cutoff = 100;  % --------------------------------------
     
-    params.localization_ransac.num_iterations_pnp = 2000; % 2000 fix?
-    params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]  % -------------------------------------
+    params.localization_ransac.num_iterations_pnp = 600; % 2000 fix?
+    params.localization_ransac.pixel_tolerance = 8; % 10 [pixels]  % -------------------------------------
     
     params.kp_tracker.min_nr_landmarks = 500;
     params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 230;
     params.kp_tracker.bearing_angle_multiplicator = 1.75;
-    params.kp_tracker.max_nr_candidates = 1100;  % --------------------------------------
+    params.kp_tracker.max_nr_candidates = 1300;  % --------------------------------------
     params.kp_tracker.rand_pick = false;
     params.kp_tracker.nr_best_candidates = 100; % for randomized picking
-    params.kp_tracker.bearing_low_thr = 7; % [deg]  % --------------------------------------
+    params.kp_tracker.bearing_low_thr = 2.75; % [deg]  % --------------------------------------
     params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
     params.kp_tracker.min_nr_trackings = 2; % 3
     params.kp_tracker.max_nr_trackings = 20;
-    params.kp_tracker.max_reproj_error = 7; % 12 [pixels]  % --------------------------------------
+    params.kp_tracker.max_reproj_error = 5; % 12 [pixels]  % --------------------------------------
 
 % Parking
 elseif params.ds == 2
