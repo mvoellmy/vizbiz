@@ -55,7 +55,7 @@ params.init.normalize_scale = true;
 params.init.corr.harris_patch_size = 9; % 9 [pixels]
 params.init.corr.harris_kappa = 0.08; %0.08;
 params.init.corr.nonmaximum_supression_radius = 8;
-params.init.corr.num_keypoints = 600; % 200 % 400 % --------------------------------------
+params.init.corr.num_keypoints = 700; % 200 % 400 % --------------------------------------
 params.init.corr.descriptor_radius = 9; % [pixels]
 params.init.corr.match_lambda = 8; % 5 % --------------------------------------
 
@@ -131,8 +131,8 @@ if params.ds == 0
 elseif params.ds == 1
     params.init.landmarks_cutoff = 200; % --------------------------------------
     
-    params.cont.reinit.inlier_th = 130; % when to reinit
-    params.cont.reinit.deltaFrames = 3;
+    params.cont.reinit.inlier_th = 90; % when to reinit
+    params.cont.reinit.deltaFrames = 4;
     
     params.cont.landmarks_cutoff = 100;  % --------------------------------------
     
@@ -140,15 +140,15 @@ elseif params.ds == 1
     params.localization_ransac.pixel_tolerance = 8; % 10 [pixels]  % -------------------------------------
     
     params.kp_tracker.min_nr_landmarks = 500;
-    params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 230;
+    params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 250;
     params.kp_tracker.bearing_angle_multiplicator = 1.75;
     params.kp_tracker.max_nr_candidates = 1300;  % --------------------------------------
     params.kp_tracker.rand_pick = false;
     params.kp_tracker.nr_best_candidates = 100; % for randomized picking
-    params.kp_tracker.bearing_low_thr = 2.75; % [deg]  % --------------------------------------
+    params.kp_tracker.bearing_low_thr = 3; % [deg]  % --------------------------------------
     params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
     params.kp_tracker.min_nr_trackings = 2; % 3
-    params.kp_tracker.max_nr_trackings = 20;
+    params.kp_tracker.max_nr_trackings = 30;
     params.kp_tracker.max_reproj_error = 5; % 12 [pixels]  % --------------------------------------
 
 % Parking
