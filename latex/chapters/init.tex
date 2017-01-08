@@ -43,7 +43,7 @@ The essential matrix obtained by the 8-point-Ransac is then decomposed with resp
 3D-landmarks are generated using linear triangulation of the previously matched keypoints and transformation.
 
 \subsubsection{bundleAdjust()}
-The landmarks and transformation between the first two frames are optimized using bundle adjustment (non-linear least-squares minimization of the reprojection errors).
+The landmarks and transformation between the first two frames are optimized using bundle adjustment (non-linear least-squares minimization of the reprojection errors). This improved the pose of the initialization as shown in \cref{fig:ba_init}.
 \begin{figure}[ht]
 	\centering
 	\begin{minipage}{.4\textwidth}
@@ -53,8 +53,9 @@ The landmarks and transformation between the first two frames are optimized usin
 	\begin{minipage}{.4\textwidth}
 		\centering
 		\includegraphics[width=0.8\textwidth]{/init/withba}
-	\end{minipage}%
-	\caption{Initialization trajectory before (left) and after (right) bundle-adjustment}
+	\end{minipage}
+	\caption{Initialization trajectory before (left) and after (right) bundle adjustment.} 
+	\label{fig:ba_init}
 \end{figure}
 
 
