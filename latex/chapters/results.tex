@@ -55,12 +55,14 @@ Impact of features) Here we describe it such as it runs best in our opinion.
 	\centering
 	\begin{tabular}{|l|c|c|c|c|c|}
 	\hline
-	\multicolumn{1}{|c|}{\textbf{Parameter / Dataset}} & \textbf{Kitti} & \textbf{Malaga} & \textbf{Parking} & \textbf{Poly up} & \textbf{Poly down} \\ \hline
-	\# landmarks reinit                                & 25             &                 & 80               &                  &                    \\ \hline
-	\# min bearing angle {[}deg{]}                     & 1.4            &                 & 3.7              &                  &                    \\ \hline
-	bearing angle threshold {[}\# landmarks{]}         & 180            &                 & 230              &                  &                    \\ \hline
-	RANSAC tolerance {[}pixel{]}                       & 2              &                 & 2                &                  &                    \\ \hline
-	\# candidate keypoints in tracker                  & 1300           &                 & 1300             &                  &                    \\ \hline
+	\multicolumn{1}{|c|}{\textbf{Parameter / Dataset}} & \textbf{Kitti} & \textbf{Malaga} & \textbf{Parking} & \textbf{Poly-up} & \textbf{Poly-down} \\ \hline
+	\# landmarks reinit                                & 25             &                 & 80               & 50               & 50\\ \hline
+	\# min bearing angle {[}deg{]}                     & 1.4            &                 & 3.7              & 2                &
+2\\ \hline
+	bearing angle threshold {[}\# landmarks{]}         & 180            &                 & 230              & 250              & 250\\ \hline
+	RANSAC tolerance {[}pixel{]}                       & 2              &                 & 2                & 3                &
+3\\ \hline
+	\# candidate keypoints in tracker                  & 1300           &                 & 1300             & 3500             & 3500\\ \hline
 	\end{tabular}
 	\caption{Key parameters chosen for every dataset}
 	\label{params_table}
