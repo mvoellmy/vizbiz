@@ -9,11 +9,11 @@ function params = loadParameters()
 
 %% general parameters
 % general parameters
-params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
+params.ds = 4; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.run_continous = true;
-params.run_on_first_x_images = 60; % 0 for all images
+params.run_on_first_x_images = 0; % 0 for all images
 
 params.compare_against_groundthruth = true;
 params.show_map_and_cams = true;
@@ -39,7 +39,7 @@ params.boot.min_b2dratio = 0.1;
 params.boot.min_av_angle_deg = 10; % [deg]
 
 % initialization parameters
-params.init.figures = true; % on/off figure
+params.init.figures = false; % on/off figure
 params.init.use_KLT = true; % --------------------------------------
 params.init.show_keypoints = true;
 params.init.show_inlier_matches = true;
@@ -66,7 +66,7 @@ params.eightPoint_ransac.fract_inliers = 0.5;
 params.eightPoint_ransac.max_error = 2.0; % [pixels]
 
 % continuous operation parameters
-params.cont.figures = true; % on/off figure
+params.cont.figures = false; % on/off figure
 params.cont.show_new_image = true;
 params.cont.show_new_keypoints = true;
 params.cont.use_KLT = true;   % --------------------------------------
