@@ -26,12 +26,11 @@ Todo: @Miro
 Explain how it works - add to flowchart
 
 \subsubsection{Reinitialization}
-@Milan
-Explain how it works, and when it's needed
+The quality of the transformation matrix estimated by the p3p-RANSAC depends on the number of inlier landmarks. If there are enough inlier landmarks, the pose found by the p3p-RANSAC is a good estimation. However, if there are too few inlier landmarks, the estimated pose can be considered as too inaccurate for a further use. The fact that too few landmarks were found is a sign that the last few poses weren't good enough. It is therefore a good idea to discard some of the previous poses. The reinitialization discards the last \begin{math} n \end{math} poses and reinitializes the pipeline with the current image\begin{math} j \end{math} and the image \begin{math} j-(n+1) \end{math}. 
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics[width=0.8\textwidth]{cont_chart}
+	\includegraphics[width=0.8\textwidth]{cont/cont_chart}
 	\caption{Cont Flow chart}
 	\label{img_flow_cont}
 \end{figure}

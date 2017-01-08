@@ -1,6 +1,5 @@
 \subsection{Initialization}
 \label{sec_init}
-
 The first step of the initialization is the bootstraping which outputs an image pair for further processing. This image pair varies depending on the dataset and is required since the baseline between consecutive images is often too small for accurate landmark triangulation and pose estimation.
 
 Features are then matched across the two bootstrap images and the pose of the second camera is estimated using an 8-point-Ransac.
@@ -8,7 +7,7 @@ Landmarks are generated using the pose and the matched features. These landmarks
 
 \subsubsection{getBootstrapFrames()}
 \label{sec_boot}
-In order to pick reasonable image pairs for initialization an automatic procedure was implemented.\\
+In order to pick reasonable image pairs for initialization an automatic procedure was implemented, as a additional degree of 'autonomy' compared to hard-coded index pairs.\\
 Since a good initialization relies heavily on the number of inlier keypoints a hard constrain on their minimum number of \code{min\_num\_inlier\_kp} = $600$ was set.\\
 
 Two approaches were investigated:
@@ -65,7 +64,7 @@ Discards all landmarks which are not within a half-sphere in front of the camera
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics[width=0.8\textwidth]{init_chart}
+	\includegraphics[width=0.8\textwidth]{init/init_chart}
 	\caption{Init Flow chart}
 	\label{img_flow_init}
 \end{figure}

@@ -9,7 +9,7 @@ function params = loadParameters()
 
 %% general parameters
 % general parameters
-params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking, 3: Poly-up, 4: Poly-down
+params.ds = 0; % 0: KITTI, 1: Malaga, 2: Parking
 params.auto_bootstrap = false;
 params.perf.profiling = false;
 params.run_continous = true;
@@ -46,8 +46,8 @@ params.init.show_inlier_matches = true;
 params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
-params.init.use_BA = true;
-params.init.show_BA_comp = false;
+params.init.use_BA = false;
+params.init.show_BA_comp = true;
 
 params.init.normalize_scale = true;
 
@@ -76,7 +76,7 @@ params.cont.plot_new_landmarks = false;
 
 % bundle adjustment
 params.cont.use_BA = true;
-params.cont.ba.frequency = 10;
+params.cont.ba.frequency = 5;
 params.cont.ba.fix_view_ids = false;
 params.cont.ba.window_size = 15;
 
@@ -108,25 +108,25 @@ params.kp_tracker.use_KLT = true;  % --------------------------------------
 if params.ds == 0
     params.init.landmarks_cutoff = 200; % --------------------------------------
     
-    params.cont.reinit.inlier_th = 50; % when to reinit
+    params.cont.reinit.inlier_th = 25; % when to reinit
     params.cont.reinit.deltaFrames = 3;
     
-    params.cont.landmarks_cutoff = 100;  % --------------------------------------
+    params.cont.landmarks_cutoff = 250;  % --------------------------------------
     
-    params.localization_ransac.num_iterations_pnp = 1500; % 2000 fix?
-    params.localization_ransac.pixel_tolerance = 10; % 10 [pixels]  % -------------------------------------
+    params.localization_ransac.num_iterations_pnp = 1700; % 2000 fix?
+    params.localization_ransac.pixel_tolerance = 2; % 10 [pixels]  % -------------------------------------
     
-    params.kp_tracker.min_nr_landmarks = 500;
-    params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 230;
+    params.kp_tracker.min_nr_landmarks = 600;
+    params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 180;
     params.kp_tracker.bearing_angle_multiplicator = 1.75;
-    params.kp_tracker.max_nr_candidates = 1200;  % --------------------------------------
+    params.kp_tracker.max_nr_candidates = 1300;  % --------------------------------------
     params.kp_tracker.rand_pick = false;
     params.kp_tracker.nr_best_candidates = 100; % for randomized picking
-    params.kp_tracker.bearing_low_thr = 6; % [deg]  % --------------------------------------
+    params.kp_tracker.bearing_low_thr = 1.4; % [deg]  % --------------------------------------
     params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
     params.kp_tracker.min_nr_trackings = 2; % 3
-    params.kp_tracker.max_nr_trackings = 20;
-    params.kp_tracker.max_reproj_error = 7; % 12 [pixels]  % --------------------------------------
+    params.kp_tracker.max_nr_trackings = 25;
+    params.kp_tracker.max_reproj_error = 3; % 12 [pixels]  % --------------------------------------
 
 % Malaga
 elseif params.ds == 1
@@ -178,51 +178,51 @@ elseif params.ds == 2
 
 % Poly-Up
 elseif params.ds == 3
-    params.init.landmarks_cutoff = 200; % --------------------------------------
+    params.init.landmarks_cutoff = 400; % --------------------------------------
     
-    params.cont.reinit.inlier_th = 150; % when to reinit
+    params.cont.reinit.inlier_th = 50; % when to reinit
     params.cont.reinit.deltaFrames = 3;
     
-    params.cont.landmarks_cutoff = 100;  % --------------------------------------
+    params.cont.landmarks_cutoff = 400;  % --------------------------------------
     
-    params.localization_ransac.num_iterations_pnp = 2000; % 2000 fix?
-    params.localization_ransac.pixel_tolerance = 7; % 10 [pixels]  % -------------------------------------
+    params.localization_ransac.num_iterations_pnp = 600; % 2000 fix?
+    params.localization_ransac.pixel_tolerance = 3; % 10 [pixels]  % -------------------------------------
     
-    params.kp_tracker.min_nr_landmarks = 500;
+    params.kp_tracker.min_nr_landmarks = 400;
     params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 250;
-    params.kp_tracker.bearing_angle_multiplicator = 1.75;
-    params.kp_tracker.max_nr_candidates = 1300;  % --------------------------------------
+    params.kp_tracker.bearing_angle_multiplicator = 2.5;
+    params.kp_tracker.max_nr_candidates = 3500;  % --------------------------------------
     params.kp_tracker.rand_pick = false;
     params.kp_tracker.nr_best_candidates = 100; % for randomized picking
-    params.kp_tracker.bearing_low_thr = 5; % [deg]  % --------------------------------------
-    params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
+    params.kp_tracker.bearing_low_thr = 2; % [deg]  % --------------------------------------
+    params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*20; % [deg]
     params.kp_tracker.min_nr_trackings = 2; % 3
-    params.kp_tracker.max_nr_trackings = 10;
-    params.kp_tracker.max_reproj_error = 7; % 12 [pixels]  % -------------------------------------- 
+    params.kp_tracker.max_nr_trackings = 45;
+    params.kp_tracker.max_reproj_error = 2; % 12 [pixels]  % -------------------------------------- 
     
 % Poly-Down
 elseif params.ds == 4
-    params.init.landmarks_cutoff = 200; % --------------------------------------
+    params.init.landmarks_cutoff = 400; % --------------------------------------
     
-    params.cont.reinit.inlier_th = 150; % when to reinit
+    params.cont.reinit.inlier_th = 50; % when to reinit
     params.cont.reinit.deltaFrames = 3;
     
-    params.cont.landmarks_cutoff = 100;  % --------------------------------------
+    params.cont.landmarks_cutoff = 400;  % --------------------------------------
     
-    params.localization_ransac.num_iterations_pnp = 2000; % 2000 fix?
-    params.localization_ransac.pixel_tolerance = 7; % 10 [pixels]  % -------------------------------------
+    params.localization_ransac.num_iterations_pnp = 600; % 2000 fix?
+    params.localization_ransac.pixel_tolerance = 3; % 10 [pixels]  % -------------------------------------
     
-    params.kp_tracker.min_nr_landmarks = 500;
+    params.kp_tracker.min_nr_landmarks = 400;
     params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 250;
-    params.kp_tracker.bearing_angle_multiplicator = 1.75;
-    params.kp_tracker.max_nr_candidates = 1300;  % --------------------------------------
+    params.kp_tracker.bearing_angle_multiplicator = 2.5;
+    params.kp_tracker.max_nr_candidates = 3500;  % --------------------------------------
     params.kp_tracker.rand_pick = false;
     params.kp_tracker.nr_best_candidates = 100; % for randomized picking
-    params.kp_tracker.bearing_low_thr = 5; % [deg]  % --------------------------------------
-    params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
+    params.kp_tracker.bearing_low_thr = 2; % [deg]  % --------------------------------------
+    params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*20; % [deg]
     params.kp_tracker.min_nr_trackings = 2; % 3
-    params.kp_tracker.max_nr_trackings = 10;
-    params.kp_tracker.max_reproj_error = 7; % 12 [pixels]  % -------------------------------------- 
+    params.kp_tracker.max_nr_trackings = 45;
+    params.kp_tracker.max_reproj_error = 2; % 12 [pixels]  % -------------------------------------- 
     
 else
     error('!!!!! Wrong dataset parameter !!!!!!')
