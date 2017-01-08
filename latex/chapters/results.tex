@@ -48,19 +48,40 @@ Deploying the second approach on the Kitti dataset evidently fails due to the st
 (keywords: Real time ness, comparison to groundtruth, compare different datasets
 Impact of features) Here we describe it such as it runs best in our opinion.
 
+\subsubsection{Key parameters}
+
+\begin{table}[!h]
+	\centering
+	\begin{tabular}{|l|c|c|c|c|c|}
+	\hline
+	\multicolumn{1}{|c|}{\textbf{Parameter / Dataset}} & \textbf{Kitti} & \textbf{Malaga} & \textbf{Parking} & \textbf{Poly up} & \textbf{Poly down} \\ \hline
+	\# landmarks reinit                                & 25             &                 & 80               &                  &                    \\ \hline
+	\# min bearing angle {[}deg{]}                     & 1.4            &                 & 3.7              &                  &                    \\ \hline
+	bearing angle threshold {[}\# landmarks{]}         & 180            &                 & 230              &                  &                    \\ \hline
+	RANSAC tolerance {[}pixel{]}                       & 2              &                 & 2                &                  &                    \\ \hline
+	\# candidate keypoints in tracker                  & 1300           &                 & 1300             &                  &                    \\ \hline
+	\end{tabular}
+	\caption{Key parameters chosen for every dataset}
+	\label{params_table}
+\end{table}
+
+This list will be removed once table is completed
 \begin{compactitem}
-	\item Chosen key parameters
-	\begin{compactitem}
-		\item Kitti @Pascal
-		\item Malaga @Milan
-		\item Parking @Pascal
-		\item Poly-up @ Fabio
-		\item Poly-down @Fabio
-	\end{compactitem}
-	\item Runtime characteristics (e.g. average nr inlier landmarks, and new landmarks, candidate kp)
-	\item plot of groundtruth
-	\item 3d landmarks if possible
-	\item speed \& realtimeness, slowest functions - why?
-	\item speed \& realtimeness, slowest functions - why?
+	\item Kitti @Pascal
+	\item Malaga @Milan
+	\item Parking @Pascal
+	\item Poly-up @ Fabio
+	\item Poly-down @Fabio
 \end{compactitem}
+	
+	
+\subsubsection{Runtime characteristics}
+(e.g. average nr inlier landmarks, and new landmarks, candidate kp)
+
+\subsubsection{plot of groundtruth}
+
+\subsubsection{3d landmarks if possible}
+
+\subsubsection{speed \& realtimeness}
+slowest functions - why?
 
