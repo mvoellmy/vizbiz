@@ -11,7 +11,7 @@ function [error_dist] = geomError2EpipolarLine(p_hom_i1, p_hom_i2, F)
         
 app = 4; % todo: which correct/best??
 
-first approach: self
+% first approach: self
 N = size(p_hom_i1,2);
 epi_lines_1 = F' * p_hom_i2;
 epi_lines_2 = F * p_hom_i1;
