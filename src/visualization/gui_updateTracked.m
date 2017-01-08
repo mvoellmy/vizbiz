@@ -16,13 +16,13 @@ plot_handle.YData = [0, 0];
 plot_handle.XData = [1, bar_length];
 
 % adapt bar color
-if bar_length > params.kp_tracker.min_nr_landmarks_bearing_angle_adapt
+if bar_length > params.kp_tracker.min_nr_new_landmarks
     set(plot_handle,'Color',[0.5 0.5 0.5]);
 else
     set(plot_handle,'Color',[0.8 0 0]);
 end
 
-xlim([0 400]); % todo: parametrize?
+xlim([0 600]);
 axis equal;
 axis off;
 
