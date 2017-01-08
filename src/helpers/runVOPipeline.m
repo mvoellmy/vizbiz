@@ -124,7 +124,7 @@ T_CiCj_vo_j(:,:,2) = T_C1C2; % first camera pose, C2 to C1
 
 % update stacked world-referenced pose
 T_WCj_vo(:,:,1) = T_WC1; % C1 to W
-T_WC2 = T_WC1*T_C1C2;
+T_WC2 = T_WC1 * T_C1C2;
 T_WCj_vo(:,:,2) = T_WC2; % C2 to W
 
 % 2D trajectory in world frame
