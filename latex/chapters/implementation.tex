@@ -15,14 +15,11 @@ Transformation between frames are described by homogenous transformation matrice
 \end{figure}
 
 \subsubsection{Pipeline overview}
-As shown in \cref{img_flow_rough} the pipeline consists mainly of three parts:
+As shown in \cref{img_flow_rough} the pipeline consists of two parts:
 \begin{compactenum}
-	\item Bootstraping (see \cref{sec_init})
-	\item Initialization (see (\cref{sec_init})
-	\item Continuous operation (see \cref{sec_cont_op})
+	\item Bootstraping \& Initialization
+	\item Continuous operation
 \end{compactenum}
-
-\textcolor[rgb]{1,0,0}{@Milan is this flowchart up to date? If yes all good. :-)}
 
 \begin{figure}[ht]
 	\centering
@@ -63,9 +60,10 @@ Please follow the steps below to run the visual odometry through the GUI environ
 \end{compactenum}
 
 Advanced parameter tuning can be achieved by changing the default parameters in \code{loadParameters.m}.
+\pagebreak 
 
 %\@ Miro please add pic of gui during operation
-\begin{figure}[ht]
+\begin{figure}[!!!!!!ht]
 	\centering
 	\includegraphics[width=\textwidth]{gui_nice}
 	\captionsetup{justification=centering}
@@ -74,8 +72,9 @@ Advanced parameter tuning can be achieved by changing the default parameters in 
 \end{figure}
 
 
+
 \subsubsection{Camera calibration}
-Using the Camera Calibration Toolbox for Matlab\footnote{\url{www.vision.caltech.edu/bouguetj/calib_doc/}} from Jean-Yves Bouguet (Caltech) the camera of the an iphone 7 Plus was calibrated. A set of 17 calibration images where extracted from a calibration sequence filming a checker-board pattern from various angles.
+Using the Camera Calibration Toolbox for Matlab\footnote{\url{www.vision.caltech.edu/bouguetj/calib_doc/}} from Jean-Yves Bouguet (Caltech) the camera of the an iPhone 7 Plus was calibrated. A set of 17 calibration images where extracted from a calibration sequence filming a checker-board pattern from various angles.
 
 \begin{figure}[htbp]
 	\centering

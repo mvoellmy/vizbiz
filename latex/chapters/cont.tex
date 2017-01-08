@@ -1,6 +1,6 @@
 \subsection{Continuous Operation}
 \label{sec_cont_op}
-Continuous operation of the VO pipeline is implemented in the 'process frame' function. It tracks keypoints with corresponding landmarks over several frames while estimating the pose difference between successive frames. Further, a keypoint tracker finds new candidate keypoints which will become new landmarks if a candidate keypoint was tracked far enough and achieved 'good' trianguability. This ensures to never run out of landmarks and keypoints if the image changes over time. The routines of the continuous operation shown in \cref{img_flow_cont} are described below.
+Continuous operation of the VO pipeline is implemented in the 'process frame' function. It tracks keypoints with corresponding landmarks over several frames while estimating the pose difference between successive frames. Further, a keypoint tracker finds new candidate keypoints which will become new landmarks if a candidate keypoint was tracked far enough and achieved 'good' trianguability. This ensures to never run out of landmarks and keypoints if the image changes over time. Optionally, a bundle adjustment can be triggered. The routines of the continuous operation shown in \cref{img_flow_cont} are described below.
 
 \begin{figure}[ht]
 	\centering
@@ -37,10 +37,10 @@ After the new landmarks have been generated bundle adjustment occurs. The bundle
 
 The only exception regarding the keyframes occurs if the pipeline has crashed. The bundle adjustment is then directly after the automatic reinitialization executed and the keyframes will be adjusted accordingly.
 
-\begin{figure}
+\begin{figure}[!!h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{cont/bundle_adjust_concept}
-	\caption{The window moves along with the frames and optimizes all the poses within the window each time the front of the window reaches a keyframe.}
+	\caption{The bundle adjust window moves along with the frames and optimizes all the poses within the window each time the front of the window reaches a keyframe.}
 	\label{fig:ba_concept}
 \end{figure}
 
