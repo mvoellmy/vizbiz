@@ -1,7 +1,10 @@
 \subsection{Initialization}
 \label{sec_init}
-Todo: @Miro
-%short intro
+
+The first step of the initialization is the bootstraping which outputs an imagepair for further processing. This imagepair varies depending on the dataset and is required since the baseline between consecutive images is often to small for accurate landmark triangulation and pose estimation.
+
+Features are then matched accross the two bootstrap images and the pose of the second camera is estimated using 8-point-Ransac.
+Landmarks are generated using the pose and the matched features. These landmarks and the pose are then refined using bundle adjustment. To end the initialization the landmarks which are unrealistic are discarded.
 
 \subsubsection{Bootstraping}
 \label{sec_boot}
@@ -11,34 +14,52 @@ Since a good initialization relies heavily on the number of inlier keypoints a h
 Two approaches were investigated:
 \begin{compactitem}
 	\item \textit{SSD matching + Baseline/Depth}:\\
-	correspondence search via SSD on Harris features \& 8-point-Ransac for outlier rejection \& baseline/depth-ratio (as proposed in the lecture)\\
+	correspondence search via sum of squared differences (SSD) on Harris features \& 8-point-Ransac for outlier rejection \& baseline/depth-ratio (as proposed in the lecture)\\
 	\begin{equation}
 		\frac{C1\_baseline}{C1\_av\_depth} \geqslant min\_b2dratio = 0.1
 	\end{equation}\\
 	
 	\item \textit{KLT + bearing angle}:\\
-	correspondence search and inlier selection via KLT tracking on query Harris corners \& minimum average bearing angle\\
+	correspondence search and inlier selection via Kanade-Lukas-Tomasi (KLT) tracking on query Harris corners \& minimum average bearing angle\\
 	\begin{equation}
 		av\_bearing\_angle\_deg \geqslant min\_av\_angle\_deg = 10 deg
 	\end{equation}
 \end{compactitem}
 
-As elaborated in \cref{sec_results} the second approach outperformed the other and is selected as auto-bootstrapping method.
+As elaborated in \cref{sec_boot_results} the second approach outperformed the other and is selected as auto-bootstrapping method.
 
 
-\subsubsection{? findCorrespondences()}
-Todo: @Miro
+\subsubsection{findCorrespondences()}
+The same approaches discussed in \cref{sec_boot} are used to find the final matching between the bootstrap frames.
+
 %write one sentence about using either harris matching(SSD?) or klt tracking - any %different to findCorrespondences_cont()?
 
 \subsubsection{eightPointRansac}
-Todo: @Miro
+Normalized 8-point-Ransac is used to estimate the essential matrix and filter the outliers of the keypoint matching.
+The error function consits of the distance from the query keypoint to the epipolar line. All keypoints which have an error smaller than a certain threshold are counted as inliers. The final inlier-set is the one with the most inliers.
+%todo write formula for epi polar line distance
+The essential matrix obtained by the 8-point-Ransac is then decomposed with respect to the obtained translation such that we get the final transformation.
 
 \subsubsection{linearTriangulation}
-maybe only 1 sentences - ``like in the exercise''
+3D-landmarks are generated using linear triangulation of the previously matched keypoints and transformation.
 
 \subsubsection{bundleAdjust}
-@Miro
-is here anything different then in the continuous bundle adjust?
+The landmarks and transformation between the first two frames are optimized using bundle adjustment.
+\begin{figure}[ht]
+\begin{minipage}{.5\textwidth}
+	\centering
+	\includegraphics[width=0.8\textwidth]{/init/withoutba}
+	\caption{Init Flow chart}
+	\label{img_flow_init}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+	\centering
+	\includegraphics[width=0.8\textwidth]{/init/withba}
+	\caption{Init Flow chart}
+	\label{img_flow_init}
+\end{minipage}%
+\end{figure}
+
 
 \subsubsection{applySphericalFilter}
 \label{sub_sec_sphFilter}
