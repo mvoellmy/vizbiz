@@ -20,7 +20,7 @@ query_harris = harris(query_image,params.init.corr.harris_patch_size,params.init
 
 % compute keypoints for query image
 query_keypoints = selectKeypoints(query_harris,params.init.corr.num_keypoints,params.init.corr.nonmaximum_supression_radius);
-tic
+
 if params.init.use_KLT
     % compute harris scores for query image
     database_harris = harris(database_image,params.init.corr.harris_patch_size,params.init.corr.harris_kappa);
@@ -72,7 +72,6 @@ else
     unmatched_query_kp = query_keypoints;
     unmatched_query_kp(:,matched_query_indices) = [];
 end
-toc
 
 % check for consistent correspondences
 assert(size(matched_query_keypoints,2) == size(matched_database_keypoints,2));
