@@ -118,5 +118,7 @@ The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also d
 \end{figure*}
 
 \subsubsection{speed \& realtimeness}
+The parameter with the biggest impact on the frame rate was the number of iterations for the P3P-RANSAC. The frame rate depends almost linearly on this parameter. Further the more landmarks tracked the slower the pipeline. However, we preferred to generate more landmarks over having a faster pipeline in order to increase robustness and accuracy.
+
 slowest functions - why?
 
