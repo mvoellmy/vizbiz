@@ -10,7 +10,7 @@ function plotTrajectory_2D (W_Pos_C, bootstrap_frame_idx_1, bootstrap_frame_idx_
 
 figure('name','Comparison against ground truth');
 hold on;
-plot(W_Pos_C(1,:),W_Pos_C(2,:),'b.-','LineWidth',8);
+plot(W_Pos_C(1,:),W_Pos_C(2,:),'b.-','LineWidth',3);
 plot(W_Pos_C(1,1),W_Pos_C(2,1),'bsquare');
 plot(W_Pos_C(1,end),W_Pos_C(2,end),'b*');
 
