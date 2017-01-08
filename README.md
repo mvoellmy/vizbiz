@@ -1,6 +1,13 @@
+# !!!FOR TEACHING ASSISTANTS!!!
+Please download the tuned datasets from their respective branches:
+https://github.com/mvoellmy/vizbiz/tree/Kitti_Tuned
+https://github.com/mvoellmy/vizbiz/tree/malaga_tune_v3
+https://github.com/mvoellmy/vizbiz/tree/Parking_tuned_v3
+https://github.com/mvoellmy/vizbiz/tree/poly-both_tuned_v2
+
 # vizbiz
 Miniproject for building a visual odometry pipeline.
-# Report
+# Report 
 https://github.com/mvoellmy/vizbiz/blob/master/latex/vizbiz_report.pdf
 # Videos
 https://drive.google.com/open?id=0B5IiBBfzxq2yaVhLYkdKR1NLUW8
