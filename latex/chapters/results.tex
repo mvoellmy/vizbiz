@@ -40,14 +40,14 @@ When relaxing the minimum number of inlier keypoints allowed to reach the desire
 	\label{tab_relaxed_boot_idx}
 \end{center}
 
-We observed that the first approach yields far too few keypoints, due to the matchDescriptor() method. Furthermore, the pure lateral camera motion of dataset Parking suits well this baseline/depth bootstrapping approach, which confirms our intuition given the 'triangulability condition' described in \cref{sec_boot}.\\
+We observed that the first approach yields far too few keypoints, due to the \code{matchDescriptor()} method. Furthermore, the pure lateral camera motion of dataset Parking suits well this baseline/depth bootstrapping approach, which confirms our intuition given the 'triangulability condition' described in \cref{sec_boot}.\\
 
 Deploying the second approach on the Kitti dataset evidently fails due to the straight camera motion, inhibiting angles ($[0.5, 3.7]$ deg) to reach the desired 10 degrees. As soon as there is a distinctive rotational movement involved, e.g. in Malaga and Parking, a useful bootstrapping is performed.
 
 
 \subsection{Overall performance}
-(keywords: Real time ness, comparison to groundtruth, compare different datasets
-Impact of features) Here we describe it such as it runs best in our opinion.
+\textcolor[rgb]{1,0,0}{(keywords: Real time ness, comparison to groundtruth, compare different datasets
+Impact of features) Here we describe it such as it runs best in our opinion.}
 
 \subsubsection{Key parameters}
 \cref{params_table} shows the parameters that worked best for our implementation and led to the results presented. Tuning the datasets was always a tradeoff between speed, accuracy and robustness. The main parameter, that improved trajectory error a lot was the pixel tolerance of the RANSAC. It had to be set to a small value in order to not improve the trajectory and robustness.
@@ -68,10 +68,12 @@ Impact of features) Here we describe it such as it runs best in our opinion.
 	\label{params_table}
 \end{table}
 
+\textcolor[rgb]{1,0,0}{
 This list will be removed once table is completed
 \begin{compactitem}
-	\item Malaga @Milan
+	\item Malaga@Milan
 \end{compactitem}
+}
 	
 	
 \subsubsection{Runtime characteristics}
@@ -96,7 +98,7 @@ The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also d
 	\label{runtime_table}
 \end{table}
 
-\subsubsection{plot of groundtruth}
+\subsubsection{Comparison against ground-truth}
 \textbf{Parking Dataset}
 \begin{figure*}[ht!]
     \centering
@@ -111,11 +113,11 @@ The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also d
         \includegraphics[height=2.7in]{results/landmarks_parking.eps}
         \caption{3D landmarks}
     \end{subfigure}
-    \caption{Parking Dataset Results}
+    \caption{Parking dataset results}
 		\label{parking_result_fig}
 \end{figure*}
 
-\subsubsection{speed \& realtimeness}
+\subsubsection{Speed \& real-timeness}
 The parameter with the biggest impact on the frame rate was the number of iterations for the P3P-RANSAC. The frame rate depends almost linearly on this parameter. Further the more landmarks tracked the slower the pipeline. However, we preferred to generate more landmarks over having a faster pipeline in order to increase robustness and accuracy.\\
 
 A profiling run with the Matlab profiler tool showed that most of the computational resources is spent in the following three functions in descendant order (self-time): \code{p3p()}, \code{selectKeypoints()} and \code{harris()}.
