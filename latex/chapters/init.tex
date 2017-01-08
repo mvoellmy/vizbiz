@@ -3,9 +3,9 @@
 Todo: @Miro
 %short intro
 
-\subsubsection{Bootstraping}
+\subsubsection{Automatic Bootstraping}
 \label{sec_boot}
-In order to pick reasonable image pairs for initialization an automatic procedure was implemented.\\
+In order to pick reasonable image pairs for initialization an automatic procedure was implemented, as a additional degree of 'autonomy' compared to hard-coded index pairs.\\
 Since a good initialization relies heavily on the number of inlier keypoints a hard constrain on their minimum number of \code{min\_num\_inlier\_kp} = $600$ was set.\\
 
 Two approaches were investigated:
@@ -46,7 +46,7 @@ Discards all landmarks which are not within a half-sphere in front of the camera
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics[width=0.8\textwidth]{init_chart}
+	\includegraphics[width=0.8\textwidth]{init/init_chart}
 	\caption{Init Flow chart}
 	\label{img_flow_init}
 \end{figure}
