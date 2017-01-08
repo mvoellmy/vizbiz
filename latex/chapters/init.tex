@@ -41,8 +41,8 @@ maybe only 1 sentences - ``like in the exercise''
 is here anything different then in the continuous bundle adjust?
 
 \subsubsection{applySphericalFilter}
-@Fabio
-have a look at \cref{triang_cont}. Maybe put this up to here and make a cref there.
+\label{sub_sec_sphFilter}
+Discards all landmarks which are not within a half-sphere in front of the camera. This removes on one hand landmarks triangulated behind the camera (negative z-components) and also landmarks further away than the filter cutoff radius. With this filtering only landmarks in the neighborhood are kept, which are more reliably triangulated (smaller uncertainty cone). Note, that this absolute thresholding relies on an accurate scale estimation.
 
 \begin{figure}[ht]
 	\centering

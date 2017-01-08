@@ -1,4 +1,4 @@
-function extractImagesFromVideo(video_path,options)
+function extractImagesFromVideo(video_path, options)
 % Extracts image sequence from video and stores images as calibration
 % images with predefined naming convention (as required by calibration tool).
 %
@@ -9,7 +9,7 @@ function extractImagesFromVideo(video_path,options)
 fig = figure('name','Extracted images');
 
 if options.save_images
-    folder_name = 'calib_images';
+    folder_name = 'poly_down';
     if isequal(exist(folder_name,'dir'),7)
         rmdir(folder_name,'s');
     end
@@ -23,8 +23,7 @@ frames = vidobj.Numberofframes;
 
 h = waitbar(0,'Extracting images...','Units','normalized','OuterPosition',[0.35 0.2 0.3 0.1]);
 
-for f=1:frames
-    
+for f=1:frames    
     if ~mod(f,options.extract_every_x)
         thisframe = rot90(read(vidobj,f),options.rotate_images);
         if options.convert_to_grayscale
@@ -38,7 +37,7 @@ for f=1:frames
         
         if options.save_images
             i = n_extracted + 1;
-            thisfile = sprintf(['./',folder_name,'/camera_calib%04d.jpg'],i); % todo: jpg good format?
+            thisfile = sprintf(['./',folder_name,'/poly%04d.png'],i); % todo: jpg good format?
             imwrite(thisframe,thisfile);
             title(['Frame #',num2str(f)]);
             
