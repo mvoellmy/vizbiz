@@ -23,7 +23,7 @@ We investigated pose estimation with DLT refinement after the P3P-Guess and with
         \includegraphics[height=2.7in]{results/landmarks_parking_dlt.eps}
         \caption{3D landmarks}
     \end{subfigure}
-    \caption{Parking Dataset Results with DLT refinement}
+    \caption{Parking Dataset Results with DLT refinement (same parameters as for plots in \cref{parking_result_fig})}
 		\label{parking_result_fig_dlt}
 \end{figure*}
 
@@ -38,7 +38,9 @@ A list of potential improvements
 Possible future work, improvements (loop closure, ...)
 
 \begin{itemize}
-\item bootstrapping with both information rotation through bearing angle diff and translation through baseline/depth ratio
-\item $\cdots$
-\item Use a parallel for loop for P3P-RANSAC
+\item \colorbox[rgb]{1,0,0}{bootstrapping with both information rotation through bearing angle diff and translation through baseline/depth ratio}
+\item Include bundle adjustment
+\item Optimize runtime e.g. use a parallel for loop for P3P-RANSAC
+\item Reinitialize depending on $T_{C_iC_j}$ instead of number of landmarks remaining. An unusually big translation or rotation $T_{C_iC_j}$ is a sign that the pipeline start diverging.
+\item Loop closure and place recognition (e.g. with bag of words approach).
 \end{itemize}
