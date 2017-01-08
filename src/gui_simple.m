@@ -230,9 +230,9 @@ handles.console_string = ' ';
 handles.params = loadParameters();
 % set general parameters
 handles.params.perf.profiling = false;
-handles.params.compare_against_groundthruth = false;
+handles.params.compare_against_groundthruth = true;
 handles.params.run_on_first_x_images = 0; % 0 for all images
-handles.params.show_map_and_cams = false;
+handles.params.show_map_and_cams = true;
 handles.params.through_gui = true;
 % disable debug figures
 handles.params.boot.figures = false;
