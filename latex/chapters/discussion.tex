@@ -1,6 +1,7 @@
 \section{Discussion}
 
 \subsubsection{Correspondence search}
+
 KLT vs Harris matching
 
 \subsubsection{Bundle Adjust}
@@ -34,8 +35,6 @@ Since this bug messed up the bundle adjustment, all datasets and results are wit
 \end{figure}
 \end{document}
 
-
-
 \subsubsection{Pose estimation algorithm}
 We investigated pose estimation with DLT refinement after the P3P-Guess and without refinement (using the last P3P guess from RANSAC). It turned out, that very often the P3P-guess was a lot better and especially more robust then the DLT refinement. \cref{parking_result_fig_dlt} shows the estimated trajectory with DLT refinement. It is clearly worse then the P3P estimate as shown in \cref{parking_result_fig}. That's why we used the last P3P guess in our implementation.
 \begin{figure*}[ht!]
@@ -55,5 +54,4 @@ We investigated pose estimation with DLT refinement after the P3P-Guess and with
 \end{figure*}
 
 \subsubsection{Reinitialization}
-\textcolor[rgb]{1,0,0}{@Milan}
-How often does it happen? Is the result better afterwards?
+The Reinitialization prevents the pipeline from dying of a lack of landmarks. If there are too few landmarks left, the reinitialisation interrupts the keypoint tracker and generates new landmarks. How often this happens depends on the parameters mentioned in \cref{sec_key_params} as well as on the dataset. The pipeline loses keypoints when areas with a high keypoint density are moving out of the image quickly. We could observe a small buckle of the trajectory every time the reinitialization was done. However, most of the times trajectory improved significantly after reinitialisation.
