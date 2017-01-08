@@ -76,10 +76,10 @@ This list will be removed once table is completed
 \end{compactitem}
 	
 	
-\subsubsection{Runtime characteristics}
-\cref{runtime_table} summarizes the main runtime characteristics of the different datasets with our pipeline.\\
+\subsubsection{Run time characteristics}
+\cref{runtime_table} summarizes the main run time characteristics of the different datasets with our pipeline.\\
 
-The \textbf{parking dataset} performed fasted and had the best trajectory. Since we could not perform bundle adjustment, there is a slight drift of the estimated trajectory. However, the scene can also be nicely reconstructed in 3D from the point cloud generated (see \cref{parking_result_fig}).\\
+The \textbf{parking dataset} performed fastest and had the best trajectory. Since we could not perform bundle adjustment, there is a slight drift of the estimated trajectory. However, the scene can also be nicely reconstructed in 3D from the point cloud generated (see \cref{parking_result_fig}).\\
 
 The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also due to missing bundle adjustment and thus summing up errors. However, the first few curves are tackled relatively well.
 
@@ -89,10 +89,10 @@ The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also d
 	\begin{tabular}{|l|c|c|c|c|c|}
 	\hline
 	\multicolumn{1}{|c|}{\textbf{Characteristics / Dataset}} & \textbf{Kitti} & \textbf{Malaga} & \textbf{Parking} & \textbf{Poly up} & \textbf{Poly down} \\ \hline
-	\# reinit required                                       &                &                 & 0                &                  &                    \\ \hline
-	\# average landmarks                                     &                &                 & $\sim$ 400       &                  &                    \\ \hline
-	Frame rate {[}Hz{]}                                      &                &                 & 3                &                  &                    \\ \hline
-	Trajectory quality                                       &                &                 & ++               &                  &                    \\ \hline
+	\# reinit required                                       & 23             &                 & 1                &                  &                    \\ \hline
+	\# average landmarks                                     & $\sim$350      &                 & $\sim$ 400       &                  &                    \\ \hline
+	Frame rate {[}Hz{]}                                      & 1.4            &                 & 2.6              &                  &                    \\ \hline
+	Trajectory quality                                       & +              &                 & ++               &                  &                    \\ \hline
 	\end{tabular}
 	\caption{Runtime characteristics}
 	\label{runtime_table}
