@@ -1,9 +1,9 @@
 # vizbiz
 Miniproject for building a visual odometry pipeline.
-
-# FAQ
-[Google Docs](https://docs.google.com/document/d/1RiG-70-2xwgPcNLGuMzIm5BZ4n8TPx_bFLPe546079E/edit "Whoever finds this last pays a round of coffe. ;) Sign here: Miro, Pascal, Fabio")
-
+# Report
+https://github.com/mvoellmy/vizbiz/blob/master/latex/vizbiz_report.pdf
+# Videos
+https://drive.google.com/open?id=0B5IiBBfzxq2yaVhLYkdKR1NLUW8
 # How to run:
 In order to run the visual odometry two launch procedures where implemented:
 
@@ -18,5 +18,8 @@ Please follow the steps below to run the visual odometry through the GUI environ
 * type into MATLAB command window: gui_simple
 * in *Parameters* panel select dataset to run on and toggle respective radio buttons
 * hit *Run* to trigger the visual odometry
+
+# FAQ
+[Google Docs](https://docs.google.com/document/d/1RiG-70-2xwgPcNLGuMzIm5BZ4n8TPx_bFLPe546079E/edit "Whoever finds this last pays a round of coffe. ;) Sign here: Miro, Pascal, Fabio")
 
 Vision Algorithms for Mobile Robotics, 2016 ETHZ.
