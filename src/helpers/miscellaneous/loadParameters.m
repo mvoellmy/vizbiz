@@ -117,11 +117,11 @@ if params.ds == 0
     
     params.kp_tracker.min_nr_landmarks = 600;
     params.kp_tracker.min_nr_landmarks_bearing_angle_adapt = 230;
-    params.kp_tracker.bearing_angle_multiplicator = 1.75;
+    params.kp_tracker.bearing_angle_multiplicator = 2.5;
     params.kp_tracker.max_nr_candidates = 1500;  % --------------------------------------
     params.kp_tracker.rand_pick = false;
     params.kp_tracker.nr_best_candidates = 100; % for randomized picking
-    params.kp_tracker.bearing_low_thr = 1.8; % [deg]  % --------------------------------------
+    params.kp_tracker.bearing_low_thr = 1.5; % [deg]  % --------------------------------------
     params.kp_tracker.bearing_up_thr = params.kp_tracker.bearing_low_thr*10.5; % [deg]
     params.kp_tracker.min_nr_trackings = 2; % 3
     params.kp_tracker.max_nr_trackings = 25;
