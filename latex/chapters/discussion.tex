@@ -1,6 +1,7 @@
 \section{Discussion}
 
 \subsubsection{Correspondence search}
+
 KLT vs Harris matching
 \textcolor[rgb]{1,0,0}{@ Milan}
 
@@ -28,8 +29,8 @@ We investigated pose estimation with DLT refinement after the P3P-Guess and with
 \end{figure*}
 
 \subsubsection{Reinitialization}
-\textcolor[rgb]{1,0,0}{@Milan}
-How often does it happen? Is the result better afterwards?
+The Reinitialization prevents the pipeline from dying of a lack of landmarks. I. E. if there are too few landmarks left, the reinitialisation interrupts the keypoint tracker and generates new landmarks. How often this happens depends on the parameters mentioned in \cref{sec_key_params} as well as on the dataset. The pipeline loses keypoints when areas with a high keypoint density are moving out of the image quickly. We could observe a small buckle of the trajectory every time the reinitialization was done.
+
 
 \subsubsection{Feature work}
 A list of potential improvements

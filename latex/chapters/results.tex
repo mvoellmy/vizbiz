@@ -50,6 +50,7 @@ Deploying the second approach on the Kitti dataset evidently fails due to the st
 Impact of features) Here we describe it such as it runs best in our opinion.}
 
 \subsubsection{Key parameters}
+\label{sec_key_params}
 \cref{params_table} shows the parameters that worked best for our implementation and led to the results presented. Tuning the datasets was always a tradeoff between speed, accuracy and robustness. The main parameter, that improved trajectory error a lot was the pixel tolerance of the RANSAC. It had to be set to a small value in order to not improve the trajectory and robustness.
 \begin{table}[!h]
 	\centering
@@ -73,8 +74,9 @@ Impact of features) Here we describe it such as it runs best in our opinion.}
 
 The \textbf{parking dataset} performed fastest and had the best trajectory. Since we could not perform bundle adjustment, there is a slight drift of the estimated trajectory. However, the scene can also be nicely reconstructed in 3D from the point cloud generated (see \cref{parking_result_fig}).\\
 
-The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also due to missing bundle adjustment and thus summing up errors. However, the first few curves are tackled relatively well.
+The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also due to missing bundle adjustment and thus summing up errors. However, the first few curves are tackled relatively well.\\
 
+The \textbf{Malaga dataset} also suffers from scale drift and reinitialization is needed from time to time. Additionally, the two large curves are not captured very well, the trajectory stays at one point while turning.
 
 \textcolor[rgb]{0,0,0}{\colorbox[rgb]{1,0,0}{@Milan und @ Fabio short summary here}}
 
@@ -84,10 +86,10 @@ The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also d
 	\begin{tabular}{|l|c|c|c|c|c|}
 	\hline
 	\multicolumn{1}{|c|}{\textbf{Characteristics / Dataset}} & \textbf{Kitti} & \textbf{Malaga} & \textbf{Parking} & \textbf{Poly up} & \textbf{Poly down} \\ \hline
-	\# reinits required                                      & 23             &                 & 2                & 4 & 3  \\ \hline
-	\# average landmarks                                     & $\sim$350      &  @Milan         & $\sim$ 400       & $\sim$ 250 & $\sim$ 250 \\ \hline
-	Frame rate {[}Hz{]}                                      & 1.4            &                 & 2.6              & 1 & 1 \\ \hline
-	Trajectory quality                                       & +              &                 & ++               & + & + \\ \hline
+	\# reinits required                                      & 23             &  46               & 2                & 4 & 3  \\ \hline
+	\# average landmarks                                     & $\sim$350      &  $\sim$350         & $\sim$ 400       & $\sim$ 250 & $\sim$ 250 \\ \hline
+	Frame rate {[}Hz{]}                                      & 1.4            &  1.6               & 2.6              & 1 & 1 \\ \hline
+	Trajectory quality                                       & +              &  -               & ++               & + & + \\ \hline
 	\end{tabular}
 	\caption{Runtime characteristics}
 	\label{runtime_table}
@@ -113,7 +115,22 @@ The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also d
 \end{figure*}
 
 \textbf{Malaga}
-
+\begin{figure*}[ht!]
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[height=2.7in]{results/Comparison_GT_Malaga.png}
+        \caption{Trajectory vs. ground truth}
+    \end{subfigure}%
+    ~ 
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[height=2.7in]{results/Map_LM_Malaga.png}
+        \caption{3D landmarks}
+    \end{subfigure}
+    \caption{Malaga dataset results}
+		\label{parking_result_fig}
+\end{figure*}
 
 \textbf{Parking}
 \begin{figure*}[ht!]
