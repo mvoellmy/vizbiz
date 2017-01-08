@@ -195,7 +195,7 @@ if params.run_continous
     % fill first two frames to bundleAdjust container
     if params.cont.use_BA
         ba_keypoints_init = [flipud(keypoints_first_frame); flipud(keypoints_second_frame)];
-        ba_view_ids = [1, 2];   % View ids for init
+        ba_view_ids = [1, 2];   % View ids for init       
         for i=1:size(keypoints_second_frame, 2)
             ba_p_corresponding = vec2mat(ba_keypoints_init(:,i),2);
             ba_point_tracks(i) = pointTrack(ba_view_ids, ba_p_corresponding);
@@ -294,7 +294,7 @@ if params.run_continous
             % However I don't think we have time/the framework for that atm.
 
             % matching to ba_tracking
-            tolerance = 10^-6;
+            tolerance = 10^-8;
             missed_landmarks_count = 0;
             % indices of the current frame landmarks within the map, used
             % to find the current frame landmarks after BA.
@@ -302,9 +302,11 @@ if params.run_continous
             
             % apply spherical filter on map to search through for matching
             Cj_P_hom_map = tf2invtf(T_WCj_vo(:,:,frame_idx)) * [W_landmarks_map; ones(1, size(W_landmarks_map, 2))];
-            [~, outFOV_idx] = applySphericalFilter(params, Cj_P_hom_map, 2*params.cont.landmarks_cutoff);
+            [~, outFOV_idx] = applySphericalFilter(params, Cj_P_hom_map, 1.2*params.cont.landmarks_cutoff);
+            inFOV_idx = 1:size(Cj_P_hom_map, 2);
+            inFOV_idx(outFOV_idx) = [];
             Cj_P_hom_visible = Cj_P_hom_map;
-            Cj_P_hom_visible(:,outFOV_idx) = zeros(4,nnz(outFOV_idx));
+            Cj_P_hom_visible(:,outFOV_idx) = [];
             updateConsole(params, sprintf('Searching through %i map landmarks \n', nnz(Cj_P_hom_visible(1,:))));
             
             for it=1:nr_old_landmarks
@@ -312,7 +314,6 @@ if params.run_continous
                 ba_index = find(abs(Cj_P_hom_visible(1,:) - Cj_landmarks_j(1,it)) < tolerance & ...
                                 abs(Cj_P_hom_visible(2,:) - Cj_landmarks_j(2,it)) < tolerance & ...
                                 abs(Cj_P_hom_visible(3,:) - Cj_landmarks_j(3,it)) < tolerance);
-
                 if nnz(ba_index) > 0
                     if size(ba_index, 2) > 1
                         % if landmark correspond to multiple landmarks on
@@ -330,23 +331,25 @@ if params.run_continous
                         ba_index = min_ba_index;
                     end
                     
-                    ba_point_tracks(ba_index).Points = [ba_point_tracks(ba_index).Points; keypoints_new_triang(2, it),  keypoints_new_triang(1, it)];
-                    ba_point_tracks(ba_index).ViewIds = [ba_point_tracks(ba_index).ViewIds, frame_idx];
-                    idx_of_matched_in_map = [idx_of_matched_in_map, ba_index];
+                    ba_index_map = inFOV_idx(ba_index);
+
+                    ba_point_tracks(ba_index_map).Points = [ba_point_tracks(ba_index_map).Points; keypoints_new_triang(2, it),  keypoints_new_triang(1, it)];
+                    ba_point_tracks(ba_index_map).ViewIds = [ba_point_tracks(ba_index_map).ViewIds, frame_idx];
+                    idx_of_matched_in_map = [idx_of_matched_in_map, ba_index_map];
                 else
                     missed_landmarks_count = missed_landmarks_count+1;
                 end
             end
         updateConsole(params, sprintf(' ---->%i landmarks where not matched again!\n', missed_landmarks_count));
 % for debugging purposes
-            
+
             % add new landmarks to tracking
             for it = 1:nr_new_landmarks
                 ba_point_tracks(size(ba_point_tracks, 2) + 1) = pointTrack([frame_idx-p_candidates_j_inliers_nr_tracking(it), frame_idx],...
                     [p_candidates_first_inliers(2, it)           , p_candidates_first_inliers(1, it);...
                      keypoints_new_triang(2, nr_old_landmarks+it), keypoints_new_triang(1, nr_old_landmarks+it)]);
             end
-            
+
             map_size = size(W_landmarks_map, 2);
             idx_of_matched_in_map = [idx_of_matched_in_map, map_size + 1:map_size + nr_new_landmarks];       
         end
@@ -385,8 +388,7 @@ if params.run_continous
                     ba_point_tracks(i).ViewIds(outdated_frames) = [];
                     ba_point_tracks(i).Points(outdated_frames, :) = [];
                 end
-                
-                
+                               
                 [W_landmarks_map, refinedPoses] = bundleAdjustment(W_landmarks_map', ba_point_tracks, cameraPoses, cameraParams, 'FixedViewIDs', ba_fixed_view_ids);
                 refined_frames_string = sprintf('%d ', refinedPoses.ViewId);
                 updateConsole(params, sprintf(' bundle-adjusted poses and landmarks in frames %s \n', refined_frames_string));
