@@ -1,9 +1,11 @@
 \subsection{Initialization}
 \label{sec_init}
-Todo: @Miro
-%short intro
+The first step of the initialization is the bootstraping which outputs an image pair for further processing. This image pair varies depending on the dataset and is required since the baseline between consecutive images is often too small for accurate landmark triangulation and pose estimation.
 
-\subsubsection{Automatic Bootstraping}
+Features are then matched across the two bootstrap images and the pose of the second camera is estimated using an 8-point-Ransac.
+Landmarks are generated using the pose and the matched features. These landmarks and the pose are then refined using bundle adjustment. To end the initialization the landmarks which are unrealistic are discarded.
+
+\subsubsection{getBootstrapFrames()}
 \label{sec_boot}
 In order to pick reasonable image pairs for initialization an automatic procedure was implemented, as a additional degree of 'autonomy' compared to hard-coded index pairs.\\
 Since a good initialization relies heavily on the number of inlier keypoints a hard constrain on their minimum number of \code{min\_num\_inlier\_kp} = $600$ was set.\\
@@ -11,36 +13,52 @@ Since a good initialization relies heavily on the number of inlier keypoints a h
 Two approaches were investigated:
 \begin{compactitem}
 	\item \textit{SSD matching + Baseline/Depth}:\\
-	correspondence search via SSD on Harris features \& 8-point-Ransac for outlier rejection \& baseline/depth-ratio (as proposed in the lecture)\\
+	correspondence search via sum of squared differences (SSD) on Harris features \& 8-point-Ransac for outlier rejection \& baseline/depth-ratio (as proposed in the lecture)\\
 	\begin{equation}
 		\frac{C1\_baseline}{C1\_av\_depth} \geqslant min\_b2dratio = 0.1
 	\end{equation}\\
 	
 	\item \textit{KLT + bearing angle}:\\
-	correspondence search and inlier selection via KLT tracking on query Harris corners \& minimum average bearing angle\\
+	correspondence search and inlier selection via Kanade-Lukas-Tomasi (KLT) tracking on query Harris corners \& minimum average bearing angle\\
 	\begin{equation}
 		av\_bearing\_angle\_deg \geqslant min\_av\_angle\_deg = 10 deg
 	\end{equation}
 \end{compactitem}
 
-As elaborated in \cref{sec_results} the second approach outperformed the other and is selected as auto-bootstrapping method.
+As elaborated in \cref{sec_boot_results} the second approach outperformed the other and is selected as auto-bootstrapping method.
 
 
-\subsubsection{? findCorrespondences()}
-Todo: @Miro
+\subsubsection{findCorrespondences()}
+The same approaches discussed in \cref{sec_boot} are used to find the final matching between the bootstrap frames.
+
 %write one sentence about using either harris matching(SSD?) or klt tracking - any %different to findCorrespondences_cont()?
 
-\subsubsection{eightPointRansac}
-Todo: @Miro
+\subsubsection{eightPointRansac()}
+Normalized 8-point-Ransac is used to estimate the essential matrix and filter the outliers of the keypoint matching.
+The error function consists of the shortest distance from the query keypoint to the epipolar line. All keypoints which have an error smaller than a certain threshold are regarded as inliers. The final inlier-set is the one with the most inliers.
+% equation?
+The essential matrix obtained by the 8-point-Ransac is then decomposed with respect to the obtained translation such that we get the final transformation.
 
-\subsubsection{linearTriangulation}
-maybe only 1 sentences - ``like in the exercise''
+\subsubsection{linearTriangulation()}
+3D-landmarks are generated using linear triangulation of the previously matched keypoints and transformation.
 
-\subsubsection{bundleAdjust}
-@Miro
-is here anything different then in the continuous bundle adjust?
+\subsubsection{bundleAdjust()}
+The landmarks and transformation between the first two frames are optimized using bundle adjustment (non-linear least-squares minimization of the reprojection errors).
+\begin{figure}[ht]
+	\centering
+	\begin{minipage}{.4\textwidth}
+		\centering
+		\includegraphics[width=0.8\textwidth]{/init/withoutba}
+	\end{minipage}
+	\begin{minipage}{.4\textwidth}
+		\centering
+		\includegraphics[width=0.8\textwidth]{/init/withba}
+	\end{minipage}%
+	\caption{Initialization trajectory before (left) and after (right) bundle-adjustment}
+\end{figure}
 
-\subsubsection{applySphericalFilter}
+
+\subsubsection{applySphericalFilter()}
 \label{sub_sec_sphFilter}
 Discards all landmarks which are not within a half-sphere in front of the camera. This removes on one hand landmarks triangulated behind the camera (negative z-components) and also landmarks further away than the filter cutoff radius. With this filtering only landmarks in the neighborhood are kept, which are more reliably triangulated (smaller uncertainty cone). Note, that this absolute thresholding relies on an accurate scale estimation.
 

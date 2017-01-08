@@ -41,7 +41,7 @@ error_dist_3 = sqrt(dSquared);
 % fourth approach: exercise
 NumPoints = size(p_hom_i1,2);
 homog_points = [p_hom_i1, p_hom_i2];
-epi_lines = [F.'*p_hom_i2, F*p_hom_i1]; % todo: check .' 
+epi_lines = [F.'*p_hom_i2, F*p_hom_i1];
 denom = epi_lines(1,:).^2 + epi_lines(2,:).^2;
 cost = sqrt( (sum(epi_lines.*homog_points,1).^2)./denom );
 error_dist_4 = sum(reshape(cost,NumPoints,2)',1);
