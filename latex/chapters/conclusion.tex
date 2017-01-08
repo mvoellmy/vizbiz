@@ -1,3 +1,17 @@
 \section{Conclusion}
-What have we learned, what worked?
-\textcolor[rgb]{1,0,0}{@Milan}
+A monocular visual odometry pipeline was developed. Satisfying results were obtained on simple datasets (parking dataset) as well as on more difficult ones (Kitti). Due to the lack of an absolute scale measurement, scale drift can be observed. The pipeline was also successfully tested on a self-recorded and calibrated image series. Various tracking, filtering and recovery approaches including a KLT-tracker, a reinitialisation algorithm, scale normalization and automatic bootstraping are implemented and can be selected using either a simple GUI or an advanced parameter file to evaluate it's impact. A bundle adjustment was also implemented but due to time restrictions it only worked well for initialization. We expect it would have improved localization even more. The pipeline runs on 1-3 Hz depending on the chosen parameters.\\
+
+Even tough this mini project proved to be very time intensive we learned a lot about computer vision algorithm and improved our Matlab knowledge. However, there would still be many ideas on how to further improve the pipeline. See also \cref{future}.
+
+\subsection{Feature work}\label{future}
+A list of potential improvements
+
+Possible future work, improvements (loop closure, ...)
+
+\begin{itemize}
+\item \colorbox[rgb]{1,0,0}{bootstrapping with both information rotation through bearing angle diff and translation through baseline/depth ratio}
+\item Include bundle adjustment
+\item Optimize runtime e.g. use a parallel for loop for P3P-RANSAC
+\item Reinitialize depending on $T_{C_iC_j}$ instead of number of landmarks remaining. An unusually big translation or rotation $T_{C_iC_j}$ is a sign that the pipeline start diverging.
+\item Loop closure and place recognition (e.g. with bag of words approach).
+\end{itemize}

@@ -137,8 +137,8 @@ The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also d
 
 \textbf{Poly Down}
 
-\subsubsection{Speed \& real-timeness}
-The parameter with the biggest impact on the frame rate was the number of iterations for the P3P-RANSAC. The frame rate depends almost linearly on this parameter. Further the more landmarks tracked the slower the pipeline. However, we preferred to generate more landmarks over having a faster pipeline in order to increase robustness and accuracy.\\
+\subsubsection{Speed \& Real-Timeness}
+A lot of effort was invested into efficient programming (e.g. avoiding for-loops in Matlab). The parameter with the biggest impact on the frame rate was the number of iterations for the P3P-RANSAC (a classical for-loop). The frame rate depends almost linearly on this parameter. Further the more landmarks and candidate keypoints tracked the slower the pipeline. However, we preferred to generate more landmarks over having a faster pipeline in order to increase robustness and accuracy.\\
 
-A profiling run with the Matlab profiler tool showed that most of the computational resources is spent in the following three functions in descendant order (self-time): \code{p3p()}, \code{selectKeypoints()} and \code{harris()}.
+A profiling run with the Matlab profiler tool showed that most of the computational resources is spent in the following three functions in descendant order (self-time): \code{p3p()}, \code{selectKeypoints()} and \code{harris()}. The frame rates were obtained with a Core-i7 (3.5GHz) processor.
 
