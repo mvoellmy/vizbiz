@@ -46,8 +46,7 @@ Deploying the second approach on the Kitti dataset evidently fails due to the st
 
 
 \subsection{Overall performance}
-\textcolor[rgb]{1,0,0}{(keywords: Real time ness, comparison to groundtruth, compare different datasets
-Impact of features) Here we describe it such as it runs best in our opinion.}
+This chapter describes the performance of the tuned VO pipeline with different datasets and evaluates some of the key characteristics.
 
 \subsubsection{Key parameters}
 \label{sec_key_params}
@@ -72,12 +71,11 @@ Impact of features) Here we describe it such as it runs best in our opinion.}
 \subsubsection{Run time characteristics summary}
 \cref{runtime_table} summarizes the main run time characteristics of the different datasets with our pipeline.\\
 
-<<<<<<< HEAD
 The \textbf{parking dataset} performed fastest and had the best trajectory. Since we could not perform bundle adjustment, there is a slight drift of the estimated trajectory. However, the scene can also be nicely reconstructed in 3D from the point cloud generated (see \cref{parking_result_fig}).\\
 
 The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also due to missing bundle adjustment and thus summing up errors. However, the first few curves are tackled relatively well.\\
 
-The \textbf{Malaga dataset} also suffers from scale drift and reinitialization is needed from time to time. Additionally, the two large curves are not captured very well, the trajectory stays at one point while turning.
+The \textbf{Malaga dataset} also suffers from scale drift and reinitialization is needed from time to time. Additionally, the two large curves are not captured very well, the trajectory stays at one point while turning.\\
 
 Both \textbf{Poly datasets} are quite short but proved to be tricky regarding feature selection. Therefor a high number of candidate keypoints were tracked. Some reinitializations were needed to overcome 'feature-sparse' situation, e.g. midway on the bridge or moments of illumination changes. Still the trajectories look quite smooth and the landmarks represent the ramp and surrounding environment (fence and vegetation) quite well (given an 'arbitrary' initial scale estimate).
 
@@ -114,6 +112,8 @@ Both \textbf{Poly datasets} are quite short but proved to be tricky regarding fe
 		\label{parking_result_fig}
 \end{figure*}
 
+\newpage
+
 \textbf{Malaga}
 \begin{figure*}[ht!]
     \centering
@@ -149,6 +149,8 @@ Both \textbf{Poly datasets} are quite short but proved to be tricky regarding fe
     \caption{Parking dataset results}
 		\label{parking_result_fig}
 \end{figure*}
+\newpage
+
 
 \textbf{Poly-Up}
 \begin{figure*}[ht!]
