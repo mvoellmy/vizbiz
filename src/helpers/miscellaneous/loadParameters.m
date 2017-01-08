@@ -46,7 +46,7 @@ params.init.show_inlier_matches = true;
 params.init.show_landmarks = true;
 params.init.use_KITTI_precalculated_init = false;
 params.init.show_matches = true;
-params.init.use_BA = true;
+params.init.use_BA = false;
 params.init.show_BA_comp = false;
 
 params.init.normalize_scale = true;
@@ -75,7 +75,7 @@ params.cont.show_inlier_matches = true;
 params.cont.plot_new_landmarks = false;
 
 % bundle adjustment
-params.cont.use_BA = true;
+params.cont.use_BA = false;
 params.cont.ba.frequency = 10;
 params.cont.ba.fix_view_ids = false;
 params.cont.ba.window_size = 15;
