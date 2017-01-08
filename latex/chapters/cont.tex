@@ -33,9 +33,9 @@ Landmarks and their corresponding keypoints which passed these two filters are a
 
 \subsubsection{Bundle Adjustment}
 \label{ba_cont}
-After the new landmarks have been generated bundle adjustment occurs. The bundle adjustment has been implemented in a sliding window fashion. The bundle adjustment occurs at a set frequency over the frames within the sliding window. As depicted in \cref{fig:ba_concept} can both the size of the sliding window and the frequency of the bundle adjustment be adjusted according to the dataset. The pose of first frame of the sliding window will never be optimized in order to keep the the trajectory continuous.
+After the new landmarks have been generated bundle adjustment occurs. The bundle adjustment has been implemented in a sliding window fashion. The bundle adjustment occurs at a set frequency over the frames within the sliding window. As depicted in \cref{fig:ba_concept} can both the size of the sliding window and the frequency of the bundle adjustment be adjusted according to the dataset. The pose of the first frame of the sliding window is fixed in order to keep the the trajectory continuous.
 
-The only exception regarding the keyframes occurs if the pipeline has crashed. The bundle adjustment is then directly after the automatic reinitialization executed and the keyframes will be adjusted accordingly.
+The only exception regarding the keyframes occurs if the pipeline has crashed. The bundle adjustment is executed directly after the automatic reinitialization and the keyframes will be adjusted accordingly.
 
 \begin{figure}[!!h]
 	\centering
@@ -45,7 +45,7 @@ The only exception regarding the keyframes occurs if the pipeline has crashed. T
 \end{figure}
 
 \subsubsection{Reinitialization}
-The quality of the transformation matrix estimated by the p3p-RANSAC depends on the number of inlier landmarks. If there are enough inlier landmarks, the pose found by the p3p-RANSAC is a good estimation. However, if there are too few inlier landmarks, the estimated pose can be considered as too inaccurate for a further use. The fact that too few landmarks were found is a sign that the last few poses weren't good enough. It is therefore a good idea to discard some of the previous poses. The reinitialization discards the last \begin{math} n \end{math} poses and reinitializes the pipeline with the current image\begin{math} j \end{math} and the image \begin{math} j-(n+1) \end{math}. 
+The quality of the transformation matrix estimated by the p3p-RANSAC depends on the number of inlier landmarks. If there are enough inlier landmarks, the pose found by the p3p-RANSAC is a good estimation. However, if there are too few inlier landmarks, the estimated pose can be considered as too inaccurate for a further use. The fact that too few landmarks were found is a sign that the last few poses weren't good enough. It is therefore a good idea to discard some of the previous poses. The reinitialization discards the last \begin{math} n \end{math} poses and reinitializes the pipeline with the current image \begin{math} j \end{math} and the image \begin{math} j-(n+1) \end{math}. Then the pipline continous with these newly generated landmarks from pose $T_{WC_{j-n(1)}}$. The keypoint tracker is reinitialized as well and all old (and probably inacurate) candidate keypoints are discarded.
 
 \begin{figure}[ht]
 	\centering
