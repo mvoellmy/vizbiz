@@ -56,13 +56,13 @@ Impact of features) Here we describe it such as it runs best in our opinion.
 	\begin{tabular}{|l|c|c|c|c|c|}
 	\hline
 	\multicolumn{1}{|c|}{\textbf{Parameter / Dataset}} & \textbf{Kitti} & \textbf{Malaga} & \textbf{Parking} & \textbf{Poly-up} & \textbf{Poly-down} \\ \hline
-	\# landmarks reinit                                & 25             &                 & 80               & 50               & 50\\ \hline
-	\# min bearing angle {[}deg{]}                     & 1.4            &                 & 3.7              & 2                &
+	\# landmarks reinit                                & 65             &                 & 80               & 50               & 50\\ \hline
+	\# min bearing angle {[}deg{]}                     & 1.5            &                 & 3.7              & 2                &
 2\\ \hline
-	bearing angle threshold {[}\# landmarks{]}         & 180            &                 & 230              & 250              & 250\\ \hline
+	bearing angle threshold {[}\# landmarks{]}         & 230            &                 & 230              & 250              & 250\\ \hline
 	RANSAC tolerance {[}pixel{]}                       & 2              &                 & 2                & 3                &
 3\\ \hline
-	\# candidate keypoints in tracker                  & 1300           &                 & 1300             & 3500             & 3500\\ \hline
+	\# candidate keypoints in tracker                  & 1500           &                 & 1300             & 3500             & 3500\\ \hline
 	\end{tabular}
 	\caption{Key parameters chosen for every dataset}
 	\label{params_table}
@@ -73,11 +73,10 @@ This list will be removed once table is completed
 	\item Malaga @Milan
 \end{compactitem}
 	
-	
-\subsubsection{Runtime characteristics}
-\cref{runtime_table} summarizes the main runtime characteristics of the different datasets with our pipeline.\\
+\subsubsection{Run time characteristics}
+\cref{runtime_table} summarizes the main run time characteristics of the different datasets with our pipeline.\\
 
-The \textbf{parking dataset} performed fasted and had the best trajectory. Since we could not perform bundle adjustment, there is a slight drift of the estimated trajectory. However, the scene can also be nicely reconstructed in 3D from the point cloud generated (see \cref{parking_result_fig}).\\
+The \textbf{parking dataset} performed fastest and had the best trajectory. Since we could not perform bundle adjustment, there is a slight drift of the estimated trajectory. However, the scene can also be nicely reconstructed in 3D from the point cloud generated (see \cref{parking_result_fig}).\\
 
 The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also due to missing bundle adjustment and thus summing up errors. However, the first few curves are tackled relatively well.
 
@@ -87,10 +86,10 @@ The \textbf{Kitti dataset} starts well but suffers a lot from scale drift also d
 	\begin{tabular}{|l|c|c|c|c|c|}
 	\hline
 	\multicolumn{1}{|c|}{\textbf{Characteristics / Dataset}} & \textbf{Kitti} & \textbf{Malaga} & \textbf{Parking} & \textbf{Poly up} & \textbf{Poly down} \\ \hline
-	\# reinit required                                       &                &                 & 0                & 4 & 3  \\ \hline
-	\# average landmarks                                     &                &                 & $\sim$ 400       & $\sim$ 250 & $\sim$ 250 \\ \hline
-	Frame rate {[}Hz{]}                                      &                &                 & 3                & 1 & 1 \\ \hline
-	Trajectory quality                                       &                &                 & ++               & + & + \\ \hline
+	\# reinits required                                      & 23             &                 & 2                & 4 & 3  \\ \hline
+	\# average landmarks                                     & $\sim$350      &                 & $\sim$ 400       & $\sim$ 250 & $\sim$ 250 \\ \hline
+	Frame rate {[}Hz{]}                                      & 1.4            &                 & 2.6              & 1 & 1 \\ \hline
+	Trajectory quality                                       & +              &                 & ++               & + & + \\ \hline
 	\end{tabular}
 	\caption{Runtime characteristics}
 	\label{runtime_table}
