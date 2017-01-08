@@ -16,9 +16,14 @@ Transformation between frames are described by homogenous transformation matrice
 
 \subsubsection{Pipeline overview}
 
-As shown in \cref{img_flow_rough} the pipeline consists mainly of three parts, a bootstrap, the initialization and the continuous operation. In \cref{sec_init} and \cref{sec_cont_op} the initialisation and the continuous operation are described in detail.
+As shown in \cref{img_flow_rough} the pipeline consists mainly of three parts:
+\begin{compactenum}
+	\item Bootstraping (see \cref{sec_init})
+	\item Initialization (see (\cref{sec_init})
+	\item Continuous operation (see \cref{sec_cont_op})
+\end{compactenum}
 
-Milan is this flowchart up to date? If yes all good. :-)
+@Milan is this flowchart up to date? If yes all good. :-)
 
 \begin{figure}[ht]
 	\centering
@@ -33,7 +38,7 @@ Milan is this flowchart up to date? If yes all good. :-)
 \begin{compactitem}
 	\item Index of previous frame: $i$
 	\item Index of current frame: $j$
-	\item Index of frame for newly added keypoint: $first$
+	\item Index of frame for newly added candidate keypoint: $first$
 	\item Pose difference between previous to current frame: $T_{C_iC_j}$
 	\item $\left[u/v\right]$: Pixel coordinates
 	\item Query keypoints: Keypoints newly generated in frame $j$ 
@@ -45,9 +50,13 @@ Milan is this flowchart up to date? If yes all good. :-)
 The pipeline was designed in a modular way. Key algorithms are abstracted into self-contained functions, as described in the pipeline overview. Next to this 'functional programming' approach all the tuning variables (e.g. number of keypoints, bearing angle thresholds, etc.) were centrally aggregated in a parameter struct.\\
 For further insight please consult the function \code{loadParameters.m}.\\
 
-In order to run the visual odometry two launch procedures where implemented: For development and debug mode the main.m with default parameters can be executed. Numerous individual plots are displayed with insightful information about matching, inlier rejection and triangulation.\\
+In order to run the visual odometry two launch procedures where implemented:
+\begin{compactitem}
+	\item \textbf{Debug Mode:} For development and debug mode the main.m with default 		parameters can be executed. Numerous individual plots are displayed with insightful 		information about matching, inlier rejection and triangulation.
+	\item \textbf{Simple GUI:} Out of performance reasons a more compact and user-friendly display of the pipeline output was created with a GUI designed with the Matlab GUIDE application, see figure \cref{img_gui}. Only the most crucial entities, like number of landmarks, are visualized for intuitive understanding.\\
+\end {compactitem}
 
-Out of performance reasons a more compact and user-friendly display of the pipeline output was created with a GUI designed with the Matlab GUIDE application, see \cref{img_gui}. Only the most crucial entities, like number of triangulated keypoints, are visualized for intuitive understanding and easy handling.\\
+\textbf{How to run the GUI}
 Please follow the steps below to run the visual odometry through the GUI environment:
 \begin{compactenum}
 	\item adapt dataset paths in \code{loadParameters.m}
@@ -56,7 +65,7 @@ Please follow the steps below to run the visual odometry through the GUI environ
 	\item hit \textit{Run} to trigger the visual odometry\\
 \end{compactenum}
 
-For more advanced parameter tuning resort to changing the default parameters in \code{loadParameters.m}.
+Advanced parameter tuning can be achieved by changing the default parameters in \code{loadParameters.m}.
 
 %\@ Miro please add pic of gui during operation
 \begin{figure}[ht]
