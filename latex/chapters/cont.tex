@@ -16,7 +16,7 @@ In case a candidate keypoint could not be tracked it's whole track gets removed 
 In order to localize correctly (see \cref{ransac_cont}), a sufficient number of landmarks is required. If the number of landmarks in the current frame drops below a certain threshold, the 'triangulateNewLandmarks' function is called to generate new landmarks from the candidate keypoint tracks. To check, whether a candidate keypoint is ready for triangulation the bearing angle between it's first and it's current observation is calculated. This is done for every keypoint candidate. If the bearing angle of a candidate keypoint exceeds a certain threshold, it is removed from the keypoint tracker and a new landmark gets triangulated with the algorithm developed in exercise 4. The bearing angle threshold is adaptive to the number of remaining landmarks. The higher the number of remaining landmarks the higher the threshold. This ensures generation of new landmarks in case the filter starts to run out of landmarks but improves triangulation results once enough landmarks are in the pipeline.
 To filter outliers within the newly generated landmarks (e.g. from image noise) two checks are implemented:
 \begin{compactenum}
-	\item Spherical filter: Discard all landmarks which are not within a half sphere in front of the camera. This removes landmarks triangulated behind the camera which are prone to bad triangulation due to the large distance (and small baseline therefore).
+	\item Spherical filter: Already described in \cref{sub_sec_sphFilter}.
 	\item Reprojected error filter: Landmarks passed the spherical filter get reprojected into the current frame. If the reprojected point is too far apart from the candidate keypoint coordinates it is discarded.
 \end{compactenum}
 Landmarks and their corresponding keypoints which passed these two filters are appended to the existing landmarks and keypoints vectors and will be used during the next localization iteration.
@@ -26,12 +26,11 @@ Todo: @Miro
 Explain how it works - add to flowchart
 
 \subsubsection{Reinitialization}
-@Milan
-Explain how it works, and when it's needed
+The quality of the transformation matrix estimated by the p3p-RANSAC depends on the number of inlier landmarks. If there are enough inlier landmarks, the pose found by the p3p-RANSAC is a good estimation. However, if there are too few inlier landmarks, the estimated pose can be considered as too inaccurate for a further use. The fact that too few landmarks were found is a sign that the last few poses weren't good enough. It is therefore a good idea to discard some of the previous poses. The reinitialization discards the last \begin{math} n \end{math} poses and reinitializes the pipeline with the current image\begin{math} j \end{math} and the image \begin{math} j-(n+1) \end{math}. 
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics[width=0.8\textwidth]{cont_chart}
+	\includegraphics[width=0.8\textwidth]{cont/cont_chart}
 	\caption{Cont Flow chart}
 	\label{img_flow_cont}
 \end{figure}
