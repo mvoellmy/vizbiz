@@ -75,7 +75,7 @@ params.cont.show_inlier_matches = true;
 params.cont.plot_new_landmarks = false;
 
 % bundle adjustment
-params.cont.use_BA = true;
+params.cont.use_BA = false;
 params.cont.ba.frequency = 5;
 params.cont.ba.fix_view_ids = false;
 params.cont.ba.window_size = 15;
